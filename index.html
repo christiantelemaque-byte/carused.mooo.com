@@ -3,10 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CarUsed - Vehicle Database Report</title>
+    <title>CarUsed - Vehicle History Reports</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         :root {
             --primary-color: #0A2463;
@@ -16,6 +18,8 @@
             --heading-color: #1a202c;
             --text-color: #4a5568;
             --border-color: #e2e8f0;
+            --success-color: #10b981;
+            --danger-color: #ef4444;
         }
 
         * {
@@ -44,13 +48,13 @@
             font-weight: 500;
             letter-spacing: 0.5px;
             border-radius: 8px;
+            padding: 12px 30px;
+            font-size: 0.95rem;
         }
 
         .btn-primary {
             background-color: var(--primary-color);
             border-color: var(--primary-color);
-            padding: 12px 30px;
-            font-size: 0.95rem;
             box-shadow: 0 4px 6px rgba(10, 36, 99, 0.1);
         }
 
@@ -59,6 +63,17 @@
             border-color: #081c4a;
             transform: translateY(-3px);
             box-shadow: 0 7px 14px rgba(10, 36, 99, 0.2);
+        }
+
+        .btn-success {
+            background-color: var(--success-color);
+            border-color: var(--success-color);
+        }
+
+        .btn-success:hover {
+            background-color: #0da271;
+            border-color: #0da271;
+            transform: translateY(-3px);
         }
 
         .section-padding {
@@ -104,12 +119,21 @@
         .navbar-brand span {
             color: var(--secondary-color);
         }
+        .nav-link {
+            color: var(--heading-color) !important;
+            font-weight: 500;
+            margin: 0 10px;
+            transition: color 0.3s ease;
+        }
+        .nav-link:hover {
+            color: var(--secondary-color) !important;
+        }
 
         /* VIN Search Section */
         .vin-search-section {
             background: linear-gradient(135deg, var(--primary-color) 0%, #1a3a8f 100%);
             color: white;
-            padding: 60px 0;
+            padding: 100px 0;
             border-radius: 0 0 20px 20px;
         }
 
@@ -121,8 +145,14 @@
 
         .vin-search-container h1 {
             color: white;
-            font-size: 2.5rem;
-            margin-bottom: 15px;
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+
+        .vin-search-container p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 40px;
         }
 
         .vin-form {
@@ -133,15 +163,262 @@
 
         .vin-input {
             flex: 1;
-            padding: 15px 20px;
+            padding: 18px 25px;
             border: none;
             border-radius: 10px;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Payment Section */
+        .payment-section {
+            padding: 100px 0;
+            display: none;
+        }
+
+        .payment-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .payment-header h2 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .payment-header p {
+            font-size: 1.1rem;
+            color: var(--text-color);
+        }
+
+        .pricing-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .pricing-card {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            position: relative;
+            border: 2px solid transparent;
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+        }
+
+        .pricing-card.popular {
+            border-color: var(--secondary-color);
+        }
+
+        .popular-badge {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--secondary-color);
+            color: white;
+            padding: 8px 30px;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .pricing-card h3 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+        }
+
+        .price {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin: 20px 0;
+        }
+
+        .popular .price {
+            color: var(--secondary-color);
+        }
+
+        .pricing-features {
+            list-style: none;
+            padding: 0;
+            margin: 30px 0;
+            text-align: left;
+        }
+
+        .pricing-features li {
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+        }
+
+        .pricing-features li:last-child {
+            border-bottom: none;
+        }
+
+        .pricing-features i {
+            margin-right: 15px;
+            font-size: 1.2rem;
+        }
+
+        .feature-included i {
+            color: var(--success-color);
+        }
+
+        .feature-excluded i {
+            color: var(--danger-color);
+        }
+
+        .pricing-features span {
+            flex: 1;
+        }
+
+        /* Checkout Modal */
+        .checkout-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1050;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .checkout-content {
+            background: white;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .checkout-header {
+            background: var(--primary-color);
+            color: white;
+            padding: 25px;
+            border-radius: 15px 15px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .checkout-header h3 {
+            color: white;
+            margin: 0;
+        }
+
+        .close-checkout {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background 0.3s;
+        }
+
+        .close-checkout:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .checkout-body {
+            padding: 30px;
+        }
+
+        .payment-details {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+        }
+
+        .payment-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .payment-info:last-child {
+            margin-bottom: 0;
+        }
+
+        .payment-form .form-group {
+            margin-bottom: 20px;
+        }
+
+        .payment-form label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--heading-color);
+        }
+
+        .payment-form input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
             font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .payment-form input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .processing {
+            text-align: center;
+            padding: 40px 20px;
+            display: none;
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         /* Vehicle Report Section */
         .vehicle-report-section {
-            padding: 60px 0;
+            padding: 100px 0;
+            display: none;
         }
 
         .report-container {
@@ -154,20 +431,140 @@
         .report-header {
             background: var(--primary-color);
             color: white;
-            padding: 30px;
+            padding: 40px;
             text-align: center;
         }
 
         .report-header h2 {
             color: white;
             margin-bottom: 10px;
+            font-size: 2.5rem;
+        }
+
+        .report-header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
         }
 
         .report-body {
-            padding: 40px;
+            padding: 50px;
         }
 
-        /* Vehicle Overview */
+        /* How to Order Section */
+        .how-to-order-section {
+            padding: 100px 0;
+            background: white;
+        }
+
+        .steps-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
+        }
+
+        .step-card {
+            background: white;
+            padding: 40px 30px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            position: relative;
+            transition: transform 0.3s ease;
+        }
+
+        .step-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .step-number {
+            width: 60px;
+            height: 60px;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin: 0 auto 25px;
+        }
+
+        .step-card h4 {
+            margin-bottom: 15px;
+            color: var(--heading-color);
+        }
+
+        /* Contact Section */
+        .contact-section {
+            padding: 100px 0;
+            background: var(--bg-color);
+        }
+
+        .contact-form {
+            background: white;
+            padding: 50px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        }
+
+        .form-control {
+            padding: 15px;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(10, 36, 99, 0.1);
+        }
+
+        textarea.form-control {
+            min-height: 150px;
+            resize: vertical;
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--heading-color);
+            color: white;
+            padding: 60px 0 30px;
+            margin-top: 0;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .footer-links a {
+            color: #e2e8f0;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+            cursor: pointer;
+        }
+
+        .footer-links a:hover {
+            color: var(--secondary-color);
+        }
+
+        .footer-copyright {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #a0aec0;
+            font-size: 0.9rem;
+        }
+
+        /* Report Content Styling */
         .vehicle-overview {
             display: flex;
             gap: 40px;
@@ -200,19 +597,19 @@
 
         .info-card {
             background: #f8f9fa;
-            padding: 20px;
+            padding: 25px;
             border-radius: 10px;
             border-left: 4px solid var(--primary-color);
         }
 
         .info-card h5 {
             color: var(--primary-color);
-            margin-bottom: 10px;
-            font-size: 1.1rem;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
         }
 
         .info-card p {
-            margin-bottom: 8px;
+            margin-bottom: 12px;
             display: flex;
             justify-content: space-between;
         }
@@ -224,29 +621,33 @@
 
         .info-card span.value {
             color: var(--heading-color);
+            text-align: right;
         }
 
-        /* Data Sections */
         .data-section {
-            margin-bottom: 40px;
+            margin-bottom: 50px;
         }
 
         .data-section h4 {
             color: var(--primary-color);
             margin-bottom: 25px;
-            padding-bottom: 10px;
+            padding-bottom: 15px;
             border-bottom: 2px solid var(--border-color);
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 15px;
         }
 
         .data-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
         }
 
         .data-card {
             background: #f8f9fa;
-            padding: 25px;
+            padding: 30px;
             border-radius: 10px;
             transition: transform 0.3s ease;
         }
@@ -258,58 +659,66 @@
 
         .data-card h5 {
             color: var(--secondary-color);
-            margin-bottom: 15px;
+            margin-bottom: 20px;
             display: flex;
             align-items: center;
             gap: 10px;
-        }
-
-        .data-card h5 i {
             font-size: 1.2rem;
         }
 
         .data-item {
-            margin-bottom: 12px;
+            margin-bottom: 15px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .data-item:last-child {
+            border-bottom: none;
         }
 
         .data-item .label {
             font-weight: 600;
             color: var(--text-color);
+            flex: 1;
         }
 
         .data-item .value {
             color: var(--heading-color);
             text-align: right;
-            max-width: 60%;
+            flex: 1;
         }
 
-        /* History Cards */
         .history-cards {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
             margin-top: 20px;
         }
 
         .history-card {
             background: #f8f9fa;
-            padding: 25px;
+            padding: 30px;
             border-radius: 10px;
             border-top: 4px solid var(--secondary-color);
+            transition: transform 0.3s ease;
+        }
+
+        .history-card:hover {
+            transform: translateY(-5px);
         }
 
         .history-card h5 {
             color: var(--primary-color);
-            margin-bottom: 15px;
+            margin-bottom: 20px;
             display: flex;
             align-items: center;
             gap: 10px;
+            font-size: 1.2rem;
         }
 
-        /* Sales Records Table */
         .sales-table-container {
             margin-top: 20px;
             overflow-x: auto;
@@ -318,13 +727,13 @@
         .sales-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 15px;
+            margin-top: 20px;
         }
 
         .sales-table th {
             background-color: var(--primary-color);
             color: white;
-            padding: 15px;
+            padding: 18px;
             text-align: left;
             font-weight: 600;
             position: sticky;
@@ -332,7 +741,7 @@
         }
 
         .sales-table td {
-            padding: 15px;
+            padding: 18px;
             border-bottom: 1px solid var(--border-color);
             vertical-align: top;
         }
@@ -353,12 +762,12 @@
 
         .sales-seller {
             font-weight: 600;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
         }
 
         .sales-location {
             color: var(--text-color);
-            font-size: 0.9rem;
+            font-size: 0.95rem;
         }
 
         .sales-price {
@@ -369,30 +778,41 @@
 
         .sales-mileage {
             color: var(--text-color);
-            font-size: 0.9rem;
+            font-size: 0.95rem;
         }
 
-        /* Download Button */
+        /* Download Section */
         .download-section {
             text-align: center;
-            padding-top: 40px;
-            margin-top: 40px;
+            padding-top: 50px;
+            margin-top: 50px;
             border-top: 2px solid var(--border-color);
         }
 
-        /* PDF Generation Styles */
-        .pdf-container {
-            position: absolute;
-            left: -9999px;
-            width: 210mm;
-            background: white;
-            padding: 20mm;
+        /* Success Message */
+        .success-message {
+            background: linear-gradient(135deg, var(--success-color) 0%, #0da271 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 40px;
+            text-align: center;
+            display: none;
+        }
+
+        .success-message h4 {
+            color: white;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
         }
 
         /* Responsive */
         @media (max-width: 768px) {
             .vin-search-container h1 {
-                font-size: 2rem;
+                font-size: 2.2rem;
             }
             .vin-form {
                 flex-direction: column;
@@ -409,144 +829,459 @@
             .history-cards {
                 grid-template-columns: 1fr;
             }
-            .sales-table th,
-            .sales-table td {
-                padding: 10px;
-                font-size: 0.9rem;
+            .pricing-cards {
+                grid-template-columns: 1fr;
+            }
+            .checkout-content {
+                width: 95%;
+                margin: 20px;
+            }
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            .footer-links {
+                flex-direction: column;
+                align-items: center;
+                gap: 20px;
             }
         }
 
-        /* Print/PDF Styles */
-        @media print {
-            .navbar, .vin-search-section, .download-section {
-                display: none;
-            }
-            .report-container {
-                box-shadow: none;
-                border-radius: 0;
-            }
-            body {
-                padding-top: 0;
-                background: white;
-            }
+        /* Modal Styling */
+        .modal-content {
+            border-radius: 15px;
+            border: none;
+        }
+
+        .modal-header {
+            background: var(--primary-color);
+            color: white;
+            border-radius: 15px 15px 0 0;
+            padding: 25px 30px;
+        }
+
+        .modal-title {
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .modal-body {
+            padding: 30px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .btn-close {
+            background: transparent url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23fff'%3e%3cpath d='M.293.293a1 1 0 011.414 0L8 6.586 14.293.293a1 1 0 111.414 1.414L9.414 8l6.293 6.293a1 1 0 01-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 01-1.414-1.414L6.586 8 .293 1.707a1 1 0 010-1.414z'/%3e%3c/svg%3e") center/1em auto no-repeat;
+            opacity: 0.8;
+        }
+
+        .btn-close:hover {
+            opacity: 1;
         }
     </style>
-    <!-- PDF Generation Libraries -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg fixed-top">
         <div class="container">
             <a class="navbar-brand" href="#">Car<span>Used</span></a>
-            <div class="navbar-nav ms-auto">
-                <a class="nav-link" href="#">Vehicle Reports</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <div class="navbar-nav ms-auto">
+                    <a class="nav-link" href="#home">Home</a>
+                    <a class="nav-link" href="#how-to-order">How to Order</a>
+                    <a class="nav-link" href="#contact">Contact Us</a>
+                </div>
             </div>
         </div>
     </nav>
 
-    <!-- VIN Search Section -->
-    <section id="vin-search" class="vin-search-section">
-        <div class="container">
-            <div class="vin-search-container">
-                <h1>Vehicle Database Report</h1>
-                <p>Enter a VIN to view complete vehicle specifications and history</p>
-                
-                <div class="vin-form">
-                    <input type="text" class="vin-input" placeholder="Enter 17-character VIN" id="vinInput" value="JHLRW2H5XKX010064">
-                    <button class="btn btn-primary" id="searchVinBtn">Search Vehicle</button>
+    <!-- Home Section -->
+    <section id="home">
+        <!-- VIN Search Section -->
+        <div class="vin-search-section">
+            <div class="container">
+                <div class="vin-search-container">
+                    <h1>Get Your Vehicle History Report</h1>
+                    <p>Enter your VIN to check vehicle history and get detailed reports</p>
+                    
+                    <div class="vin-form">
+                        <input type="text" class="vin-input" placeholder="Enter 17-character VIN (e.g., JHLRW2H5XKX010064)" id="vinInput">
+                        <button class="btn btn-primary" id="searchVinBtn">
+                            <i class="fas fa-search"></i> Check Vehicle
+                        </button>
+                    </div>
+                    
+                    <p class="mt-3" style="opacity: 0.8;">Your VIN is located on your dashboard or driver's side door jamb</p>
                 </div>
             </div>
         </div>
     </section>
+
+    <!-- Payment Section -->
+    <section id="payment-section" class="payment-section">
+        <div class="container">
+            <div class="payment-header">
+                <h2>Select Your Report Type</h2>
+                <p>Choose the report that best fits your needs for VIN: <strong id="payment-vin"></strong></p>
+            </div>
+            
+            <div class="pricing-cards">
+                <div class="pricing-card">
+                    <h3>Regular Report</h3>
+                    <div class="price">$25</div>
+                    <p>Basic vehicle information and specifications</p>
+                    
+                    <ul class="pricing-features">
+                        <li class="feature-included">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Vehicle Specifications</span>
+                        </li>
+                        <li class="feature-included">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Basic History Check</span>
+                        </li>
+                        <li class="feature-included">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Dimensions & Weights</span>
+                        </li>
+                        <li class="feature-included">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Manufacturer Pricing</span>
+                        </li>
+                        <li class="feature-excluded">
+                            <i class="fas fa-times-circle"></i>
+                            <span>Accident History</span>
+                        </li>
+                        <li class="feature-excluded">
+                            <i class="fas fa-times-circle"></i>
+                            <span>Sales Records</span>
+                        </li>
+                        <li class="feature-excluded">
+                            <i class="fas fa-times-circle"></i>
+                            <span>Detailed Service History</span>
+                        </li>
+                    </ul>
+                    
+                    <button class="btn btn-outline-primary w-100 btn-select-plan" data-plan="regular" data-price="25">
+                        Select Regular Report
+                    </button>
+                </div>
+                
+                <div class="pricing-card popular">
+                    <div class="popular-badge">MOST POPULAR</div>
+                    <h3>Premium Report</h3>
+                    <div class="price">$100</div>
+                    <p>Complete vehicle history and detailed analysis</p>
+                    
+                    <ul class="pricing-features">
+                        <li class="feature-included">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Everything in Regular Report</span>
+                        </li>
+                        <li class="feature-included">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Complete Accident History</span>
+                        </li>
+                        <li class="feature-included">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Detailed Sales Records</span>
+                        </li>
+                        <li class="feature-included">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Theft & Title Records</span>
+                        </li>
+                        <li class="feature-included">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Service History</span>
+                        </li>
+                        <li class="feature-included">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Odometer Verification</span>
+                        </li>
+                        <li class="feature-included">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Priority Support</span>
+                        </li>
+                    </ul>
+                    
+                    <button class="btn btn-primary w-100 btn-select-plan" data-plan="premium" data-price="100">
+                        Select Premium Report
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Checkout Modal -->
+    <div class="checkout-modal" id="checkoutModal">
+        <div class="checkout-content">
+            <div class="checkout-header">
+                <h3>Complete Your Purchase</h3>
+                <button class="close-checkout" id="closeCheckout">&times;</button>
+            </div>
+            
+            <div class="checkout-body">
+                <div class="payment-details">
+                    <div class="payment-info">
+                        <span>VIN:</span>
+                        <span id="checkout-vin"></span>
+                    </div>
+                    <div class="payment-info">
+                        <span>Report Type:</span>
+                        <span id="checkout-plan"></span>
+                    </div>
+                    <div class="payment-info">
+                        <span>Amount:</span>
+                        <span id="checkout-price"></span>
+                    </div>
+                </div>
+                
+                <div class="payment-form" id="paymentForm">
+                    <div class="form-group">
+                        <label for="cardName">Name on Card</label>
+                        <input type="text" id="cardName" placeholder="John Doe" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="cardNumber">Card Number</label>
+                        <input type="text" id="cardNumber" placeholder="4242 4242 4242 4242" required>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="cardExpiry">Expiry Date</label>
+                            <input type="text" id="cardExpiry" placeholder="MM/YY" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="cardCVC">CVC</label>
+                            <input type="text" id="cardCVC" placeholder="123" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Email for Report</label>
+                        <input type="email" id="email" placeholder="you@example.com" required>
+                    </div>
+                    
+                    <button class="btn btn-success w-100" id="processPaymentBtn">
+                        <i class="fas fa-lock"></i> Pay Now
+                    </button>
+                </div>
+                
+                <div class="processing" id="processing">
+                    <div class="spinner"></div>
+                    <h4>Processing Payment</h4>
+                    <p>Please wait while we process your payment...</p>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Vehicle Report Section -->
     <section id="report-section" class="vehicle-report-section">
         <div class="container">
-            <div class="report-container" id="report-container">
+            <div class="success-message" id="successMessage">
+                <h4><i class="fas fa-check-circle"></i> Payment Successful!</h4>
+                <p>Your report is ready. You can view it below and download it as PDF.</p>
+            </div>
+            
+            <div class="report-container" id="reportContainer">
                 <div class="report-header">
-                    <h2 id="vehicle-title">Vehicle Report</h2>
-                    <p id="report-vin">VIN: JHLRW2H5XKX010064</p>
+                    <h2 id="vehicle-title">Vehicle History Report</h2>
+                    <p id="report-vin">VIN: Loading...</p>
+                    <p id="report-plan" style="font-size: 1rem; margin-top: 10px;"></p>
                 </div>
                 
-                <div class="report-body">
-                    <!-- Vehicle Overview -->
-                    <div class="vehicle-overview">
-                        <div class="vehicle-image-container">
-                            <img src="" alt="Vehicle Image" class="vehicle-image" id="vehicle-img">
-                        </div>
-                        
-                        <div class="vehicle-basic-info">
-                            <div class="basic-info-grid" id="basic-info-grid">
-                                <!-- Will be populated by JavaScript -->
+                <div class="report-body" id="reportBody">
+                    <!-- Will be populated by JavaScript after payment -->
+                </div>
+            </div>
+            
+            <div class="download-section">
+                <button class="btn btn-primary btn-lg" id="download-report-btn">
+                    <i class="fas fa-download"></i> Download Report as PDF
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- How to Order Section -->
+    <section id="how-to-order" class="how-to-order-section">
+        <div class="container">
+            <div class="section-title text-center">
+                <h2>How to Order</h2>
+                <p class="lead">Get your vehicle history report in 3 simple steps</p>
+            </div>
+            
+            <div class="steps-container">
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <h4>Enter Your VIN</h4>
+                    <p>Locate your 17-character Vehicle Identification Number on your dashboard, door jamb, or registration documents and enter it above.</p>
+                </div>
+                
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <h4>Select Report Type</h4>
+                    <p>Choose between our Regular Report ($25) for basic information or Premium Report ($100) for comprehensive history including accidents, sales records, and more.</p>
+                </div>
+                
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <h4>Complete Payment</h4>
+                    <p>Enter your payment information securely. Once payment is processed, your detailed vehicle report will be available immediately for viewing and download.</p>
+                </div>
+            </div>
+            
+            <div class="text-center mt-5">
+                <p class="mb-3"><strong>Note:</strong> All reports are delivered digitally. No physical copies are mailed.</p>
+                <a href="#home" class="btn btn-primary">Get Started Now</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="contact-section">
+        <div class="container">
+            <div class="section-title text-center">
+                <h2>Contact Us</h2>
+                <p class="lead">Have questions? Get in touch with our team</p>
+            </div>
+            
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="contact-form">
+                        <form id="contactForm" action="https://formspree.io/f/mqazwnyb" method="POST">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control" name="name" placeholder="Your Name" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <input type="email" class="form-control" name="email" placeholder="Your Email" required>
+                                </div>
                             </div>
-                        </div>
-                    </div>
-
-                    <!-- Vehicle Specifications -->
-                    <div class="data-section">
-                        <h4><i class="fas fa-car"></i> Vehicle Specifications</h4>
-                        <div class="data-grid" id="specifications-grid">
-                            <!-- Will be populated by JavaScript -->
-                        </div>
-                    </div>
-
-                    <!-- Dimensions & Weights -->
-                    <div class="data-section">
-                        <h4><i class="fas fa-ruler-combined"></i> Dimensions & Weights</h4>
-                        <div class="data-grid" id="dimensions-grid">
-                            <!-- Will be populated by JavaScript -->
-                        </div>
-                    </div>
-
-                    <!-- Pricing Information -->
-                    <div class="data-section">
-                        <h4><i class="fas fa-dollar-sign"></i> Pricing Information</h4>
-                        <div class="data-grid" id="pricing-grid">
-                            <!-- Will be populated by JavaScript -->
-                        </div>
-                    </div>
-
-                    <!-- Vehicle History -->
-                    <div class="data-section">
-                        <h4><i class="fas fa-history"></i> Vehicle History</h4>
-                        <div class="history-cards" id="history-cards">
-                            <!-- Will be populated by JavaScript -->
-                        </div>
-                    </div>
-
-                    <!-- Sales Records -->
-                    <div class="data-section">
-                        <h4><i class="fas fa-chart-line"></i> Sales Records</h4>
-                        <div class="sales-table-container" id="sales-table-container">
-                            <!-- Will be populated by JavaScript -->
-                        </div>
-                    </div>
-
-                    <!-- Download Section -->
-                    <div class="download-section">
-                        <button class="btn btn-primary btn-lg" id="download-report-btn">
-                            <i class="fas fa-download"></i> Download Complete Report (PDF)
-                        </button>
-                        <div class="mt-3">
-                            <div class="spinner-border text-primary d-none" role="status" id="pdf-spinner">
-                                <span class="visually-hidden">Generating PDF...</span>
+                            
+                            <input type="text" class="form-control" name="subject" placeholder="Subject" required>
+                            
+                            <textarea class="form-control" name="message" placeholder="Your Message" required></textarea>
+                            
+                            <input type="hidden" name="_replyto" value="christiantelemaque@gmail.com">
+                            <input type="hidden" name="_subject" value="New Contact Form Submission from CarUsed">
+                            
+                            <div class="text-center">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-paper-plane"></i> Send Message
+                                </button>
                             </div>
-                            <p class="text-muted mt-2" id="pdf-status"></p>
-                        </div>
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- PDF Generation Container (hidden) -->
-    <div id="pdf-container" class="pdf-container"></div>
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-links">
+                <a href="#" data-bs-toggle="modal" data-bs-target="#privacyModal">Privacy Policy</a>
+                <a href="#" data-bs-toggle="modal" data-bs-target="#refundModal">Refund Policy</a>
+                <a href="#how-to-order">Features</a>
+                <a href="#contact">Contact Us</a>
+            </div>
+            
+            <div class="footer-copyright">
+                <p>&copy; 2024 CarUsed. All rights reserved. | Vehicle reports are for informational purposes only.</p>
+            </div>
+        </div>
+    </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Refund Policy Modal -->
+    <div class="modal fade" id="refundModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Refund Policy</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <h4>Digital Product Refund Policy</h4>
+                    <p><strong>Last Updated: January 1, 2024</strong></p>
+                    
+                    <h5 class="mt-4">1. No Refunds for Digital Downloads</h5>
+                    <p>Due to the nature of digital products, all sales of vehicle history reports are final. Once a report has been accessed, downloaded, or delivered via email, no refunds will be issued under any circumstances.</p>
+                    
+                    <h5 class="mt-4">2. Product Description</h5>
+                    <p>We provide detailed descriptions of our Regular ($25) and Premium ($100) reports on our website. Customers are responsible for reviewing these descriptions before purchase. Refunds will not be granted based on customer expectations that differ from the product description.</p>
+                    
+                    <h5 class="mt-4">3. Technical Issues</h5>
+                    <p>If you experience technical difficulties accessing your report, please contact our support team at support@carused.com. We will work to resolve any legitimate technical issues but cannot issue refunds for reports that have been successfully delivered to your email address.</p>
+                    
+                    <h5 class="mt-4">4. Data Accuracy Disclaimer</h5>
+                    <p>Our reports compile information from various sources. While we strive for accuracy, we cannot guarantee the completeness or accuracy of the information provided. Refunds will not be issued based on the content or accuracy of the information in reports.</p>
+                    
+                    <h5 class="mt-4">5. Unauthorized Purchases</h5>
+                    <p>If you believe your purchase was unauthorized, you must contact us within 24 hours of the purchase date. We will investigate and may issue a refund at our discretion if the claim is validated.</p>
+                    
+                    <h5 class="mt-4">6. Customer Responsibility</h5>
+                    <p>Customers are responsible for ensuring they enter the correct VIN number before purchase. No refunds will be issued for reports generated with incorrect VIN numbers provided by the customer.</p>
+                    
+                    <h5 class="mt-4">7. Contact Information</h5>
+                    <p>For any questions about this policy, please contact us at:</p>
+                    <ul>
+                        <li>Email: support@carused.com</li>
+                        <li>Phone: (555) 123-4567</li>
+                        <li>Business Hours: Monday-Friday, 9AM-5PM EST</li>
+                    </ul>
+                    
+                    <div class="alert alert-warning mt-4">
+                        <strong>Important:</strong> By purchasing any report from CarUsed, you acknowledge and agree to this no-refund policy for digital products.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Privacy Policy Modal -->
+    <div class="modal fade" id="privacyModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Privacy Policy</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <h4>Privacy Policy</h4>
+                    <p><strong>Last Updated: January 1, 2024</strong></p>
+                    <p>CarUsed respects your privacy and is committed to protecting your personal data. This privacy policy will inform you about how we look after your personal data when you visit our website and tell you about your privacy rights.</p>
+                    
+                    <h5 class="mt-4">Information We Collect</h5>
+                    <p>We collect information you provide directly to us, such as when you request a vehicle report, create an account, or contact us for support.</p>
+                    
+                    <h5 class="mt-4">How We Use Your Information</h5>
+                    <p>We use the information we collect to provide, maintain, and improve our services, to process transactions, and to communicate with you.</p>
+                    
+                    <h5 class="mt-4">Data Security</h5>
+                    <p>We implement appropriate technical and organizational measures to protect your personal data against unauthorized access, alteration, disclosure, or destruction.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
-        const { jsPDF } = window.jspdf;
+        // Add Bootstrap JS for modals and navbar toggle
+        const bootstrapScript = document.createElement('script');
+        bootstrapScript.src = 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js';
+        document.head.appendChild(bootstrapScript);
 
         // VEHICLE DATABASE WITH SALES RECORDS
         const vehicleDatabase = {
@@ -635,18 +1370,29 @@
         // DOM Elements
         const vinInput = document.getElementById('vinInput');
         const searchVinBtn = document.getElementById('searchVinBtn');
+        const paymentSection = document.getElementById('payment-section');
+        const paymentVin = document.getElementById('payment-vin');
+        const checkoutModal = document.getElementById('checkoutModal');
+        const closeCheckout = document.getElementById('closeCheckout');
+        const checkoutVin = document.getElementById('checkout-vin');
+        const checkoutPlan = document.getElementById('checkout-plan');
+        const checkoutPrice = document.getElementById('checkout-price');
+        const processPaymentBtn = document.getElementById('processPaymentBtn');
+        const paymentForm = document.getElementById('paymentForm');
+        const processing = document.getElementById('processing');
+        const reportSection = document.getElementById('report-section');
+        const successMessage = document.getElementById('successMessage');
         const vehicleTitle = document.getElementById('vehicle-title');
         const reportVin = document.getElementById('report-vin');
-        const vehicleImg = document.getElementById('vehicle-img');
-        const basicInfoGrid = document.getElementById('basic-info-grid');
-        const specificationsGrid = document.getElementById('specifications-grid');
-        const dimensionsGrid = document.getElementById('dimensions-grid');
-        const pricingGrid = document.getElementById('pricing-grid');
-        const historyCards = document.getElementById('history-cards');
-        const salesTableContainer = document.getElementById('sales-table-container');
+        const reportPlan = document.getElementById('report-plan');
+        const reportBody = document.getElementById('reportBody');
         const downloadReportBtn = document.getElementById('download-report-btn');
-        const pdfSpinner = document.getElementById('pdf-spinner');
-        const pdfStatus = document.getElementById('pdf-status');
+
+        // State variables
+        let currentVin = '';
+        let currentPlan = '';
+        let currentPrice = 0;
+        let currentVehicle = null;
 
         // Format currency
         function formatCurrency(amount) {
@@ -659,6 +1405,12 @@
             }).format(amount);
         }
 
+        // Format number with units
+        function formatNumber(value, unit = '') {
+            if (value === null || value === undefined || value === 'N/A') return 'N/A';
+            return `${value.toLocaleString()}${unit ? ' ' + unit : ''}`;
+        }
+
         // Format date
         function formatDate(dateString) {
             const date = new Date(dateString);
@@ -669,331 +1421,549 @@
             });
         }
 
+        // Validate VIN
+        function validateVIN(vin) {
+            return vin.length === 17 && /^[A-HJ-NPR-Z0-9]{17}$/i.test(vin);
+        }
+
+        // Show payment options
+        function showPaymentOptions(vin) {
+            if (validateVIN(vin)) {
+                currentVin = vin.toUpperCase();
+                paymentVin.textContent = currentVin;
+                paymentSection.style.display = 'block';
+                
+                // Scroll to payment section
+                paymentSection.scrollIntoView({ behavior: 'smooth' });
+            } else {
+                alert('Please enter a valid 17-character VIN. VIN should contain only letters and numbers (except I, O, Q).');
+            }
+        }
+
+        // Show checkout modal
+        function showCheckoutModal(plan, price) {
+            currentPlan = plan;
+            currentPrice = price;
+            
+            checkoutVin.textContent = currentVin;
+            checkoutPlan.textContent = plan.charAt(0).toUpperCase() + plan.slice(1) + ' Report';
+            checkoutPrice.textContent = formatCurrency(price);
+            
+            checkoutModal.style.display = 'flex';
+        }
+
+        // Process payment
+        function processPayment() {
+            // Hide form, show processing
+            paymentForm.style.display = 'none';
+            processing.style.display = 'block';
+            
+            // Simulate payment processing
+            setTimeout(() => {
+                // Simulate successful payment
+                checkoutModal.style.display = 'none';
+                processing.style.display = 'none';
+                paymentForm.style.display = 'block';
+                
+                // Reset form
+                document.getElementById('cardName').value = '';
+                document.getElementById('cardNumber').value = '';
+                document.getElementById('cardExpiry').value = '';
+                document.getElementById('cardCVC').value = '';
+                document.getElementById('email').value = '';
+                
+                // Show success and report
+                showVehicleReport();
+            }, 2000);
+        }
+
         // Display vehicle report
-        function displayVehicleReport(vin) {
-            const vehicle = vehicleDatabase[vin];
+        function showVehicleReport() {
+            const vehicle = vehicleDatabase[currentVin];
             
             if (!vehicle) {
                 alert('Vehicle not found in database');
                 return;
             }
 
+            currentVehicle = vehicle;
+            
+            // Show success message
+            successMessage.style.display = 'block';
+            
             // Update header
             vehicleTitle.textContent = `${vehicle.year} ${vehicle.makeModel}`;
-            reportVin.textContent = `VIN: ${vin}`;
-            vehicleImg.src = vehicle.image;
+            reportVin.textContent = `VIN: ${currentVin}`;
+            reportPlan.textContent = `Report Type: ${currentPlan.charAt(0).toUpperCase() + currentPlan.slice(1)} Report | Price: ${formatCurrency(currentPrice)}`;
+            
+            // Generate report based on plan
+            let reportHTML = '';
+            
+            if (currentPlan === 'regular') {
+                reportHTML = generateRegularReport(vehicle);
+            } else {
+                reportHTML = generatePremiumReport(vehicle);
+            }
+            
+            reportBody.innerHTML = reportHTML;
+            
+            // Show report section
+            reportSection.style.display = 'block';
+            
+            // Scroll to report
+            reportSection.scrollIntoView({ behavior: 'smooth' });
+        }
 
-            // Basic Information
-            basicInfoGrid.innerHTML = `
-                <div class="info-card">
-                    <h5>Vehicle Identification</h5>
-                    <p><span class="label">Make & Model:</span> <span class="value">${vehicle.makeModel}</span></p>
-                    <p><span class="label">Year:</span> <span class="value">${vehicle.year}</span></p>
-                    <p><span class="label">Color:</span> <span class="value">${vehicle.color}</span></p>
-                    <p><span class="label">VIN:</span> <span class="value">${vin}</span></p>
+        // Generate regular report HTML
+        function generateRegularReport(vehicle) {
+            return `
+                <!-- Vehicle Overview -->
+                <div class="vehicle-overview">
+                    <div class="vehicle-image-container">
+                        <img src="${vehicle.image}" alt="Vehicle Image" class="vehicle-image">
+                    </div>
+                    
+                    <div class="vehicle-basic-info">
+                        <div class="basic-info-grid">
+                            <div class="info-card">
+                                <h5>Vehicle Identification</h5>
+                                <p><span class="label">Make & Model:</span> <span class="value">${vehicle.makeModel}</span></p>
+                                <p><span class="label">Year:</span> <span class="value">${vehicle.year}</span></p>
+                                <p><span class="label">Color:</span> <span class="value">${vehicle.color}</span></p>
+                                <p><span class="label">VIN:</span> <span class="value">${currentVin}</span></p>
+                            </div>
+                            <div class="info-card">
+                                <h5>Trim & Origin</h5>
+                                <p><span class="label">Trim Level:</span> <span class="value">${vehicle.trim}</span></p>
+                                <p><span class="label">Short Trim:</span> <span class="value">${vehicle.shortTrim}</span></p>
+                                <p><span class="label">Country:</span> <span class="value">${vehicle.countryOfOrigin}</span></p>
+                                <p><span class="label">City:</span> <span class="value">${vehicle.cityOfOrigin}</span></p>
+                            </div>
+                            <div class="info-card">
+                                <h5>Engine & Performance</h5>
+                                <p><span class="label">Engine:</span> <span class="value">${vehicle.engine}</span></p>
+                                <p><span class="label">Transmission:</span> <span class="value">${vehicle.transmission}</span></p>
+                                <p><span class="label">Fuel Type:</span> <span class="value">${vehicle.fuel}</span></p>
+                                <p><span class="label">Fuel Economy:</span> <span class="value">${vehicle.cityMileage}/${vehicle.highwayMileage} MPG</span></p>
+                            </div>
+                            <div class="info-card">
+                                <h5>Key Specifications</h5>
+                                <p><span class="label">Vehicle Type:</span> <span class="value">${vehicle.vehicleType}</span></p>
+                                <p><span class="label">Drivetrain:</span> <span class="value">${vehicle.drivenWheels}</span></p>
+                                <p><span class="label">Doors:</span> <span class="value">${vehicle.doors}</span></p>
+                                <p><span class="label">Seating:</span> <span class="value">${vehicle.standardSeating}${vehicle.optionalSeating ? '+' + vehicle.optionalSeating : ''}</span></p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="info-card">
-                    <h5>Trim & Origin</h5>
-                    <p><span class="label">Trim Level:</span> <span class="value">${vehicle.trim}</span></p>
-                    <p><span class="label">Short Trim:</span> <span class="value">${vehicle.shortTrim}</span></p>
-                    <p><span class="label">Country:</span> <span class="value">${vehicle.countryOfOrigin}</span></p>
-                    <p><span class="label">City:</span> <span class="value">${vehicle.cityOfOrigin}</span></p>
-                </div>
-                <div class="info-card">
-                    <h5>Engine & Performance</h5>
-                    <p><span class="label">Engine:</span> <span class="value">${vehicle.engine}</span></p>
-                    <p><span class="label">Transmission:</span> <span class="value">${vehicle.transmission}</span></p>
-                    <p><span class="label">Fuel Type:</span> <span class="value">${vehicle.fuel}</span></p>
-                    <p><span class="label">Fuel Economy:</span> <span class="value">${vehicle.cityMileage}/${vehicle.highwayMileage} MPG</span></p>
-                </div>
-                <div class="info-card">
-                    <h5>Key Specifications</h5>
-                    <p><span class="label">Vehicle Type:</span> <span class="value">${vehicle.vehicleType}</span></p>
-                    <p><span class="label">Drivetrain:</span> <span class="value">${vehicle.drivenWheels}</span></p>
-                    <p><span class="label">Doors:</span> <span class="value">${vehicle.doors}</span></p>
-                    <p><span class="label">Seating:</span> <span class="value">${vehicle.standardSeating}${vehicle.optionalSeating ? '+' + vehicle.optionalSeating : ''}</span></p>
-                </div>
-            `;
 
-            // Vehicle Specifications
-            specificationsGrid.innerHTML = `
-                <div class="data-card">
-                    <h5><i class="fas fa-cogs"></i> Technical Specs</h5>
-                    <div class="data-item"><span class="label">Engine Type:</span> <span class="value">${vehicle.engine}</span></div>
-                    <div class="data-item"><span class="label">Transmission:</span> <span class="value">${vehicle.transmission}</span></div>
-                    <div class="data-item"><span class="label">Drivetrain:</span> <span class="value">${vehicle.drivenWheels}</span></div>
-                    <div class="data-item"><span class="label">Braking System:</span> <span class="value">${vehicle.antiBrakeSystem}</span></div>
-                    <div class="data-item"><span class="label">Steering Type:</span> <span class="value">${vehicle.steeringType}</span></div>
+                <!-- Vehicle Specifications -->
+                <div class="data-section">
+                    <h4><i class="fas fa-car"></i> Vehicle Specifications</h4>
+                    <div class="data-grid">
+                        <div class="data-card">
+                            <h5><i class="fas fa-cogs"></i> Technical Specs</h5>
+                            <div class="data-item"><span class="label">Engine Type:</span> <span class="value">${vehicle.engine}</span></div>
+                            <div class="data-item"><span class="label">Transmission:</span> <span class="value">${vehicle.transmission}</span></div>
+                            <div class="data-item"><span class="label">Drivetrain:</span> <span class="value">${vehicle.drivenWheels}</span></div>
+                            <div class="data-item"><span class="label">Braking System:</span> <span class="value">${vehicle.antiBrakeSystem}</span></div>
+                            <div class="data-item"><span class="label">Steering Type:</span> <span class="value">${vehicle.steeringType}</span></div>
+                        </div>
+                        <div class="data-card">
+                            <h5><i class="fas fa-gas-pump"></i> Fuel & Efficiency</h5>
+                            <div class="data-item"><span class="label">Fuel Type:</span> <span class="value">${vehicle.fuel}</span></div>
+                            <div class="data-item"><span class="label">Fuel Capacity:</span> <span class="value">${vehicle.fuelCapacity} gallons</span></div>
+                            <div class="data-item"><span class="label">City MPG:</span> <span class="value">${vehicle.cityMileage}</span></div>
+                            <div class="data-item"><span class="label">Highway MPG:</span> <span class="value">${vehicle.highwayMileage}</span></div>
+                            <div class="data-item"><span class="label">Vehicle Category:</span> <span class="value">${vehicle.vehicleCategory}</span></div>
+                        </div>
+                        <div class="data-card">
+                            <h5><i class="fas fa-info-circle"></i> Vehicle Details</h5>
+                            <div class="data-item"><span class="label">Vehicle Style:</span> <span class="value">${vehicle.vehicleStyle}</span></div>
+                            <div class="data-item"><span class="label">Vehicle Size:</span> <span class="value">${vehicle.vehicleSize}</span></div>
+                            <div class="data-item"><span class="label">Vehicle Type:</span> <span class="value">${vehicle.vehicleType}</span></div>
+                            <div class="data-item"><span class="label">Trim Variations:</span> <span class="value">${vehicle.trimVariations}</span></div>
+                            <div class="data-item"><span class="label">Country of Origin:</span> <span class="value">${vehicle.countryOfOrigin}</span></div>
+                        </div>
+                    </div>
                 </div>
-                <div class="data-card">
-                    <h5><i class="fas fa-gas-pump"></i> Fuel & Efficiency</h5>
-                    <div class="data-item"><span class="label">Fuel Type:</span> <span class="value">${vehicle.fuel}</span></div>
-                    <div class="data-item"><span class="label">Fuel Capacity:</span> <span class="value">${vehicle.fuelCapacity} gallons</span></div>
-                    <div class="data-item"><span class="label">City MPG:</span> <span class="value">${vehicle.cityMileage}</span></div>
-                    <div class="data-item"><span class="label">Highway MPG:</span> <span class="value">${vehicle.highwayMileage}</span></div>
-                    <div class="data-item"><span class="label">Vehicle Category:</span> <span class="value">${vehicle.vehicleCategory}</span></div>
-                </div>
-                <div class="data-card">
-                    <h5><i class="fas fa-info-circle"></i> Vehicle Details</h5>
-                    <div class="data-item"><span class="label">Vehicle Style:</span> <span class="value">${vehicle.vehicleStyle}</span></div>
-                    <div class="data-item"><span class="label">Vehicle Size:</span> <span class="value">${vehicle.vehicleSize}</span></div>
-                    <div class="data-item"><span class="label">Vehicle Type:</span> <span class="value">${vehicle.vehicleType}</span></div>
-                    <div class="data-item"><span class="label">Trim Variations:</span> <span class="value">${vehicle.trimVariations}</span></div>
-                    <div class="data-item"><span class="label">Country of Origin:</span> <span class="value">${vehicle.countryOfOrigin}</span></div>
-                </div>
-            `;
 
-            // Dimensions & Weights
-            dimensionsGrid.innerHTML = `
-                <div class="data-card">
-                    <h5><i class="fas fa-weight-hanging"></i> Weights</h5>
-                    <div class="data-item"><span class="label">Curb Weight:</span> <span class="value">${vehicle.curbWeight.toLocaleString()} lbs</span></div>
-                    <div class="data-item"><span class="label">Gross Weight:</span> <span class="value">${vehicle.grossWeight.toLocaleString()} lbs</span></div>
+                <!-- Dimensions & Weights -->
+                <div class="data-section">
+                    <h4><i class="fas fa-ruler-combined"></i> Dimensions & Weights</h4>
+                    <div class="data-grid">
+                        <div class="data-card">
+                            <h5><i class="fas fa-weight-hanging"></i> Weights</h5>
+                            <div class="data-item"><span class="label">Curb Weight:</span> <span class="value">${formatNumber(vehicle.curbWeight, 'lbs')}</span></div>
+                            <div class="data-item"><span class="label">Gross Weight:</span> <span class="value">${formatNumber(vehicle.grossWeight, 'lbs')}</span></div>
+                        </div>
+                        <div class="data-card">
+                            <h5><i class="fas fa-ruler-vertical"></i> Exterior Dimensions</h5>
+                            <div class="data-item"><span class="label">Length:</span> <span class="value">${vehicle.overallLength} in</span></div>
+                            <div class="data-item"><span class="label">Width:</span> <span class="value">${vehicle.overallWidth} in</span></div>
+                            <div class="data-item"><span class="label">Height:</span> <span class="value">${vehicle.overallHeight} in</span></div>
+                        </div>
+                        <div class="data-card">
+                            <h5><i class="fas fa-users"></i> Interior & Capacity</h5>
+                            <div class="data-item"><span class="label">Standard Seating:</span> <span class="value">${vehicle.standardSeating}</span></div>
+                            <div class="data-item"><span class="label">Optional Seating:</span> <span class="value">${vehicle.optionalSeating || 'N/A'}</span></div>
+                            <div class="data-item"><span class="label">Doors:</span> <span class="value">${vehicle.doors}</span></div>
+                            <div class="data-item"><span class="label">Fuel Capacity:</span> <span class="value">${vehicle.fuelCapacity} gal</span></div>
+                        </div>
+                    </div>
                 </div>
-                <div class="data-card">
-                    <h5><i class="fas fa-ruler-vertical"></i> Exterior Dimensions</h5>
-                    <div class="data-item"><span class="label">Length:</span> <span class="value">${vehicle.overallLength} in</span></div>
-                    <div class="data-item"><span class="label">Width:</span> <span class="value">${vehicle.overallWidth} in</span></div>
-                    <div class="data-item"><span class="label">Height:</span> <span class="value">${vehicle.overallHeight} in</span></div>
-                </div>
-                <div class="data-card">
-                    <h5><i class="fas fa-users"></i> Interior & Capacity</h5>
-                    <div class="data-item"><span class="label">Standard Seating:</span> <span class="value">${vehicle.standardSeating}</span></div>
-                    <div class="data-item"><span class="label">Optional Seating:</span> <span class="value">${vehicle.optionalSeating || 'N/A'}</span></div>
-                    <div class="data-item"><span class="label">Doors:</span> <span class="value">${vehicle.doors}</span></div>
-                    <div class="data-item"><span class="label">Fuel Capacity:</span> <span class="value">${vehicle.fuelCapacity} gal</span></div>
-                </div>
-            `;
 
-            // Pricing Information
-            pricingGrid.innerHTML = `
-                <div class="data-card">
-                    <h5><i class="fas fa-tag"></i> Manufacturer Pricing</h5>
-                    <div class="data-item"><span class="label">MSRP:</span> <span class="value">${formatCurrency(vehicle.msrp)}</span></div>
-                    <div class="data-item"><span class="label">Invoice Price:</span> <span class="value">${formatCurrency(vehicle.invoicePrice)}</span></div>
-                    <div class="data-item"><span class="label">Delivery Charges:</span> <span class="value">${formatCurrency(vehicle.deliveryCharges)}</span></div>
+                <!-- Pricing Information -->
+                <div class="data-section">
+                    <h4><i class="fas fa-dollar-sign"></i> Pricing Information</h4>
+                    <div class="data-grid">
+                        <div class="data-card">
+                            <h5><i class="fas fa-tag"></i> Manufacturer Pricing</h5>
+                            <div class="data-item"><span class="label">MSRP:</span> <span class="value">${formatCurrency(vehicle.msrp)}</span></div>
+                            <div class="data-item"><span class="label">Invoice Price:</span> <span class="value">${formatCurrency(vehicle.invoicePrice)}</span></div>
+                            <div class="data-item"><span class="label">Delivery Charges:</span> <span class="value">${formatCurrency(vehicle.deliveryCharges)}</span></div>
+                        </div>
+                    </div>
                 </div>
-            `;
-
-            // Vehicle History
-            historyCards.innerHTML = `
-                <div class="history-card">
-                    <h5><i class="fas fa-car-crash"></i> Accident History</h5>
-                    <p>${vehicle.accidentHistory}</p>
-                </div>
-                <div class="history-card">
-                    <h5><i class="fas fa-file-contract"></i> Title Records</h5>
-                    <p>${vehicle.titleRecords}</p>
-                </div>
-                <div class="history-card">
-                    <h5><i class="fas fa-tachometer-alt"></i> Odometer Readings</h5>
-                    <p>${vehicle.odometerReadings}</p>
-                </div>
-                <div class="history-card">
-                    <h5><i class="fas fa-wrench"></i> Service History</h5>
-                    <p>${vehicle.serviceHistory}</p>
-                </div>
-                <div class="history-card">
-                    <h5><i class="fas fa-shield-alt"></i> Theft Records</h5>
-                    <p>${vehicle.theftRecords}</p>
-                </div>
-            `;
-
-            // Sales Records Table
-            salesTableContainer.innerHTML = `
-                <div class="sales-table-container">
-                    <table class="sales-table">
-                        <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>Seller & Location</th>
-                                <th>Listing Price</th>
-                                <th>Details</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${vehicle.salesRecords.map(record => `
-                                <tr>
-                                    <td class="sales-date">${formatDate(record.date)}</td>
-                                    <td>
-                                        <div class="sales-seller">${record.seller}</div>
-                                        <div class="sales-location">${record.location}</div>
-                                    </td>
-                                    <td class="sales-price">${formatCurrency(record.price)}</td>
-                                    <td>
-                                        <div class="sales-mileage">Mileage: ${record.mileage}</div>
-                                        <div class="sales-color">Color: ${record.color}</div>
-                                    </td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
+                
+                <div class="alert alert-info mt-4">
+                    <i class="fas fa-info-circle"></i> 
+                    <strong>Upgrade to Premium Report for $100 to get:</strong> Complete accident history, detailed sales records, theft & title records, service history, and odometer verification.
                 </div>
             `;
         }
 
-        // Generate PDF from the report
-        async function generatePDF(vin) {
-            try {
-                pdfSpinner.classList.remove('d-none');
-                pdfStatus.textContent = 'Preparing PDF...';
-                
-                const vehicle = vehicleDatabase[vin];
-                if (!vehicle) {
-                    throw new Error('Vehicle not found');
-                }
+        // Generate premium report HTML
+        function generatePremiumReport(vehicle) {
+            return `
+                <!-- Vehicle Overview -->
+                <div class="vehicle-overview">
+                    <div class="vehicle-image-container">
+                        <img src="${vehicle.image}" alt="Vehicle Image" class="vehicle-image">
+                    </div>
+                    
+                    <div class="vehicle-basic-info">
+                        <div class="basic-info-grid">
+                            <div class="info-card">
+                                <h5>Vehicle Identification</h5>
+                                <p><span class="label">Make & Model:</span> <span class="value">${vehicle.makeModel}</span></p>
+                                <p><span class="label">Year:</span> <span class="value">${vehicle.year}</span></p>
+                                <p><span class="label">Color:</span> <span class="value">${vehicle.color}</span></p>
+                                <p><span class="label">VIN:</span> <span class="value">${currentVin}</span></p>
+                            </div>
+                            <div class="info-card">
+                                <h5>Trim & Origin</h5>
+                                <p><span class="label">Trim Level:</span> <span class="value">${vehicle.trim}</span></p>
+                                <p><span class="label">Short Trim:</span> <span class="value">${vehicle.shortTrim}</span></p>
+                                <p><span class="label">Country:</span> <span class="value">${vehicle.countryOfOrigin}</span></p>
+                                <p><span class="label">City:</span> <span class="value">${vehicle.cityOfOrigin}</span></p>
+                            </div>
+                            <div class="info-card">
+                                <h5>Engine & Performance</h5>
+                                <p><span class="label">Engine:</span> <span class="value">${vehicle.engine}</span></p>
+                                <p><span class="label">Transmission:</span> <span class="value">${vehicle.transmission}</span></p>
+                                <p><span class="label">Fuel Type:</span> <span class="value">${vehicle.fuel}</span></p>
+                                <p><span class="label">Fuel Economy:</span> <span class="value">${vehicle.cityMileage}/${vehicle.highwayMileage} MPG</span></p>
+                            </div>
+                            <div class="info-card">
+                                <h5>Key Specifications</h5>
+                                <p><span class="label">Vehicle Type:</span> <span class="value">${vehicle.vehicleType}</span></p>
+                                <p><span class="label">Drivetrain:</span> <span class="value">${vehicle.drivenWheels}</span></p>
+                                <p><span class="label">Doors:</span> <span class="value">${vehicle.doors}</span></p>
+                                <p><span class="label">Seating:</span> <span class="value">${vehicle.standardSeating}${vehicle.optionalSeating ? '+' + vehicle.optionalSeating : ''}</span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-                // Create a copy of the report container for PDF
-                const reportContainer = document.getElementById('report-container');
-                const pdfContainer = document.getElementById('pdf-container');
+                <!-- Vehicle Specifications -->
+                <div class="data-section">
+                    <h4><i class="fas fa-car"></i> Vehicle Specifications</h4>
+                    <div class="data-grid">
+                        <div class="data-card">
+                            <h5><i class="fas fa-cogs"></i> Technical Specs</h5>
+                            <div class="data-item"><span class="label">Engine Type:</span> <span class="value">${vehicle.engine}</span></div>
+                            <div class="data-item"><span class="label">Transmission:</span> <span class="value">${vehicle.transmission}</span></div>
+                            <div class="data-item"><span class="label">Drivetrain:</span> <span class="value">${vehicle.drivenWheels}</span></div>
+                            <div class="data-item"><span class="label">Braking System:</span> <span class="value">${vehicle.antiBrakeSystem}</span></div>
+                            <div class="data-item"><span class="label">Steering Type:</span> <span class="value">${vehicle.steeringType}</span></div>
+                        </div>
+                        <div class="data-card">
+                            <h5><i class="fas fa-gas-pump"></i> Fuel & Efficiency</h5>
+                            <div class="data-item"><span class="label">Fuel Type:</span> <span class="value">${vehicle.fuel}</span></div>
+                            <div class="data-item"><span class="label">Fuel Capacity:</span> <span class="value">${vehicle.fuelCapacity} gallons</span></div>
+                            <div class="data-item"><span class="label">City MPG:</span> <span class="value">${vehicle.cityMileage}</span></div>
+                            <div class="data-item"><span class="label">Highway MPG:</span> <span class="value">${vehicle.highwayMileage}</span></div>
+                            <div class="data-item"><span class="label">Vehicle Category:</span> <span class="value">${vehicle.vehicleCategory}</span></div>
+                        </div>
+                        <div class="data-card">
+                            <h5><i class="fas fa-info-circle"></i> Vehicle Details</h5>
+                            <div class="data-item"><span class="label">Vehicle Style:</span> <span class="value">${vehicle.vehicleStyle}</span></div>
+                            <div class="data-item"><span class="label">Vehicle Size:</span> <span class="value">${vehicle.vehicleSize}</span></div>
+                            <div class="data-item"><span class="label">Vehicle Type:</span> <span class="value">${vehicle.vehicleType}</span></div>
+                            <div class="data-item"><span class="label">Trim Variations:</span> <span class="value">${vehicle.trimVariations}</span></div>
+                            <div class="data-item"><span class="label">Country of Origin:</span> <span class="value">${vehicle.countryOfOrigin}</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dimensions & Weights -->
+                <div class="data-section">
+                    <h4><i class="fas fa-ruler-combined"></i> Dimensions & Weights</h4>
+                    <div class="data-grid">
+                        <div class="data-card">
+                            <h5><i class="fas fa-weight-hanging"></i> Weights</h5>
+                            <div class="data-item"><span class="label">Curb Weight:</span> <span class="value">${formatNumber(vehicle.curbWeight, 'lbs')}</span></div>
+                            <div class="data-item"><span class="label">Gross Weight:</span> <span class="value">${formatNumber(vehicle.grossWeight, 'lbs')}</span></div>
+                        </div>
+                        <div class="data-card">
+                            <h5><i class="fas fa-ruler-vertical"></i> Exterior Dimensions</h5>
+                            <div class="data-item"><span class="label">Length:</span> <span class="value">${vehicle.overallLength} in</span></div>
+                            <div class="data-item"><span class="label">Width:</span> <span class="value">${vehicle.overallWidth} in</span></div>
+                            <div class="data-item"><span class="label">Height:</span> <span class="value">${vehicle.overallHeight} in</span></div>
+                        </div>
+                        <div class="data-card">
+                            <h5><i class="fas fa-users"></i> Interior & Capacity</h5>
+                            <div class="data-item"><span class="label">Standard Seating:</span> <span class="value">${vehicle.standardSeating}</span></div>
+                            <div class="data-item"><span class="label">Optional Seating:</span> <span class="value">${vehicle.optionalSeating || 'N/A'}</span></div>
+                            <div class="data-item"><span class="label">Doors:</span> <span class="value">${vehicle.doors}</span></div>
+                            <div class="data-item"><span class="label">Fuel Capacity:</span> <span class="value">${vehicle.fuelCapacity} gal</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pricing Information -->
+                <div class="data-section">
+                    <h4><i class="fas fa-dollar-sign"></i> Pricing Information</h4>
+                    <div class="data-grid">
+                        <div class="data-card">
+                            <h5><i class="fas fa-tag"></i> Manufacturer Pricing</h5>
+                            <div class="data-item"><span class="label">MSRP:</span> <span class="value">${formatCurrency(vehicle.msrp)}</span></div>
+                            <div class="data-item"><span class="label">Invoice Price:</span> <span class="value">${formatCurrency(vehicle.invoicePrice)}</span></div>
+                            <div class="data-item"><span class="label">Delivery Charges:</span> <span class="value">${formatCurrency(vehicle.deliveryCharges)}</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vehicle History -->
+                <div class="data-section">
+                    <h4><i class="fas fa-history"></i> Vehicle History</h4>
+                    <div class="history-cards">
+                        <div class="history-card">
+                            <h5><i class="fas fa-car-crash"></i> Accident History</h5>
+                            <p>${vehicle.accidentHistory}</p>
+                        </div>
+                        <div class="history-card">
+                            <h5><i class="fas fa-file-contract"></i> Title Records</h5>
+                            <p>${vehicle.titleRecords}</p>
+                        </div>
+                        <div class="history-card">
+                            <h5><i class="fas fa-tachometer-alt"></i> Odometer Readings</h5>
+                            <p>${vehicle.odometerReadings}</p>
+                        </div>
+                        <div class="history-card">
+                            <h5><i class="fas fa-wrench"></i> Service History</h5>
+                            <p>${vehicle.serviceHistory}</p>
+                        </div>
+                        <div class="history-card">
+                            <h5><i class="fas fa-shield-alt"></i> Theft Records</h5>
+                            <p>${vehicle.theftRecords}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sales Records -->
+                <div class="data-section">
+                    <h4><i class="fas fa-chart-line"></i> Sales Records</h4>
+                    <div class="sales-table-container">
+                        <table class="sales-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Seller & Location</th>
+                                    <th>Listing Price</th>
+                                    <th>Details</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${vehicle.salesRecords.map(record => `
+                                    <tr>
+                                        <td class="sales-date">${formatDate(record.date)}</td>
+                                        <td>
+                                            <div class="sales-seller">${record.seller}</div>
+                                            <div class="sales-location">${record.location}</div>
+                                        </td>
+                                        <td class="sales-price">${formatCurrency(record.price)}</td>
+                                        <td>
+                                            <div class="sales-mileage">Mileage: ${record.mileage}</div>
+                                            <div class="sales-color">Color: ${record.color}</div>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Generate and download PDF report
+        async function downloadPDFReport() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('p', 'pt', 'a4');
+            
+            // Add report content to PDF
+            const element = document.getElementById('reportContainer');
+            
+            // Temporarily show success message in PDF
+            const originalDisplay = successMessage.style.display;
+            successMessage.style.display = 'block';
+            
+            html2canvas(element, {
+                scale: 2,
+                useCORS: true,
+                logging: false,
+                backgroundColor: '#ffffff'
+            }).then(canvas => {
+                // Restore original display
+                successMessage.style.display = originalDisplay;
                 
-                // Clone the report container
-                const reportClone = reportContainer.cloneNode(true);
-                
-                // Remove download button from PDF version
-                const downloadSection = reportClone.querySelector('.download-section');
-                if (downloadSection) {
-                    downloadSection.remove();
-                }
-                
-                // Add print-specific styles
-                reportClone.style.width = '210mm';
-                reportClone.style.padding = '0';
-                reportClone.style.margin = '0';
-                reportClone.style.boxShadow = 'none';
-                reportClone.style.borderRadius = '0';
-                reportClone.style.background = 'white';
-                
-                // Clear pdf container and add clone
-                pdfContainer.innerHTML = '';
-                pdfContainer.appendChild(reportClone);
-                
-                // Wait for images to load
-                await new Promise(resolve => setTimeout(resolve, 500));
-                
-                pdfStatus.textContent = 'Generating PDF content...';
-                
-                // Create PDF with A4 size
-                const pdf = new jsPDF({
-                    orientation: 'portrait',
-                    unit: 'mm',
-                    format: 'a4',
-                    compress: true
-                });
-                
-                // Calculate scale to fit A4
-                const pageWidth = 210;
-                const pageHeight = 297;
-                
-                // Get canvas from html2canvas
-                const canvas = await html2canvas(reportClone, {
-                    scale: 2,
-                    useCORS: true,
-                    allowTaint: true,
-                    backgroundColor: '#ffffff',
-                    logging: false,
-                    onclone: function(clonedDoc) {
-                        // Apply print styles to clone
-                        const style = clonedDoc.createElement('style');
-                        style.textContent = `
-                            body { margin: 0; padding: 0; }
-                            .navbar, .vin-search-section { display: none !important; }
-                            .report-container { box-shadow: none !important; border-radius: 0 !important; }
-                            .btn { display: none !important; }
-                        `;
-                        clonedDoc.head.appendChild(style);
-                    }
-                });
-                
-                pdfStatus.textContent = 'Creating PDF document...';
-                
-                const imgData = canvas.toDataURL('image/jpeg', 0.95);
-                const imgWidth = pageWidth;
-                const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                const imgData = canvas.toDataURL('image/png');
+                const imgWidth = 595.28; // A4 width in points
+                const pageHeight = 841.89; // A4 height in points
+                const imgHeight = canvas.height * imgWidth / canvas.width;
                 
                 let heightLeft = imgHeight;
                 let position = 0;
-                const pageHeightAdjusted = pageHeight - 20; // Add margins
                 
                 // Add first page
-                pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
-                heightLeft -= pageHeightAdjusted;
+                doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                heightLeft -= pageHeight;
                 
                 // Add additional pages if needed
                 while (heightLeft >= 0) {
-                    position = heightLeft - imgHeight + pageHeightAdjusted;
-                    pdf.addPage();
-                    pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
-                    heightLeft -= pageHeightAdjusted;
-                }
-                
-                // Add footer with page numbers
-                const pageCount = pdf.internal.getNumberOfPages();
-                for (let i = 1; i <= pageCount; i++) {
-                    pdf.setPage(i);
-                    pdf.setFontSize(10);
-                    pdf.setTextColor(100);
-                    pdf.text(
-                        `Page ${i} of ${pageCount}`,
-                        pageWidth / 2,
-                        pageHeight - 10,
-                        { align: 'center' }
-                    );
-                    pdf.text(
-                        `Vehicle Report - ${vin}`,
-                        10,
-                        pageHeight - 10
-                    );
-                    pdf.text(
-                        `Generated: ${new Date().toLocaleDateString()}`,
-                        pageWidth - 10,
-                        pageHeight - 10,
-                        { align: 'right' }
-                    );
+                    position = heightLeft - imgHeight;
+                    doc.addPage();
+                    doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                    heightLeft -= pageHeight;
                 }
                 
                 // Save the PDF
-                pdf.save(`Vehicle_Report_${vin}.pdf`);
-                
-                pdfSpinner.classList.add('d-none');
-                pdfStatus.textContent = 'PDF downloaded successfully!';
-                
-                // Clear status after 3 seconds
-                setTimeout(() => {
-                    pdfStatus.textContent = '';
-                }, 3000);
-                
-            } catch (error) {
-                console.error('PDF Generation Error:', error);
-                pdfSpinner.classList.add('d-none');
-                pdfStatus.textContent = 'Error generating PDF. Please try again.';
-                alert('Error generating PDF: ' + error.message);
-            }
+                doc.save(`Vehicle_Report_${currentVin}_${currentPlan}.pdf`);
+            });
         }
 
         // Event Listeners
         searchVinBtn.addEventListener('click', () => {
             const vin = vinInput.value.trim().toUpperCase();
-            if (vin.length === 17) {
-                displayVehicleReport(vin);
+            if (vin) {
+                showPaymentOptions(vin);
             } else {
-                alert('Please enter a valid 17-character VIN');
+                alert('Please enter a VIN to continue');
             }
         });
 
-        downloadReportBtn.addEventListener('click', async () => {
-            const vin = vinInput.value.trim().toUpperCase();
-            if (vin.length !== 17) {
-                alert('Please enter a valid 17-character VIN');
+        // Handle VIN input Enter key
+        vinInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const vin = vinInput.value.trim().toUpperCase();
+                if (vin) {
+                    showPaymentOptions(vin);
+                }
+            }
+        });
+
+        // Handle plan selection
+        document.querySelectorAll('.btn-select-plan').forEach(button => {
+            button.addEventListener('click', () => {
+                const plan = button.getAttribute('data-plan');
+                const price = button.getAttribute('data-price');
+                showCheckoutModal(plan, price);
+            });
+        });
+
+        // Close checkout modal
+        closeCheckout.addEventListener('click', () => {
+            checkoutModal.style.display = 'none';
+        });
+
+        // Close modal when clicking outside
+        window.addEventListener('click', (e) => {
+            if (e.target === checkoutModal) {
+                checkoutModal.style.display = 'none';
+            }
+        });
+
+        // Process payment
+        processPaymentBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            
+            // Validate form
+            const cardName = document.getElementById('cardName').value;
+            const cardNumber = document.getElementById('cardNumber').value;
+            const cardExpiry = document.getElementById('cardExpiry').value;
+            const cardCVC = document.getElementById('cardCVC').value;
+            const email = document.getElementById('email').value;
+            
+            if (!cardName || !cardNumber || !cardExpiry || !cardCVC || !email) {
+                alert('Please fill in all payment details');
                 return;
             }
             
-            await generatePDF(vin);
+            // Simple validation
+            if (!/^\d{16}$/.test(cardNumber.replace(/\s/g, ''))) {
+                alert('Please enter a valid 16-digit card number');
+                return;
+            }
+            
+            if (!/^\d{3,4}$/.test(cardCVC)) {
+                alert('Please enter a valid CVC (3 or 4 digits)');
+                return;
+            }
+            
+            if (!/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) {
+                alert('Please enter a valid email address');
+                return;
+            }
+            
+            // Process payment
+            processPayment();
         });
 
-        // Initialize with default vehicle
+        // Download PDF report
+        downloadReportBtn.addEventListener('click', downloadPDFReport);
+
+        // Smooth scroll for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                if (targetId === '#home') {
+                    // Scroll to top and reset
+                    window.scrollTo({
+                        top: 0,
+                        behavior: 'smooth'
+                    });
+                } else {
+                    const targetElement = document.querySelector(targetId);
+                    if (targetElement) {
+                        targetElement.scrollIntoView({
+                            behavior: 'smooth'
+                        });
+                    }
+                }
+            });
+        });
+
+        // Initialize
         window.onload = () => {
-            displayVehicleReport('JHLRW2H5XKX010064');
+            // Clear VIN input
+            vinInput.value = '';
+            
+            // Hide payment and report sections initially
+            paymentSection.style.display = 'none';
+            reportSection.style.display = 'none';
         };
     </script>
 </body>
