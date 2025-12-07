@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CarUsed - VIN Search & Vehicle Reports</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #0A2463;
+            --secondary-color: #D9A273;
+            --bg-color: #F8F9FA;
+            --surface-color: #FFFFFF;
+            --heading-color: #1a202c;
+            --text-color: #4a5568;
+            --border-color: #e2e8f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Lexend', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.7;
+            overflow-x: hidden;
+            padding-top: 95px;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Lexend', sans-serif;
+            color: var(--heading-color);
+            font-weight: 600;
+        }
+
+        .btn {
+            transition: all 0.3s ease;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            border-radius: 8px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            padding: 12px 30px;
+            font-size: 0.95rem;
+            box-shadow: 0 4px 6px rgba(10, 36, 99, 0.1);
+        }
+
+        .btn-primary:hover {
+            background-color: #081c4a;
+            border-color: #081c4a;
+            transform: translateY(-3px);
+            box-shadow: 0 7px 14px rgba(10, 36, 99, 0.2);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            border: 2px solid var(--secondary-color);
+            color: var(--secondary-color);
+            padding: 10px 28px;
+            font-size: 0.95rem;
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--secondary-color);
+            color: white;
+            transform: translateY(-3px);
+        }
+
+        .section-padding {
+            padding: 100px 0;
+        }
+
+        .section-title {
+            margin-bottom: 60px;
+        }
+        .section-title h2 {
+            font-size: 2.5rem;
+            font-weight: 600;
+            position: relative;
+            display: inline-block;
+            padding-bottom: 20px;
+            line-height: 1.3;
+        }
+        .section-title h2::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 60px;
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            border-radius: 5px;
+        }
+        .section-title.text-center h2::after {
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .section-title p {
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            font-size: 1.05rem;
+        }
+
+        /* Navbar Styling */
+        .navbar {
+            padding: 15px 0;
+            transition: all 0.4s ease-in-out;
+            background-color: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-bottom: 1px solid var(--border-color);
+            z-index: 1040;
+            height: 85px;
+        }
+        .navbar-brand {
+            font-weight: 600;
+            font-size: 1.6rem;
+            color: var(--heading-color) !important;
+        }
+
+        .navbar-brand span {
+            color: var(--secondary-color);
+        }
+
+        .navbar-nav .nav-link {
+            color: var(--heading-color) !important;
+            font-weight: 500;
+            margin: 0 10px;
+            position: relative;
+            transition: all 0.3s ease;
+            padding: 8px 5px;
+        }
+
+        .navbar-nav .nav-link:hover, .navbar-nav .nav-link.active {
+            color: var(--primary-color) !important;
+        }
+
+        .navbar-nav .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: var(--primary-color);
+            transition: width 0.3s ease;
+        }
+
+        .navbar-nav .nav-link:hover::after, .navbar-nav .nav-link.active::after {
+            width: 100%;
+        }
+
+        .navbar-collapse {
+            align-items: center;
+        }
+
+        @media (max-width: 991px) {
+            body { padding-top: 72px; }
+            .navbar { height: 72px; }
+            .navbar-collapse {
+                background: var(--surface-color);
+                padding: 20px;
+                margin-top: 15px;
+                border-radius: 8px;
+                box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            }
+        }
+
+        /* VIN Search Section */
+        .vin-search-section {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #1a3a8f 100%);
+            color: white;
+            padding: 80px 0;
+            border-radius: 0 0 20px 20px;
+            margin-bottom: 50px;
+        }
+
+        .vin-search-container {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .vin-search-container h1 {
+            color: white;
+            font-size: 2.8rem;
+            margin-bottom: 20px;
+        }
+
+        .vin-search-container p {
+            font-size: 1.1rem;
+            margin-bottom: 40px;
+            opacity: 0.9;
+        }
+
+        .vin-form {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .vin-input {
+            flex: 1;
+            padding: 15px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .vin-input:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(255,255,255,0.3);
+        }
+
+        .vin-features {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+            margin-top: 40px;
+        }
+
+        .vin-feature {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .vin-feature i {
+            font-size: 1.2rem;
+            color: var(--secondary-color);
+        }
+
+        /* Payment Options Section */
+        .payment-section {
+            display: none;
+            padding: 60px 0;
+        }
+
+        .payment-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .payment-title {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .payment-options {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .payment-card {
+            background: var(--surface-color);
+            border-radius: 15px;
+            padding: 40px 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            text-align: center;
+            flex: 1;
+            min-width: 300px;
+            max-width: 400px;
+            transition: transform 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .payment-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--primary-color);
+        }
+
+        .payment-card.popular {
+            position: relative;
+            border-color: var(--secondary-color);
+        }
+
+        .popular-badge {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--secondary-color);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .payment-price {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin: 20px 0;
+        }
+
+        .payment-price span {
+            font-size: 1rem;
+            color: var(--text-color);
+            font-weight: 400;
+        }
+
+        .payment-features {
+            list-style: none;
+            margin: 30px 0;
+            text-align: left;
+        }
+
+        .payment-features li {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .payment-features li i {
+            color: var(--secondary-color);
+            margin-right: 10px;
+            font-size: 1.1rem;
+        }
+
+        /* Report Section */
+        .report-section {
+            display: none;
+            padding: 60px 0;
+        }
+
+        .report-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: var(--surface-color);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+
+        .report-header {
+            background: var(--primary-color);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .report-body {
+            padding: 40px;
+        }
+
+        .vehicle-info {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .vehicle-image {
+            flex: 1;
+            min-width: 300px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .vehicle-image img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .vehicle-details {
+            flex: 2;
+            min-width: 300px;
+        }
+
+        .vehicle-details h3 {
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .detail-item {
+            margin-bottom: 15px;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: var(--heading-color);
+            margin-bottom: 5px;
+        }
+
+        .report-sections {
+            margin-top: 40px;
+        }
+
+        .report-section-item {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .report-section-item h4 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .report-section-item h4 i {
+            color: var(--secondary-color);
+        }
+
+        .download-btn-container {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        /* Footer */
+        .footer {
+            background-color: var(--heading-color);
+            color: #a0aec0;
+            padding: 80px 0 30px;
+        }
+        .footer h5 {
+            color: white;
+            margin-bottom: 25px;
+            font-size: 1.2rem;
+        }
+        .footer-links {
+            list-style: none;
+            padding: 0;
+        }
+        .footer-links li {
+            margin-bottom: 12px;
+        }
+        .footer-links a {
+            color: #a0aec0;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        .footer-links a:hover {
+            color: var(--secondary-color);
+            padding-left: 5px;
+        }
+        .social-icons a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            color: white;
+            margin-right: 10px;
+            transition: all 0.3s ease;
+        }
+        .social-icons a:hover {
+            background: var(--secondary-color);
+            transform: translateY(-3px);
+        }
+        .copyright {
+            border-top: 1px solid #2d3748;
+            padding-top: 30px;
+            margin-top: 50px;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        /* Back to Top Button */
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s ease;
+            z-index: 1000;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .back-to-top.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .back-to-top:hover {
+            background: var(--secondary-color);
+            transform: translateY(-3px);
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .vin-search-container h1 {
+                font-size: 2.2rem;
+            }
+            .vin-form {
+                flex-direction: column;
+            }
+            .section-padding {
+                padding: 70px 0;
+            }
+            .section-title h2 {
+                font-size: 2rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .vin-search-container h1 {
+                font-size: 1.8rem;
+            }
+            .payment-card {
+                min-width: 100%;
+            }
+            .vehicle-info {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="#">Car<span>Used</span></a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="line"></span>
+                <span class="line"></span>
+                <span class="line"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#vin-search">VIN Search</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#inventory">Inventory</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#about">About Us</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#contact">Contact</a>
+                    </li>
+                </ul>
+                <div class="ms-lg-3 mt-3 mt-lg-0">
+                    <button class="btn btn-primary">Sell Your Car</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- VIN Search Section -->
+    <section id="vin-search" class="vin-search-section">
+        <div class="container">
+            <div class="vin-search-container">
+                <h1>Get Your Vehicle History Report</h1>
+                <p>Enter your Vehicle Identification Number (VIN) to access a comprehensive report including accident history, ownership records, title status, and more.</p>
+                
+                <div class="vin-form">
+                    <input type="text" class="vin-input" placeholder="Enter 17-character VIN (e.g., 1HGCM82633A123456)" id="vinInput">
+                    <button class="btn btn-primary" id="searchVinBtn">Search VIN</button>
+                </div>
+                
+                <div class="vin-features">
+                    <div class="vin-feature">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>Accident History</span>
+                    </div>
+                    <div class="vin-feature">
+                        <i class="fas fa-file-contract"></i>
+                        <span>Title Records</span>
+                    </div>
+                    <div class="vin-feature">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Odometer Readings</span>
+                    </div>
+                    <div class="vin-feature">
+                        <i class="fas fa-wrench"></i>
+                        <span>Service History</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Payment Options Section -->
+    <section id="payment-section" class="payment-section">
+        <div class="container">
+            <div class="payment-container">
+                <div class="payment-title">
+                    <h2>Choose Your Report Option</h2>
+                    <p>Select the report that best fits your needs</p>
+                </div>
+                
+                <div class="payment-options">
+                    <div class="payment-card">
+                        <h3>Basic Report</h3>
+                        <div class="payment-price">$9.99</div>
+                        <ul class="payment-features">
+                            <li><i class="fas fa-check"></i> Accident History</li>
+                            <li><i class="fas fa-check"></i> Title Records</li>
+                            <li><i class="fas fa-check"></i> Odometer Readings</li>
+                            <li><i class="fas fa-times"></i> Service History</li>
+                            <li><i class="fas fa-times"></i> Theft Records</li>
+                            <li><i class="fas fa-times"></i> Recall Information</li>
+                        </ul>
+                        <button class="btn btn-primary w-100" data-plan="basic">Purchase Basic Report</button>
+                    </div>
+                    
+                    <div class="payment-card popular">
+                        <div class="popular-badge">MOST POPULAR</div>
+                        <h3>Premium Report</h3>
+                        <div class="payment-price">$19.99</div>
+                        <ul class="payment-features">
+                            <li><i class="fas fa-check"></i> Accident History</li>
+                            <li><i class="fas fa-check"></i> Title Records</li>
+                            <li><i class="fas fa-check"></i> Odometer Readings</li>
+                            <li><i class="fas fa-check"></i> Service History</li>
+                            <li><i class="fas fa-check"></i> Theft Records</li>
+                            <li><i class="fas fa-check"></i> Recall Information</li>
+                            <li><i class="fas fa-check"></i> Market Value Estimate</li>
+                            <li><i class="fas fa-check"></i> Ownership Cost</li>
+                        </ul>
+                        <button class="btn btn-primary w-100" data-plan="premium">Purchase Premium Report</button>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-5">
+                    <p class="text-muted">All reports include a 7-day money-back guarantee</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Report Section -->
+    <section id="report-section" class="report-section">
+        <div class="container">
+            <div class="report-container">
+                <div class="report-header">
+                    <h2>Vehicle History Report</h2>
+                    <p id="report-vin">VIN: Loading...</p>
+                </div>
+                
+                <div class="report-body">
+                    <div class="vehicle-info">
+                        <div class="vehicle-image">
+                            <img src="https://images.unsplash.com/photo-1621135802920-133df2871f31?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="Vehicle Image" id="vehicle-img">
+                        </div>
+                        <div class="vehicle-details">
+                            <h3 id="vehicle-title">Vehicle Information</h3>
+                            <div class="detail-grid">
+                                <div class="detail-item">
+                                    <div class="detail-label">Make & Model</div>
+                                    <div id="vehicle-make-model">Loading...</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">Year</div>
+                                    <div id="vehicle-year">Loading...</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">Color</div>
+                                    <div id="vehicle-color">Loading...</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">Engine</div>
+                                    <div id="vehicle-engine">Loading...</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">Transmission</div>
+                                    <div id="vehicle-transmission">Loading...</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">Fuel Type</div>
+                                    <div id="vehicle-fuel">Loading...</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="report-sections">
+                        <div class="report-section-item">
+                            <h4><i class="fas fa-car-crash"></i> Accident History</h4>
+                            <div id="accident-history">Loading accident history...</div>
+                        </div>
+                        
+                        <div class="report-section-item">
+                            <h4><i class="fas fa-file-contract"></i> Title Records</h4>
+                            <div id="title-records">Loading title records...</div>
+                        </div>
+                        
+                        <div class="report-section-item">
+                            <h4><i class="fas fa-tachometer-alt"></i> Odometer Readings</h4>
+                            <div id="odometer-readings">Loading odometer readings...</div>
+                        </div>
+                        
+                        <div class="report-section-item">
+                            <h4><i class="fas fa-wrench"></i> Service History</h4>
+                            <div id="service-history">Loading service history...</div>
+                        </div>
+                        
+                        <div class="report-section-item">
+                            <h4><i class="fas fa-shield-alt"></i> Theft & Recall Records</h4>
+                            <div id="theft-records">Loading theft and recall records...</div>
+                        </div>
+                    </div>
+                    
+                    <div class="download-btn-container">
+                        <button class="btn btn-primary btn-lg" id="download-report-btn">
+                            <i class="fas fa-download"></i> Download Full Report (PDF)
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row g-5">
+                <div class="col-lg-4">
+                    <h5>About CarUsed</h5>
+                    <p>We are dedicated to providing quality vehicle history reports with transparent information to help you make informed decisions.</p>
+                    <div class="social-icons mt-4">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-6">
+                    <h5>Quick Links</h5>
+                    <ul class="footer-links">
+                        <li><a href="#">Home</a></li>
+                        <li><a href="#vin-search">VIN Search</a></li>
+                        <li><a href="#inventory">Inventory</a></li>
+                        <li><a href="#about">About Us</a></li>
+                        <li><a href="#contact">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <h5>Report Types</h5>
+                    <ul class="footer-links">
+                        <li><a href="#">Basic Report</a></li>
+                        <li><a href="#">Premium Report</a></li>
+                        <li><a href="#">Dealer Reports</a></li>
+                        <li><a href="#">Fleet Reports</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <h5>Newsletter</h5>
+                    <p>Subscribe to get updates on new features and special offers.</p>
+                    <div class="input-group mt-3">
+                        <input type="email" class="form-control" placeholder="Your email">
+                        <button class="btn btn-primary" type="button">Subscribe</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="copyright">
+                <p>&copy; 2023 CarUsed. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Back to Top Button -->
+    <div class="back-to-top">
+        <i class="fas fa-chevron-up"></i>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // DOM Elements
+        const vinInput = document.getElementById('vinInput');
+        const searchVinBtn = document.getElementById('searchVinBtn');
+        const paymentSection = document.getElementById('payment-section');
+        const reportSection = document.getElementById('report-section');
+        const downloadReportBtn = document.getElementById('download-report-btn');
+        const paymentButtons = document.querySelectorAll('.payment-card .btn');
+        
+        // Sample vehicle data (in a real app, this would come from an API)
+        const vehicleDatabase = {
+            '1HGCM82633A123456': {
+                makeModel: 'Honda Accord',
+                year: '2020',
+                color: 'Silver',
+                engine: '2.0L 4-Cylinder',
+                transmission: 'Automatic',
+                fuel: 'Gasoline',
+                image: 'https://images.unsplash.com/photo-1621135802920-133df2871f31?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
+                accidentHistory: 'No accidents reported. Clean history.',
+                titleRecords: 'Clean title. No salvage or rebuilt records.',
+                odometerReadings: 'Verified readings: 28,500 miles (2023), 15,200 miles (2022), 5,000 miles (2021)',
+                serviceHistory: 'Regular maintenance records available. Last service: Oil change at 27,800 miles.',
+                theftRecords: 'No theft records found. Vehicle has not been reported stolen.'
+            },
+            '2FMDK3GC5DBA12345': {
+                makeModel: 'Ford Escape',
+                year: '2019',
+                color: 'Blue',
+                engine: '1.5L EcoBoost',
+                transmission: 'Automatic',
+                fuel: 'Gasoline',
+                image: 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
+                accidentHistory: 'Minor accident reported in 2020. Damage to front bumper.',
+                titleRecords: 'Clean title. No salvage or rebuilt records.',
+                odometerReadings: 'Verified readings: 45,200 miles (2023), 32,100 miles (2022), 18,500 miles (2021)',
+                serviceHistory: 'Regular maintenance. Last service: Brake inspection at 44,500 miles.',
+                theftRecords: 'No theft records found.'
+            },
+            '5YJSA1E21GF123456': {
+                makeModel: 'Tesla Model S',
+                year: '2021',
+                color: 'Red',
+                engine: 'Electric',
+                transmission: 'Automatic',
+                fuel: 'Electric',
+                image: 'https://images.unsplash.com/photo-1560958089-b8a1929cea89?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
+                accidentHistory: 'No accidents reported. Clean history.',
+                titleRecords: 'Clean title. No salvage or rebuilt records.',
+                odometerReadings: 'Verified readings: 18,500 miles (2023), 9,200 miles (2022)',
+                serviceHistory: 'Software updates regularly. Last service: Tire rotation at 17,800 miles.',
+                theftRecords: 'No theft records found.'
+            }
+        };
+        
+        // VIN Search Function
+        searchVinBtn.addEventListener('click', function() {
+            const vin = vinInput.value.trim().toUpperCase();
+            
+            if (vin.length !== 17) {
+                alert('Please enter a valid 17-character VIN');
+                return;
+            }
+            
+            // Show payment options
+            paymentSection.style.display = 'block';
+            
+            // Scroll to payment section
+            paymentSection.scrollIntoView({ behavior: 'smooth' });
+            
+            // Store the VIN for later use
+            sessionStorage.setItem('currentVin', vin);
+        });
+        
+        // Payment Button Handler
+        paymentButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const plan = this.getAttribute('data-plan');
+                const vin = sessionStorage.getItem('currentVin');
+                
+                // In a real application, you would process payment here
+                // For this demo, we'll just show the report
+                
+                // Hide payment section
+                paymentSection.style.display = 'none';
+                
+                // Show and populate report
+                showVehicleReport(vin, plan);
+            });
+        });
+        
+        // Show Vehicle Report
+        function showVehicleReport(vin, plan) {
+            const vehicle = vehicleDatabase[vin];
+            
+            if (!vehicle) {
+                alert('Vehicle not found in our database. Please try another VIN.');
+                return;
+            }
+            
+            // Update report with vehicle data
+            document.getElementById('report-vin').textContent = `VIN: ${vin}`;
+            document.getElementById('vehicle-title').textContent = `${vehicle.year} ${vehicle.makeModel}`;
+            document.getElementById('vehicle-make-model').textContent = vehicle.makeModel;
+            document.getElementById('vehicle-year').textContent = vehicle.year;
+            document.getElementById('vehicle-color').textContent = vehicle.color;
+            document.getElementById('vehicle-engine').textContent = vehicle.engine;
+            document.getElementById('vehicle-transmission').textContent = vehicle.transmission;
+            document.getElementById('vehicle-fuel').textContent = vehicle.fuel;
+            document.getElementById('vehicle-img').src = vehicle.image;
+            
+            // Update report sections based on plan
+            document.getElementById('accident-history').textContent = vehicle.accidentHistory;
+            document.getElementById('title-records').textContent = vehicle.titleRecords;
+            document.getElementById('odometer-readings').textContent = vehicle.odometerReadings;
+            
+            if (plan === 'premium') {
+                document.getElementById('service-history').textContent = vehicle.serviceHistory;
+                document.getElementById('theft-records').textContent = vehicle.theftRecords;
+            } else {
+                document.getElementById('service-history').textContent = 'Upgrade to Premium report to view service history';
+                document.getElementById('theft-records').textContent = 'Upgrade to Premium report to view theft records';
+            }
+            
+            // Show report section
+            reportSection.style.display = 'block';
+            
+            // Scroll to report
+            reportSection.scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // Download Report Button
+        downloadReportBtn.addEventListener('click', function() {
+            alert('Thank you for your purchase! Your report is being downloaded.');
+            // In a real application, this would trigger a PDF download
+        });
+        
+        // Back to Top Button
+        const backToTopButton = document.querySelector('.back-to-top');
+        
+        window.addEventListener('scroll', function() {
+            if (window.pageYOffset > 300) {
+                backToTopButton.classList.add('active');
+            } else {
+                backToTopButton.classList.remove('active');
+            }
+        });
+        
+        backToTopButton.addEventListener('click', function() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+        
+        // Sample VINs for testing
+        console.log('Sample VINs for testing:');
+        console.log('1HGCM82633A123456 - Honda Accord');
+        console.log('2FMDK3GC5DBA12345 - Ford Escape');
+        console.log('5YJSA1E21GF123456 - Tesla Model S');
+    </script>
+</body>
+</html>
