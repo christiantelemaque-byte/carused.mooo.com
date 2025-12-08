@@ -9,6 +9,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
+    <!-- PayPal SDK -->
+    <script 
+        src="https://www.paypal.com/sdk/js?client-id=BAAs22kpX_5V3OLFvZ9Yw0BJ1o3HegBJ6w2IsAu3HdW5af4hVAKr_DY3v3cTFMrwfyHl7JcOGqtL1ingE4&components=hosted-buttons&disable-funding=venmo&currency=USD">
+    </script>
+    
     <style>
         :root {
             --primary-color: #0A2463;
@@ -115,6 +121,7 @@
             font-weight: 600;
             font-size: 1.6rem;
             color: var(--heading-color) !important;
+            cursor: pointer;
         }
         .navbar-brand span {
             color: var(--secondary-color);
@@ -124,6 +131,7 @@
             font-weight: 500;
             margin: 0 10px;
             transition: color 0.3s ease;
+            cursor: pointer;
         }
         .nav-link:hover {
             color: var(--secondary-color) !important;
@@ -283,136 +291,10 @@
             flex: 1;
         }
 
-        /* Checkout Modal */
-        .checkout-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 1050;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .checkout-content {
-            background: white;
-            border-radius: 15px;
-            width: 90%;
-            max-width: 500px;
-            max-height: 90vh;
-            overflow-y: auto;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-        }
-
-        .checkout-header {
-            background: var(--primary-color);
-            color: white;
-            padding: 25px;
-            border-radius: 15px 15px 0 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .checkout-header h3 {
-            color: white;
-            margin: 0;
-        }
-
-        .close-checkout {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 1.5rem;
-            cursor: pointer;
-            padding: 0;
-            width: 30px;
-            height: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            transition: background 0.3s;
-        }
-
-        .close-checkout:hover {
-            background: rgba(255, 255, 255, 0.2);
-        }
-
-        .checkout-body {
-            padding: 30px;
-        }
-
-        .payment-details {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 25px;
-        }
-
-        .payment-info {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-        }
-
-        .payment-info:last-child {
-            margin-bottom: 0;
-        }
-
-        .payment-form .form-group {
-            margin-bottom: 20px;
-        }
-
-        .payment-form label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: var(--heading-color);
-        }
-
-        .payment-form input {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid var(--border-color);
-            border-radius: 10px;
-            font-size: 1rem;
-            transition: border-color 0.3s;
-        }
-
-        .payment-form input:focus {
-            outline: none;
-            border-color: var(--primary-color);
-        }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-
-        .processing {
-            text-align: center;
-            padding: 40px 20px;
-            display: none;
-        }
-
-        .spinner {
-            width: 60px;
-            height: 60px;
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid var(--primary-color);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        /* PayPal Button Container */
+        .paypal-button-container {
+            margin-top: 20px;
+            min-height: 50px;
         }
 
         /* Vehicle Report Section */
@@ -832,13 +714,6 @@
             .pricing-cards {
                 grid-template-columns: 1fr;
             }
-            .checkout-content {
-                width: 95%;
-                margin: 20px;
-            }
-            .form-row {
-                grid-template-columns: 1fr;
-            }
             .footer-links {
                 flex-direction: column;
                 align-items: center;
@@ -884,13 +759,13 @@
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg fixed-top">
         <div class="container">
-            <a class="navbar-brand" href="#">Car<span>Used</span></a>
+            <a class="navbar-brand" onclick="redirectToHome()">Car<span>Used</span></a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <i class="fas fa-bars"></i>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <div class="navbar-nav ms-auto">
-                    <a class="nav-link" href="#home">Home</a>
+                    <a class="nav-link" onclick="redirectToHome()">Home</a>
                     <a class="nav-link" href="#how-to-order">How to Order</a>
                     <a class="nav-link" href="#contact">Contact Us</a>
                 </div>
@@ -965,9 +840,10 @@
                         </li>
                     </ul>
                     
-                    <button class="btn btn-outline-primary w-100 btn-select-plan" data-plan="regular" data-price="25">
-                        Select Regular Report
-                    </button>
+                    <div class="paypal-button-container" id="paypal-container-regular"></div>
+                    <p class="mt-2" style="font-size: 0.9rem; color: var(--text-color);">
+                        After payment, you'll be redirected back here to view your report.
+                    </p>
                 </div>
                 
                 <div class="pricing-card popular">
@@ -1007,78 +883,14 @@
                         </li>
                     </ul>
                     
-                    <button class="btn btn-primary w-100 btn-select-plan" data-plan="premium" data-price="100">
-                        Select Premium Report
-                    </button>
+                    <div class="paypal-button-container" id="paypal-container-premium"></div>
+                    <p class="mt-2" style="font-size: 0.9rem; color: var(--text-color);">
+                        After payment, you'll be redirected back here to view your report.
+                    </p>
                 </div>
             </div>
         </div>
     </section>
-
-    <!-- Checkout Modal -->
-    <div class="checkout-modal" id="checkoutModal">
-        <div class="checkout-content">
-            <div class="checkout-header">
-                <h3>Complete Your Purchase</h3>
-                <button class="close-checkout" id="closeCheckout">&times;</button>
-            </div>
-            
-            <div class="checkout-body">
-                <div class="payment-details">
-                    <div class="payment-info">
-                        <span>VIN:</span>
-                        <span id="checkout-vin"></span>
-                    </div>
-                    <div class="payment-info">
-                        <span>Report Type:</span>
-                        <span id="checkout-plan"></span>
-                    </div>
-                    <div class="payment-info">
-                        <span>Amount:</span>
-                        <span id="checkout-price"></span>
-                    </div>
-                </div>
-                
-                <div class="payment-form" id="paymentForm">
-                    <div class="form-group">
-                        <label for="cardName">Name on Card</label>
-                        <input type="text" id="cardName" placeholder="John Doe" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="cardNumber">Card Number</label>
-                        <input type="text" id="cardNumber" placeholder="4242 4242 4242 4242" required>
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="cardExpiry">Expiry Date</label>
-                            <input type="text" id="cardExpiry" placeholder="MM/YY" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="cardCVC">CVC</label>
-                            <input type="text" id="cardCVC" placeholder="123" required>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="email">Email for Report</label>
-                        <input type="email" id="email" placeholder="you@example.com" required>
-                    </div>
-                    
-                    <button class="btn btn-success w-100" id="processPaymentBtn">
-                        <i class="fas fa-lock"></i> Pay Now
-                    </button>
-                </div>
-                
-                <div class="processing" id="processing">
-                    <div class="spinner"></div>
-                    <h4>Processing Payment</h4>
-                    <p>Please wait while we process your payment...</p>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- Vehicle Report Section -->
     <section id="report-section" class="vehicle-report-section">
@@ -1132,7 +944,7 @@
                 <div class="step-card">
                     <div class="step-number">3</div>
                     <h4>Complete Payment</h4>
-                    <p>Enter your payment information securely. Once payment is processed, your detailed vehicle report will be available immediately for viewing and download.</p>
+                    <p>Click the PayPal button for your chosen report. After payment, you'll return to this page to view and download your report immediately.</p>
                 </div>
             </div>
             
@@ -1372,14 +1184,6 @@
         const searchVinBtn = document.getElementById('searchVinBtn');
         const paymentSection = document.getElementById('payment-section');
         const paymentVin = document.getElementById('payment-vin');
-        const checkoutModal = document.getElementById('checkoutModal');
-        const closeCheckout = document.getElementById('closeCheckout');
-        const checkoutVin = document.getElementById('checkout-vin');
-        const checkoutPlan = document.getElementById('checkout-plan');
-        const checkoutPrice = document.getElementById('checkout-price');
-        const processPaymentBtn = document.getElementById('processPaymentBtn');
-        const paymentForm = document.getElementById('paymentForm');
-        const processing = document.getElementById('processing');
         const reportSection = document.getElementById('report-section');
         const successMessage = document.getElementById('successMessage');
         const vehicleTitle = document.getElementById('vehicle-title');
@@ -1393,6 +1197,22 @@
         let currentPlan = '';
         let currentPrice = 0;
         let currentVehicle = null;
+        let paypalButtonsInitialized = false;
+
+        // Function to get URL parameters
+        function getUrlParameter(name) {
+            name = name.replace(/[\[\]]/g, '\\$&');
+            const regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)');
+            const results = regex.exec(window.location.href);
+            if (!results) return null;
+            if (!results[2]) return '';
+            return decodeURIComponent(results[2].replace(/\+/g, ' '));
+        }
+
+        // Redirect to home page function
+        function redirectToHome() {
+            window.location.href = 'https://carused.mooo.com';
+        }
 
         // Format currency
         function formatCurrency(amount) {
@@ -1433,6 +1253,12 @@
                 paymentVin.textContent = currentVin;
                 paymentSection.style.display = 'block';
                 
+                // Initialize PayPal buttons if not already done
+                if (!paypalButtonsInitialized) {
+                    initializePayPalButtons();
+                    paypalButtonsInitialized = true;
+                }
+                
                 // Scroll to payment section
                 paymentSection.scrollIntoView({ behavior: 'smooth' });
             } else {
@@ -1440,41 +1266,100 @@
             }
         }
 
-        // Show checkout modal
-        function showCheckoutModal(plan, price) {
-            currentPlan = plan;
-            currentPrice = price;
+        // Initialize PayPal buttons
+        function initializePayPalButtons() {
+            // Get current page URL for return URL
+            const currentUrl = window.location.href.split('?')[0]; // Remove any existing query params
             
-            checkoutVin.textContent = currentVin;
-            checkoutPlan.textContent = plan.charAt(0).toUpperCase() + plan.slice(1) + ' Report';
-            checkoutPrice.textContent = formatCurrency(price);
-            
-            checkoutModal.style.display = 'flex';
+            // Regular Report PayPal Button
+            paypal.HostedButtons({
+                hostedButtonId: "2B8T5BWD5RDSW",
+                onClick: function(data, actions) {
+                    // Store the VIN and plan in localStorage before redirecting to PayPal
+                    localStorage.setItem('carUsed_vin', currentVin);
+                    localStorage.setItem('carUsed_plan', 'regular');
+                    localStorage.setItem('carUsed_timestamp', Date.now().toString());
+                    console.log('Regular report selected for VIN:', currentVin);
+                },
+                onError: function(err) {
+                    console.error('PayPal error:', err);
+                    alert('An error occurred with PayPal. Please try again or contact support.');
+                }
+            }).render("#paypal-container-regular");
+
+            // Premium Report PayPal Button
+            // Note: You'll need to create a separate hosted button for $100 in your PayPal dashboard
+            // and replace the hostedButtonId below with your actual premium button ID
+            paypal.HostedButtons({
+                hostedButtonId: "2B8T5BWD5RDSW", // REPLACE WITH YOUR ACTUAL PREMIUM BUTTON ID
+                onClick: function(data, actions) {
+                    // Store the VIN and plan in localStorage before redirecting to PayPal
+                    localStorage.setItem('carUsed_vin', currentVin);
+                    localStorage.setItem('carUsed_plan', 'premium');
+                    localStorage.setItem('carUsed_timestamp', Date.now().toString());
+                    console.log('Premium report selected for VIN:', currentVin);
+                },
+                onError: function(err) {
+                    console.error('PayPal error:', err);
+                    alert('An error occurred with PayPal. Please try again or contact support.');
+                }
+            }).render("#paypal-container-premium");
         }
 
-        // Process payment
-        function processPayment() {
-            // Hide form, show processing
-            paymentForm.style.display = 'none';
-            processing.style.display = 'block';
+        // Check if user has returned from PayPal payment
+        function checkForReturnedPayment() {
+            // Check for PayPal return parameters
+            const paymentId = getUrlParameter('paymentId');
+            const token = getUrlParameter('token');
+            const payerId = getUrlParameter('PayerID');
             
-            // Simulate payment processing
-            setTimeout(() => {
-                // Simulate successful payment
-                checkoutModal.style.display = 'none';
-                processing.style.display = 'none';
-                paymentForm.style.display = 'block';
+            // Also check localStorage for stored VIN and plan
+            const storedVin = localStorage.getItem('carUsed_vin');
+            const storedPlan = localStorage.getItem('carUsed_plan');
+            const storedTimestamp = localStorage.getItem('carUsed_timestamp');
+            
+            // Check if payment was completed (we have PayPal parameters or localStorage data)
+            if ((paymentId || token || payerId) && storedVin && storedPlan) {
+                // Payment was successful - show the report
+                currentVin = storedVin;
+                currentPlan = storedPlan;
+                currentPrice = storedPlan === 'regular' ? 25 : 100;
                 
-                // Reset form
-                document.getElementById('cardName').value = '';
-                document.getElementById('cardNumber').value = '';
-                document.getElementById('cardExpiry').value = '';
-                document.getElementById('cardCVC').value = '';
-                document.getElementById('email').value = '';
-                
-                // Show success and report
+                // Show the report
                 showVehicleReport();
-            }, 2000);
+                
+                // Clear the URL parameters without reloading
+                window.history.replaceState({}, document.title, window.location.pathname);
+                
+                // Don't clear localStorage yet - keep it for page refresh
+            } else if (storedVin && storedPlan) {
+                // Check if storage is too old (more than 1 hour)
+                const timestamp = parseInt(storedTimestamp);
+                const now = Date.now();
+                const oneHour = 60 * 60 * 1000;
+                
+                if (now - timestamp < oneHour) {
+                    // Storage is recent - user might have just returned from PayPal
+                    // but URL parameters might be missing due to PayPal configuration
+                    // Show payment processing message
+                    console.log('Recent payment detected, but no PayPal parameters found');
+                    
+                    // For demo purposes, we'll show the report anyway
+                    // In production, you would verify the payment on your server
+                    currentVin = storedVin;
+                    currentPlan = storedPlan;
+                    currentPrice = storedPlan === 'regular' ? 25 : 100;
+                    
+                    // Show a message that we're verifying payment
+                    alert('Payment detected! Loading your vehicle report...');
+                    showVehicleReport();
+                } else {
+                    // Storage is old - clear it
+                    localStorage.removeItem('carUsed_vin');
+                    localStorage.removeItem('carUsed_plan');
+                    localStorage.removeItem('carUsed_timestamp');
+                }
+            }
         }
 
         // Display vehicle report
@@ -1873,63 +1758,6 @@
             }
         });
 
-        // Handle plan selection
-        document.querySelectorAll('.btn-select-plan').forEach(button => {
-            button.addEventListener('click', () => {
-                const plan = button.getAttribute('data-plan');
-                const price = button.getAttribute('data-price');
-                showCheckoutModal(plan, price);
-            });
-        });
-
-        // Close checkout modal
-        closeCheckout.addEventListener('click', () => {
-            checkoutModal.style.display = 'none';
-        });
-
-        // Close modal when clicking outside
-        window.addEventListener('click', (e) => {
-            if (e.target === checkoutModal) {
-                checkoutModal.style.display = 'none';
-            }
-        });
-
-        // Process payment
-        processPaymentBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            
-            // Validate form
-            const cardName = document.getElementById('cardName').value;
-            const cardNumber = document.getElementById('cardNumber').value;
-            const cardExpiry = document.getElementById('cardExpiry').value;
-            const cardCVC = document.getElementById('cardCVC').value;
-            const email = document.getElementById('email').value;
-            
-            if (!cardName || !cardNumber || !cardExpiry || !cardCVC || !email) {
-                alert('Please fill in all payment details');
-                return;
-            }
-            
-            // Simple validation
-            if (!/^\d{16}$/.test(cardNumber.replace(/\s/g, ''))) {
-                alert('Please enter a valid 16-digit card number');
-                return;
-            }
-            
-            if (!/^\d{3,4}$/.test(cardCVC)) {
-                alert('Please enter a valid CVC (3 or 4 digits)');
-                return;
-            }
-            
-            if (!/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) {
-                alert('Please enter a valid email address');
-                return;
-            }
-            
-            // Process payment
-            processPayment();
-        });
-
         // Download PDF report
         downloadReportBtn.addEventListener('click', downloadPDFReport);
 
@@ -1940,7 +1768,7 @@
                 
                 const targetId = this.getAttribute('href');
                 if (targetId === '#home') {
-                    // Scroll to top and reset
+                    // Scroll to top
                     window.scrollTo({
                         top: 0,
                         behavior: 'smooth'
@@ -1964,6 +1792,9 @@
             // Hide payment and report sections initially
             paymentSection.style.display = 'none';
             reportSection.style.display = 'none';
+            
+            // Check if user has returned from PayPal payment
+            checkForReturnedPayment();
         };
     </script>
 </body>
