@@ -7,8 +7,12 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- PayPal SDK - REPLACE YOUR_CLIENT_ID_HERE with your PayPal Client ID -->
-    <script src="https://www.paypal.com/sdk/js?client-id=AaKjVMn--7bU15tUxDKgWbum56KYnT39evrn0etqbOuYUdHa25pDpEJjqGP2NjQNSFvd5lcgYWxsJ_Ae&currency=USD"></script>
+    
+    <!-- PayPal SDK -->
+    <script 
+        src="https://www.paypal.com/sdk/js?client-id=BAAs22kpX_5V3OLFvZ9Yw0BJ1o3HegBJ6w2IsAu3HdW5af4hVAKr_DY3v3cTFMrwfyHl7JcOGqtL1ingE4&components=hosted-buttons&disable-funding=venmo&currency=USD">
+    </script>
+    
     <style>
         :root {
             --primary-color: #0A2463;
@@ -18,6 +22,8 @@
             --heading-color: #1a202c;
             --text-color: #4a5568;
             --border-color: #e2e8f0;
+            --success-color: #10b981;
+            --danger-color: #ef4444;
         }
 
         * {
@@ -46,13 +52,13 @@
             font-weight: 500;
             letter-spacing: 0.5px;
             border-radius: 8px;
+            padding: 12px 30px;
+            font-size: 0.95rem;
         }
 
         .btn-primary {
             background-color: var(--primary-color);
             border-color: var(--primary-color);
-            padding: 12px 30px;
-            font-size: 0.95rem;
             box-shadow: 0 4px 6px rgba(10, 36, 99, 0.1);
         }
 
@@ -106,12 +112,21 @@
         .navbar-brand span {
             color: var(--secondary-color);
         }
+        .nav-link {
+            color: var(--heading-color) !important;
+            font-weight: 500;
+            margin: 0 10px;
+            transition: color 0.3s ease;
+        }
+        .nav-link:hover {
+            color: var(--secondary-color) !important;
+        }
 
         /* VIN Search Section */
         .vin-search-section {
             background: linear-gradient(135deg, var(--primary-color) 0%, #1a3a8f 100%);
             color: white;
-            padding: 60px 0;
+            padding: 100px 0;
             border-radius: 0 0 20px 20px;
         }
 
@@ -123,8 +138,14 @@
 
         .vin-search-container h1 {
             color: white;
-            font-size: 2.5rem;
-            margin-bottom: 15px;
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+
+        .vin-search-container p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 40px;
         }
 
         .vin-form {
@@ -135,55 +156,59 @@
 
         .vin-input {
             flex: 1;
-            padding: 15px 20px;
+            padding: 18px 25px;
             border: none;
             border-radius: 10px;
-            font-size: 1rem;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
-        /* Payment Options Section */
+        /* Payment Section */
         .payment-section {
+            padding: 100px 0;
             display: none;
-            padding: 60px 0;
         }
 
-        .payment-container {
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-
-        .payment-title {
+        .payment-header {
             text-align: center;
             margin-bottom: 50px;
         }
 
-        .payment-options {
-            display: flex;
-            gap: 30px;
-            justify-content: center;
-            flex-wrap: wrap;
+        .payment-header h2 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
         }
 
-        .payment-card {
-            background: var(--surface-color);
+        .payment-header p {
+            font-size: 1.1rem;
+            color: var(--text-color);
+        }
+
+        .pricing-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .pricing-card {
+            background: white;
             border-radius: 15px;
-            padding: 40px 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            padding: 40px;
             text-align: center;
-            flex: 1;
-            min-width: 300px;
-            max-width: 400px;
-            transition: transform 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            position: relative;
             border: 2px solid transparent;
         }
 
-        .payment-card:hover {
+        .pricing-card:hover {
             transform: translateY(-10px);
-            border-color: var(--primary-color);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.12);
         }
 
-        .payment-card.popular {
-            position: relative;
+        .pricing-card.popular {
             border-color: var(--secondary-color);
         }
 
@@ -194,78 +219,231 @@
             transform: translateX(-50%);
             background: var(--secondary-color);
             color: white;
-            padding: 8px 20px;
-            border-radius: 20px;
+            padding: 8px 30px;
+            border-radius: 25px;
             font-weight: 600;
             font-size: 0.9rem;
         }
 
-        .payment-price {
-            font-size: 2.5rem;
+        .pricing-card h3 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+        }
+
+        .price {
+            font-size: 3.5rem;
             font-weight: 700;
             color: var(--primary-color);
             margin: 20px 0;
         }
 
-        .payment-features {
+        .popular .price {
+            color: var(--secondary-color);
+        }
+
+        .pricing-features {
             list-style: none;
+            padding: 0;
             margin: 30px 0;
             text-align: left;
         }
 
-        .payment-features li {
-            margin-bottom: 15px;
+        .pricing-features li {
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
             display: flex;
             align-items: center;
         }
 
-        .payment-features li i {
-            color: var(--secondary-color);
-            margin-right: 10px;
-            font-size: 1.1rem;
+        .pricing-features li:last-child {
+            border-bottom: none;
         }
 
-        /* PayPal Buttons */
-        .paypal-buttons-container {
-            margin-top: 30px;
+        .pricing-features i {
+            margin-right: 15px;
+            font-size: 1.2rem;
+        }
+
+        .feature-included i {
+            color: var(--success-color);
+        }
+
+        .feature-excluded i {
+            color: var(--danger-color);
+        }
+
+        .pricing-features span {
+            flex: 1;
+        }
+
+        /* PayPal Button Container */
+        .paypal-button-container {
+            margin-top: 20px;
             min-height: 50px;
         }
 
-        /* Status Messages */
-        .status-message {
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 20px;
+        /* How to Order Section */
+        .how-to-order-section {
+            padding: 100px 0;
+            background: white;
+        }
+
+        .steps-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
+        }
+
+        .step-card {
+            background: white;
+            padding: 40px 30px;
+            border-radius: 15px;
             text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            position: relative;
+            transition: transform 0.3s ease;
         }
 
-        .status-success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
+        .step-card:hover {
+            transform: translateY(-10px);
         }
 
-        .status-error {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
+        .step-number {
+            width: 60px;
+            height: 60px;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin: 0 auto 25px;
+        }
+
+        .step-card h4 {
+            margin-bottom: 15px;
+            color: var(--heading-color);
+        }
+
+        /* Contact Section */
+        .contact-section {
+            padding: 100px 0;
+            background: var(--bg-color);
+        }
+
+        .contact-form {
+            background: white;
+            padding: 50px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        }
+
+        .form-control {
+            padding: 15px;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(10, 36, 99, 0.1);
+        }
+
+        textarea.form-control {
+            min-height: 150px;
+            resize: vertical;
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--heading-color);
+            color: white;
+            padding: 60px 0 30px;
+            margin-top: 0;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .footer-links a {
+            color: #e2e8f0;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--secondary-color);
+        }
+
+        .footer-copyright {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #a0aec0;
+            font-size: 0.9rem;
         }
 
         /* Responsive */
         @media (max-width: 768px) {
             .vin-search-container h1 {
-                font-size: 2rem;
+                font-size: 2.2rem;
             }
             .vin-form {
                 flex-direction: column;
             }
-            .payment-options {
+            .pricing-cards {
+                grid-template-columns: 1fr;
+            }
+            .footer-links {
                 flex-direction: column;
                 align-items: center;
+                gap: 20px;
             }
-            .payment-card {
-                min-width: 100%;
-            }
+        }
+
+        /* Modal Styling */
+        .modal-content {
+            border-radius: 15px;
+            border: none;
+        }
+
+        .modal-header {
+            background: var(--primary-color);
+            color: white;
+            border-radius: 15px 15px 0 0;
+            padding: 25px 30px;
+        }
+
+        .modal-title {
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .modal-body {
+            padding: 30px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .btn-close {
+            background: transparent url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23fff'%3e%3cpath d='M.293.293a1 1 0 011.414 0L8 6.586 14.293.293a1 1 0 111.414 1.414L9.414 8l6.293 6.293a1 1 0 01-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 01-1.414-1.414L6.586 8 .293 1.707a1 1 0 010-1.414z'/%3e%3c/svg%3e") center/1em auto no-repeat;
+            opacity: 0.8;
+        }
+
+        .btn-close:hover {
+            opacity: 1;
         }
     </style>
 </head>
@@ -273,382 +451,445 @@
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg fixed-top">
         <div class="container">
-            <a class="navbar-brand" href="#">Car<span>Used</span></a>
-            <div class="navbar-nav ms-auto">
-                <a class="nav-link active" href="#">Vehicle Reports</a>
+            <a class="navbar-brand" href="index.html">Car<span>Used</span></a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <div class="navbar-nav ms-auto">
+                    <a class="nav-link" href="#home">Home</a>
+                    <a class="nav-link" href="#how-to-order">How to Order</a>
+                    <a class="nav-link" href="#contact">Contact Us</a>
+                </div>
             </div>
         </div>
     </nav>
 
-    <!-- VIN Search Section -->
-    <section id="vin-search" class="vin-search-section">
-        <div class="container">
-            <div class="vin-search-container">
-                <h1>Get Your Vehicle History Report</h1>
-                <p>Enter your Vehicle Identification Number (VIN) to access comprehensive vehicle reports</p>
-                
-                <div class="vin-form">
-                    <input type="text" class="vin-input" placeholder="Enter 17-character VIN" id="vinInput" value="JHLRW2H5XKX010064">
-                    <button class="btn btn-primary" id="searchVinBtn">Search VIN</button>
-                </div>
-                <div id="vin-message" class="status-message" style="display: none;"></div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Payment Options Section -->
-    <section id="payment-section" class="payment-section">
-        <div class="container">
-            <div class="payment-container">
-                <div class="payment-title">
-                    <h2>Choose Your Report Option</h2>
-                    <p id="payment-vin-text">Vehicle: Loading...</p>
-                </div>
-                
-                <div class="payment-options">
-                    <div class="payment-card">
-                        <h3>Basic Report</h3>
-                        <div class="payment-price">$9.99</div>
-                        <ul class="payment-features">
-                            <li><i class="fas fa-check"></i> Accident History</li>
-                            <li><i class="fas fa-check"></i> Title Records</li>
-                            <li><i class="fas fa-check"></i> Odometer Readings</li>
-                            <li><i class="fas fa-times"></i> Service History</li>
-                            <li><i class="fas fa-times"></i> Theft Records</li>
-                            <li><i class="fas fa-times"></i> Sales Records</li>
-                            <li><i class="fas fa-times"></i> Full Specifications</li>
-                            <li><i class="fas fa-times"></i> PDF Download</li>
-                        </ul>
-                        <div class="paypal-buttons-container" id="paypal-basic"></div>
-                        <button class="btn btn-primary w-100 mt-3" id="free-test-btn" data-plan="basic">
-                            <i class="fas fa-vial"></i> Test Basic Report (Free)
+    <!-- Home Section -->
+    <section id="home">
+        <!-- VIN Search Section -->
+        <div class="vin-search-section">
+            <div class="container">
+                <div class="vin-search-container">
+                    <h1>Get Your Vehicle History Report</h1>
+                    <p>Enter your VIN to check vehicle history and get detailed reports</p>
+                    
+                    <div class="vin-form">
+                        <input type="text" class="vin-input" placeholder="Enter 17-character VIN (e.g., JHLRW2H5XKX010064)" id="vinInput">
+                        <button class="btn btn-primary" id="searchVinBtn">
+                            <i class="fas fa-search"></i> Check Vehicle
                         </button>
                     </div>
                     
-                    <div class="payment-card popular">
-                        <div class="popular-badge">MOST POPULAR</div>
-                        <h3>Premium Report</h3>
-                        <div class="payment-price">$19.99</div>
-                        <ul class="payment-features">
-                            <li><i class="fas fa-check"></i> Accident History</li>
-                            <li><i class="fas fa-check"></i> Title Records</li>
-                            <li><i class="fas fa-check"></i> Odometer Readings</li>
-                            <li><i class="fas fa-check"></i> Service History</li>
-                            <li><i class="fas fa-check"></i> Theft Records</li>
-                            <li><i class="fas fa-check"></i> Sales Records</li>
-                            <li><i class="fas fa-check"></i> Full Specifications</li>
-                            <li><i class="fas fa-check"></i> PDF Download</li>
-                        </ul>
-                        <div class="paypal-buttons-container" id="paypal-premium"></div>
-                        <button class="btn btn-secondary w-100 mt-3" id="free-test-premium-btn" data-plan="premium">
-                            <i class="fas fa-vial"></i> Test Premium Report (Free)
-                        </button>
-                    </div>
-                </div>
-                
-                <div class="text-center mt-5">
-                    <p class="text-muted">All reports include a 7-day money-back guarantee</p>
+                    <p class="mt-3" style="opacity: 0.8;">Your VIN is located on your dashboard or driver's side door jamb</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Payment Section -->
+    <section id="payment-section" class="payment-section">
+        <div class="container">
+            <div class="payment-header">
+                <h2>Select Your Report Type</h2>
+                <p>Choose the report that best fits your needs for VIN: <strong id="payment-vin"></strong></p>
+            </div>
+            
+            <div class="pricing-cards">
+                <div class="pricing-card">
+                    <h3>Regular Report</h3>
+                    <div class="price">$25</div>
+                    <p>Basic vehicle information and specifications</p>
+                    
+                    <ul class="pricing-features">
+                        <li class="feature-included">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Vehicle Specifications</span>
+                        </li>
+                        <li class="feature-included">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Basic History Check</span>
+                        </li>
+                        <li class="feature-included">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Dimensions & Weights</span>
+                        </li>
+                        <li class="feature-included">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Manufacturer Pricing</span>
+                        </li>
+                        <li class="feature-excluded">
+                            <i class="fas fa-times-circle"></i>
+                            <span>Accident History</span>
+                        </li>
+                        <li class="feature-excluded">
+                            <i class="fas fa-times-circle"></i>
+                            <span>Sales Records</span>
+                        </li>
+                        <li class="feature-excluded">
+                            <i class="fas fa-times-circle"></i>
+                            <span>Detailed Service History</span>
+                        </li>
+                    </ul>
+                    
+                    <div class="paypal-button-container" id="paypal-container-regular"></div>
+                    <p class="mt-2" style="font-size: 0.9rem; color: var(--text-color);">
+                        After payment, you'll be redirected to view your report.
+                    </p>
+                </div>
+                
+                <div class="pricing-card popular">
+                    <div class="popular-badge">MOST POPULAR</div>
+                    <h3>Premium Report</h3>
+                    <div class="price">$100</div>
+                    <p>Complete vehicle history and detailed analysis</p>
+                    
+                    <ul class="pricing-features">
+                        <li class="feature-included">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Everything in Regular Report</span>
+                        </li>
+                        <li class="feature-included">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Complete Accident History</span>
+                        </li>
+                        <li class="feature-included">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Detailed Sales Records</span>
+                        </li>
+                        <li class="feature-included">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Theft & Title Records</span>
+                        </li>
+                        <li class="feature-included">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Service History</span>
+                        </li>
+                        <li class="feature-included">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Odometer Verification</span>
+                        </li>
+                        <li class="feature-included">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Priority Support</span>
+                        </li>
+                    </ul>
+                    
+                    <div class="paypal-button-container" id="paypal-container-premium"></div>
+                    <p class="mt-2" style="font-size: 0.9rem; color: var(--text-color);">
+                        After payment, you'll be redirected to view your report.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How to Order Section -->
+    <section id="how-to-order" class="how-to-order-section">
+        <div class="container">
+            <div class="section-title text-center">
+                <h2>How to Order</h2>
+                <p class="lead">Get your vehicle history report in 3 simple steps</p>
+            </div>
+            
+            <div class="steps-container">
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <h4>Enter Your VIN</h4>
+                    <p>Locate your 17-character Vehicle Identification Number on your dashboard, door jamb, or registration documents and enter it above.</p>
+                </div>
+                
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <h4>Select Report Type</h4>
+                    <p>Choose between our Regular Report ($25) for basic information or Premium Report ($100) for comprehensive history including accidents, sales records, and more.</p>
+                </div>
+                
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <h4>Complete Payment</h4>
+                    <p>Click the PayPal button for your chosen report. You'll be redirected to PayPal to complete your payment securely. After payment, you'll view your report.</p>
+                </div>
+            </div>
+            
+            <div class="text-center mt-5">
+                <p class="mb-3"><strong>Note:</strong> All reports are delivered digitally. No physical copies are mailed.</p>
+                <a href="#home" class="btn btn-primary">Get Started Now</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="contact-section">
+        <div class="container">
+            <div class="section-title text-center">
+                <h2>Contact Us</h2>
+                <p class="lead">Have questions? Get in touch with our team</p>
+            </div>
+            
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="contact-form">
+                        <form id="contactForm" action="https://formspree.io/f/mqazwnyb" method="POST">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control" name="name" placeholder="Your Name" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <input type="email" class="form-control" name="email" placeholder="Your Email" required>
+                                </div>
+                            </div>
+                            
+                            <input type="text" class="form-control" name="subject" placeholder="Subject" required>
+                            
+                            <textarea class="form-control" name="message" placeholder="Your Message" required></textarea>
+                            
+                            <input type="hidden" name="_replyto" value="christiantelemaque@gmail.com">
+                            <input type="hidden" name="_subject" value="New Contact Form Submission from CarUsed">
+                            
+                            <div class="text-center">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-paper-plane"></i> Send Message
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-links">
+                <a href="#" data-bs-toggle="modal" data-bs-target="#privacyModal">Privacy Policy</a>
+                <a href="#" data-bs-toggle="modal" data-bs-target="#refundModal">Refund Policy</a>
+                <a href="#how-to-order">Features</a>
+                <a href="#contact">Contact Us</a>
+            </div>
+            
+            <div class="footer-copyright">
+                <p>&copy; 2024 CarUsed. All rights reserved. | Vehicle reports are for informational purposes only.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Refund Policy Modal -->
+    <div class="modal fade" id="refundModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Refund Policy</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <h4>Digital Product Refund Policy</h4>
+                    <p><strong>Last Updated: January 1, 2024</strong></p>
+                    
+                    <h5 class="mt-4">1. No Refunds for Digital Downloads</h5>
+                    <p>Due to the nature of digital products, all sales of vehicle history reports are final. Once a report has been accessed, downloaded, or delivered via email, no refunds will be issued under any circumstances.</p>
+                    
+                    <h5 class="mt-4">2. Product Description</h5>
+                    <p>We provide detailed descriptions of our Regular ($25) and Premium ($100) reports on our website. Customers are responsible for reviewing these descriptions before purchase. Refunds will not be granted based on customer expectations that differ from the product description.</p>
+                    
+                    <h5 class="mt-4">3. Technical Issues</h5>
+                    <p>If you experience technical difficulties accessing your report, please contact our support team at support@carused.com. We will work to resolve any legitimate technical issues but cannot issue refunds for reports that have been successfully delivered to your email address.</p>
+                    
+                    <h5 class="mt-4">4. Data Accuracy Disclaimer</h5>
+                    <p>Our reports compile information from various sources. While we strive for accuracy, we cannot guarantee the completeness or accuracy of the information provided. Refunds will not be issued based on the content or accuracy of the information in reports.</p>
+                    
+                    <h5 class="mt-4">5. Unauthorized Purchases</h5>
+                    <p>If you believe your purchase was unauthorized, you must contact us within 24 hours of the purchase date. We will investigate and may issue a refund at our discretion if the claim is validated.</p>
+                    
+                    <h5 class="mt-4">6. Customer Responsibility</h5>
+                    <p>Customers are responsible for ensuring they enter the correct VIN number before purchase. No refunds will be issued for reports generated with incorrect VIN numbers provided by the customer.</p>
+                    
+                    <h5 class="mt-4">7. Contact Information</h5>
+                    <p>For any questions about this policy, please contact us at:</p>
+                    <ul>
+                        <li>Email: support@carused.com</li>
+                        <li>Phone: (555) 123-4567</li>
+                        <li>Business Hours: Monday-Friday, 9AM-5PM EST</li>
+                    </ul>
+                    
+                    <div class="alert alert-warning mt-4">
+                        <strong>Important:</strong> By purchasing any report from CarUsed, you acknowledge and agree to this no-refund policy for digital products.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Privacy Policy Modal -->
+    <div class="modal fade" id="privacyModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Privacy Policy</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <h4>Privacy Policy</h4>
+                    <p><strong>Last Updated: January 1, 2024</strong></p>
+                    <p>CarUsed respects your privacy and is committed to protecting your personal data. This privacy policy will inform you about how we look after your personal data when you visit our website and tell you about your privacy rights.</p>
+                    
+                    <h5 class="mt-4">Information We Collect</h5>
+                    <p>We collect information you provide directly to us, such as when you request a vehicle report, create an account, or contact us for support.</p>
+                    
+                    <h5 class="mt-4">How We Use Your Information</h5>
+                    <p>We use the information we collect to provide, maintain, and improve our services, to process transactions, and to communicate with you.</p>
+                    
+                    <h5 class="mt-4">Data Security</h5>
+                    <p>We implement appropriate technical and organizational measures to protect your personal data against unauthorized access, alteration, disclosure, or destruction.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // Vehicle Database - Simplified for payment page
-        const vehicleDatabase = {
-            'JHLRW2H5XKX010064': {
-                makeModel: 'Honda CR-V',
-                year: '2019',
-                color: 'Platinum White Pearl'
-            },
-            '1HGCM82633A123456': {
-                makeModel: 'Honda Accord',
-                year: '2020',
-                color: 'Silver'
-            },
-            '2FMDK3GC5DBA12345': {
-                makeModel: 'Ford Escape',
-                year: '2019',
-                color: 'Blue'
-            },
-            '5YJSA1E21GF123456': {
-                makeModel: 'Tesla Model S',
-                year: '2021',
-                color: 'Red'
-            }
-        };
+        // Add Bootstrap JS for modals and navbar toggle
+        const bootstrapScript = document.createElement('script');
+        bootstrapScript.src = 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js';
+        document.head.appendChild(bootstrapScript);
 
         // DOM Elements
         const vinInput = document.getElementById('vinInput');
         const searchVinBtn = document.getElementById('searchVinBtn');
         const paymentSection = document.getElementById('payment-section');
-        const paymentVinText = document.getElementById('payment-vin-text');
-        const vinMessage = document.getElementById('vin-message');
-        const freeTestBtn = document.getElementById('free-test-btn');
-        const freeTestPremiumBtn = document.getElementById('free-test-premium-btn');
+        const paymentVin = document.getElementById('payment-vin');
 
-        // Current state
+        // State variables
         let currentVin = '';
-        let currentVehicle = null;
+        let paypalButtonsInitialized = false;
 
-        // Check if VIN is already purchased
-        function checkVinPurchaseStatus(vin) {
-            const purchaseData = localStorage.getItem(`purchase_${vin}`);
-            if (purchaseData) {
-                try {
-                    return JSON.parse(purchaseData);
-                } catch (e) {
-                    return null;
-                }
-            }
-            return null;
-        }
-
-        // Validate VIN format
+        // Validate VIN
         function validateVIN(vin) {
-            if (vin.length !== 17) {
-                showMessage('VIN must be exactly 17 characters', 'error');
-                return false;
-            }
-            
-            // Check for invalid characters
-            if (!/^[A-HJ-NPR-Z0-9]{17}$/i.test(vin)) {
-                showMessage('Invalid VIN format. VIN contains invalid characters.', 'error');
-                return false;
-            }
-            
-            return true;
+            return vin.length === 17 && /^[A-HJ-NPR-Z0-9]{17}$/i.test(vin);
         }
 
-        // Show message
-        function showMessage(text, type = 'info') {
-            vinMessage.textContent = text;
-            vinMessage.className = `status-message status-${type}`;
-            vinMessage.style.display = 'block';
-            
-            setTimeout(() => {
-                vinMessage.style.display = 'none';
-            }, 5000);
+        // Show payment options
+        function showPaymentOptions(vin) {
+            if (validateVIN(vin)) {
+                currentVin = vin.toUpperCase();
+                paymentVin.textContent = currentVin;
+                paymentSection.style.display = 'block';
+                
+                // Initialize PayPal buttons if not already done
+                if (!paypalButtonsInitialized) {
+                    initializePayPalButtons();
+                    paypalButtonsInitialized = true;
+                }
+                
+                // Scroll to payment section
+                paymentSection.scrollIntoView({ behavior: 'smooth' });
+            } else {
+                alert('Please enter a valid 17-character VIN. VIN should contain only letters and numbers (except I, O, Q).');
+            }
         }
 
         // Initialize PayPal buttons
-        function initializePayPalButtons(vin) {
-            // Basic Report PayPal Button
-            if (document.querySelector('#paypal-basic')) {
-                paypal.Buttons({
-                    style: {
-                        shape: 'rect',
-                        color: 'gold',
-                        layout: 'vertical',
-                        label: 'paypal'
-                    },
-                    createOrder: function(data, actions) {
-                        return actions.order.create({
-                            purchase_units: [{
-                                description: `Basic Vehicle Report - VIN: ${vin}`,
-                                amount: {
-                                    value: '9.99'
-                                }
-                            }]
-                        });
-                    },
-                    onApprove: function(data, actions) {
-                        return actions.order.capture().then(function(details) {
-                            // Payment successful
-                            const purchaseData = {
-                                vin: vin,
-                                plan: 'basic',
-                                amount: 9.99,
-                                date: new Date().toISOString(),
-                                transactionId: details.id,
-                                status: 'completed'
-                            };
-                            
-                            // Save to localStorage
-                            localStorage.setItem(`purchase_${vin}`, JSON.stringify(purchaseData));
-                            localStorage.setItem('last_purchase', JSON.stringify(purchaseData));
-                            
-                            // Redirect to report page
-                            window.location.href = `report.html?vin=${vin}&plan=basic`;
-                        });
-                    },
-                    onError: function(err) {
-                        console.error('PayPal Error:', err);
-                        showMessage('Payment failed. Please try again.', 'error');
-                    }
-                }).render('#paypal-basic');
-            }
+        function initializePayPalButtons() {
+            // Regular Report PayPal Button - $25
+            paypal.HostedButtons({
+                hostedButtonId: "2B8T5BWD5RDSW",
+                onInit: function(data, actions) {
+                    console.log('Regular PayPal button initialized');
+                },
+                onClick: function(data, actions) {
+                    // Store the VIN and plan in localStorage
+                    localStorage.setItem('carUsed_vin', currentVin);
+                    localStorage.setItem('carUsed_plan', 'regular');
+                    console.log('Regular report selected for VIN:', currentVin);
+                },
+                onError: function(err) {
+                    console.error('PayPal error:', err);
+                    alert('An error occurred with PayPal. Please try again or contact support.');
+                }
+            }).render("#paypal-container-regular");
 
-            // Premium Report PayPal Button
-            if (document.querySelector('#paypal-premium')) {
-                paypal.Buttons({
-                    style: {
-                        shape: 'rect',
-                        color: 'blue',
-                        layout: 'vertical',
-                        label: 'paypal'
-                    },
-                    createOrder: function(data, actions) {
-                        return actions.order.create({
-                            purchase_units: [{
-                                description: `Premium Vehicle Report - VIN: ${vin}`,
-                                amount: {
-                                    value: '19.99'
-                                }
-                            }]
-                        });
-                    },
-                    onApprove: function(data, actions) {
-                        return actions.order.capture().then(function(details) {
-                            // Payment successful
-                            const purchaseData = {
-                                vin: vin,
-                                plan: 'premium',
-                                amount: 19.99,
-                                date: new Date().toISOString(),
-                                transactionId: details.id,
-                                status: 'completed'
-                            };
-                            
-                            // Save to localStorage
-                            localStorage.setItem(`purchase_${vin}`, JSON.stringify(purchaseData));
-                            localStorage.setItem('last_purchase', JSON.stringify(purchaseData));
-                            
-                            // Redirect to report page
-                            window.location.href = `report.html?vin=${vin}&plan=premium`;
-                        });
-                    },
-                    onError: function(err) {
-                        console.error('PayPal Error:', err);
-                        showMessage('Payment failed. Please try again.', 'error');
-                    }
-                }).render('#paypal-premium');
-            }
+            // Premium Report PayPal Button - $100
+            // Note: You need to create a separate hosted button for $100 in your PayPal dashboard
+            // and replace the hostedButtonId below with your actual premium button ID
+            paypal.HostedButtons({
+                hostedButtonId: "2B8T5BWD5RDSW", // REPLACE THIS WITH YOUR ACTUAL PREMIUM BUTTON ID
+                onInit: function(data, actions) {
+                    console.log('Premium PayPal button initialized');
+                },
+                onClick: function(data, actions) {
+                    // Store the VIN and plan in localStorage
+                    localStorage.setItem('carUsed_vin', currentVin);
+                    localStorage.setItem('carUsed_plan', 'premium');
+                    console.log('Premium report selected for VIN:', currentVin);
+                },
+                onError: function(err) {
+                    console.error('PayPal error:', err);
+                    alert('An error occurred with PayPal. Please try again or contact support.');
+                }
+            }).render("#paypal-container-premium");
         }
 
-        // VIN Search Function
-        searchVinBtn.addEventListener('click', function() {
+        // Event Listeners
+        searchVinBtn.addEventListener('click', () => {
             const vin = vinInput.value.trim().toUpperCase();
-            
-            if (!validateVIN(vin)) {
-                return;
+            if (vin) {
+                showPaymentOptions(vin);
+            } else {
+                alert('Please enter a VIN to continue');
             }
-            
-            currentVin = vin;
-            
-            // Check if vehicle exists in database
-            if (!vehicleDatabase[vin]) {
-                showMessage('Vehicle not found in our database. Please try another VIN.', 'error');
-                return;
-            }
-            
-            currentVehicle = vehicleDatabase[vin];
-            
-            // Check if already purchased
-            const purchaseStatus = checkVinPurchaseStatus(vin);
-            if (purchaseStatus) {
-                // Already purchased, redirect directly
-                showMessage('Report already purchased. Redirecting...', 'success');
-                setTimeout(() => {
-                    window.location.href = `report.html?vin=${vin}&plan=${purchaseStatus.plan}`;
-                }, 1000);
-                return;
-            }
-            
-            // Update payment section with vehicle info
-            paymentVinText.textContent = `Vehicle: ${currentVehicle.year} ${currentVehicle.makeModel} (${currentVehicle.color})`;
-            
-            // Initialize PayPal buttons
-            initializePayPalButtons(vin);
-            
-            // Show payment section
-            paymentSection.style.display = 'block';
-            paymentSection.scrollIntoView({ behavior: 'smooth' });
-            
-            showMessage('Vehicle found! Please select a report option.', 'success');
         });
 
-        // Free test button (for development/testing)
-        freeTestBtn.addEventListener('click', function() {
-            const plan = this.getAttribute('data-plan');
-            
-            if (!currentVin || !currentVehicle) {
-                showMessage('Please search for a VIN first', 'error');
-                return;
-            }
-            
-            // Create test purchase data
-            const testPurchaseData = {
-                vin: currentVin,
-                plan: plan,
-                amount: 0,
-                date: new Date().toISOString(),
-                transactionId: 'TEST_' + Date.now(),
-                status: 'test_completed',
-                isTest: true
-            };
-            
-            // Save to localStorage
-            localStorage.setItem(`purchase_${currentVin}`, JSON.stringify(testPurchaseData));
-            localStorage.setItem('last_purchase', JSON.stringify(testPurchaseData));
-            
-            // Redirect to report page
-            window.location.href = `report.html?vin=${currentVin}&plan=${plan}`;
-        });
-
-        // Free test premium button
-        freeTestPremiumBtn.addEventListener('click', function() {
-            const plan = this.getAttribute('data-plan');
-            
-            if (!currentVin || !currentVehicle) {
-                showMessage('Please search for a VIN first', 'error');
-                return;
-            }
-            
-            // Create test purchase data
-            const testPurchaseData = {
-                vin: currentVin,
-                plan: plan,
-                amount: 0,
-                date: new Date().toISOString(),
-                transactionId: 'TEST_' + Date.now(),
-                status: 'test_completed',
-                isTest: true
-            };
-            
-            // Save to localStorage
-            localStorage.setItem(`purchase_${currentVin}`, JSON.stringify(testPurchaseData));
-            localStorage.setItem('last_purchase', JSON.stringify(testPurchaseData));
-            
-            // Redirect to report page
-            window.location.href = `report.html?vin=${currentVin}&plan=${plan}`;
-        });
-
-        // Check URL parameters on load
-        window.addEventListener('load', function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const vinFromUrl = urlParams.get('vin');
-            const planFromUrl = urlParams.get('plan');
-            
-            if (vinFromUrl && planFromUrl) {
-                // Check if purchase exists
-                const purchaseStatus = checkVinPurchaseStatus(vinFromUrl);
-                if (purchaseStatus && purchaseStatus.plan === planFromUrl) {
-                    // Already purchased, redirect to report
-                    window.location.href = `report.html?vin=${vinFromUrl}&plan=${planFromUrl}`;
+        // Handle VIN input Enter key
+        vinInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const vin = vinInput.value.trim().toUpperCase();
+                if (vin) {
+                    showPaymentOptions(vin);
                 }
             }
         });
 
-        // IMPORTANT: User must replace YOUR_CLIENT_ID_HERE with actual PayPal Client ID
-        console.log('=== PAYPAL SETUP REQUIRED ===');
-        console.log('1. Log into PayPal Developer Dashboard');
-        console.log('2. Create a new REST API app (or use existing)');
-        console.log('3. Get your Client ID');
-        console.log('4. Replace "YOUR_CLIENT_ID_HERE" in line 9 with your actual Client ID');
-        console.log('5. For testing, use Sandbox mode first');
-        console.log('=============================');
+        // Smooth scroll for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                if (targetId === '#home') {
+                    // Scroll to top
+                    window.scrollTo({
+                        top: 0,
+                        behavior: 'smooth'
+                    });
+                } else {
+                    const targetElement = document.querySelector(targetId);
+                    if (targetElement) {
+                        targetElement.scrollIntoView({
+                            behavior: 'smooth'
+                        });
+                    }
+                }
+            });
+        });
+
+        // Initialize
+        window.onload = () => {
+            // Clear VIN input
+            vinInput.value = '';
+            
+            // Hide payment section initially
+            paymentSection.style.display = 'none';
+            
+            // Clear any existing localStorage
+            localStorage.removeItem('carUsed_vin');
+            localStorage.removeItem('carUsed_plan');
+        };
     </script>
 </body>
 </html>

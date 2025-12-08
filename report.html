@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vehicle Report - CarUsed</title>
+    <title>CarUsed - Vehicle Report</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- PDF Libraries -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
     <style>
         :root {
             --primary-color: #0A2463;
@@ -19,6 +19,7 @@
             --heading-color: #1a202c;
             --text-color: #4a5568;
             --border-color: #e2e8f0;
+            --success-color: #10b981;
         }
 
         * {
@@ -47,13 +48,13 @@
             font-weight: 500;
             letter-spacing: 0.5px;
             border-radius: 8px;
+            padding: 12px 30px;
+            font-size: 0.95rem;
         }
 
         .btn-primary {
             background-color: var(--primary-color);
             border-color: var(--primary-color);
-            padding: 12px 30px;
-            font-size: 0.95rem;
             box-shadow: 0 4px 6px rgba(10, 36, 99, 0.1);
         }
 
@@ -62,14 +63,6 @@
             border-color: #081c4a;
             transform: translateY(-3px);
             box-shadow: 0 7px 14px rgba(10, 36, 99, 0.2);
-        }
-
-        .section-padding {
-            padding: 80px 0;
-        }
-
-        .section-title {
-            margin-bottom: 40px;
         }
 
         /* Navbar Styling */
@@ -90,58 +83,9 @@
             color: var(--secondary-color);
         }
 
-        /* Report Header */
-        .report-header-section {
-            background: linear-gradient(135deg, var(--primary-color) 0%, #1a3a8f 100%);
-            color: white;
-            padding: 40px 0;
-        }
-
-        .report-header-container {
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-
-        .report-header-container h1 {
-            color: white;
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-        }
-
-        .report-header-container p {
-            opacity: 0.9;
-            font-size: 1.1rem;
-        }
-
-        /* Purchase Info Banner */
-        .purchase-info {
-            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-            color: white;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-
-        .purchase-info span {
-            margin-right: 20px;
-            margin-bottom: 10px;
-        }
-
-        .purchase-info .badge {
-            background: white;
-            color: #28a745;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-weight: 600;
-        }
-
-        /* Report Body */
-        .report-section {
-            padding: 60px 0;
+        /* Report Container */
+        .vehicle-report-section {
+            padding: 100px 0;
         }
 
         .report-container {
@@ -151,11 +95,48 @@
             overflow: hidden;
         }
 
-        .report-body {
+        .report-header {
+            background: var(--primary-color);
+            color: white;
             padding: 40px;
+            text-align: center;
         }
 
-        /* Vehicle Overview */
+        .report-header h2 {
+            color: white;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+        }
+
+        .report-header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .report-body {
+            padding: 50px;
+        }
+
+        /* Success Message */
+        .success-message {
+            background: linear-gradient(135deg, var(--success-color) 0%, #0da271 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .success-message h4 {
+            color: white;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        /* Report Content Styling */
         .vehicle-overview {
             display: flex;
             gap: 40px;
@@ -188,19 +169,19 @@
 
         .info-card {
             background: #f8f9fa;
-            padding: 20px;
+            padding: 25px;
             border-radius: 10px;
             border-left: 4px solid var(--primary-color);
         }
 
         .info-card h5 {
             color: var(--primary-color);
-            margin-bottom: 10px;
-            font-size: 1.1rem;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
         }
 
         .info-card p {
-            margin-bottom: 8px;
+            margin-bottom: 12px;
             display: flex;
             justify-content: space-between;
         }
@@ -212,29 +193,33 @@
 
         .info-card span.value {
             color: var(--heading-color);
+            text-align: right;
         }
 
-        /* Data Sections */
         .data-section {
-            margin-bottom: 40px;
+            margin-bottom: 50px;
         }
 
         .data-section h4 {
             color: var(--primary-color);
             margin-bottom: 25px;
-            padding-bottom: 10px;
+            padding-bottom: 15px;
             border-bottom: 2px solid var(--border-color);
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 15px;
         }
 
         .data-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
         }
 
         .data-card {
             background: #f8f9fa;
-            padding: 25px;
+            padding: 30px;
             border-radius: 10px;
             transition: transform 0.3s ease;
         }
@@ -246,58 +231,66 @@
 
         .data-card h5 {
             color: var(--secondary-color);
-            margin-bottom: 15px;
+            margin-bottom: 20px;
             display: flex;
             align-items: center;
             gap: 10px;
-        }
-
-        .data-card h5 i {
             font-size: 1.2rem;
         }
 
         .data-item {
-            margin-bottom: 12px;
+            margin-bottom: 15px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .data-item:last-child {
+            border-bottom: none;
         }
 
         .data-item .label {
             font-weight: 600;
             color: var(--text-color);
+            flex: 1;
         }
 
         .data-item .value {
             color: var(--heading-color);
             text-align: right;
-            max-width: 60%;
+            flex: 1;
         }
 
-        /* History Cards */
         .history-cards {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
             margin-top: 20px;
         }
 
         .history-card {
             background: #f8f9fa;
-            padding: 25px;
+            padding: 30px;
             border-radius: 10px;
             border-top: 4px solid var(--secondary-color);
+            transition: transform 0.3s ease;
+        }
+
+        .history-card:hover {
+            transform: translateY(-5px);
         }
 
         .history-card h5 {
             color: var(--primary-color);
-            margin-bottom: 15px;
+            margin-bottom: 20px;
             display: flex;
             align-items: center;
             gap: 10px;
+            font-size: 1.2rem;
         }
 
-        /* Sales Records Table */
         .sales-table-container {
             margin-top: 20px;
             overflow-x: auto;
@@ -306,13 +299,13 @@
         .sales-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 15px;
+            margin-top: 20px;
         }
 
         .sales-table th {
             background-color: var(--primary-color);
             color: white;
-            padding: 15px;
+            padding: 18px;
             text-align: left;
             font-weight: 600;
             position: sticky;
@@ -320,7 +313,7 @@
         }
 
         .sales-table td {
-            padding: 15px;
+            padding: 18px;
             border-bottom: 1px solid var(--border-color);
             vertical-align: top;
         }
@@ -341,12 +334,12 @@
 
         .sales-seller {
             font-weight: 600;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
         }
 
         .sales-location {
             color: var(--text-color);
-            font-size: 0.9rem;
+            font-size: 0.95rem;
         }
 
         .sales-price {
@@ -357,55 +350,35 @@
 
         .sales-mileage {
             color: var(--text-color);
-            font-size: 0.9rem;
+            font-size: 0.95rem;
         }
 
         /* Download Section */
         .download-section {
             text-align: center;
-            padding-top: 40px;
-            margin-top: 40px;
+            padding-top: 50px;
+            margin-top: 50px;
             border-top: 2px solid var(--border-color);
         }
 
-        /* Locked Content */
-        .locked-content {
-            background: #f8f9fa;
-            padding: 30px;
+        /* Error Message */
+        .error-message {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            padding: 25px;
             border-radius: 10px;
+            margin-bottom: 40px;
             text-align: center;
-            border: 2px dashed var(--border-color);
+            display: none;
         }
 
-        .locked-content i {
-            font-size: 3rem;
-            color: var(--secondary-color);
-            margin-bottom: 15px;
-        }
-
-        .locked-content h5 {
-            color: var(--text-color);
+        .error-message h4 {
+            color: white;
             margin-bottom: 10px;
-        }
-
-        /* Status Messages */
-        .status-message {
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        .status-error {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-
-        .status-success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
         }
 
         /* Responsive */
@@ -422,18 +395,6 @@
             .history-cards {
                 grid-template-columns: 1fr;
             }
-            .sales-table th,
-            .sales-table td {
-                padding: 10px;
-                font-size: 0.9rem;
-            }
-            .purchase-info {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            .purchase-info span {
-                margin-bottom: 10px;
-            }
         }
     </style>
 </head>
@@ -442,50 +403,56 @@
     <nav class="navbar navbar-expand-lg fixed-top">
         <div class="container">
             <a class="navbar-brand" href="index.html">Car<span>Used</span></a>
-            <div class="navbar-nav ms-auto">
-                <a class="nav-link active" href="index.html">Get Another Report</a>
-            </div>
         </div>
     </nav>
 
-    <!-- Report Header -->
-    <section class="report-header-section">
+    <!-- Vehicle Report Section -->
+    <section class="vehicle-report-section">
         <div class="container">
-            <div class="report-header-container">
-                <h1 id="vehicle-title">Vehicle History Report</h1>
-                <p id="report-vin">VIN: Loading...</p>
+            <div class="success-message" id="successMessage">
+                <h4><i class="fas fa-check-circle"></i> Payment Successful!</h4>
+                <p>Your vehicle history report is ready. You can view it below and download it as PDF.</p>
             </div>
-        </div>
-    </section>
 
-    <!-- Report Section -->
-    <section class="report-section">
-        <div class="container">
-            <div id="status-message" class="status-message" style="display: none;"></div>
+            <div class="error-message" id="errorMessage">
+                <h4><i class="fas fa-exclamation-triangle"></i> No Report Found</h4>
+                <p>Please go back to the <a href="index.html" style="color: white; text-decoration: underline;">main page</a> and purchase a vehicle report first.</p>
+            </div>
             
-            <div id="purchase-info" class="purchase-info" style="display: none;">
-                <!-- Purchase info will be populated here -->
-            </div>
-
-            <div class="report-container" id="report-container">
-                <div class="report-body">
-                    <!-- Report content will be populated here -->
-                    <div id="report-content">
-                        <!-- Dynamic content will be inserted here -->
-                    </div>
+            <div class="report-container" id="reportContainer">
+                <div class="report-header">
+                    <h2 id="vehicle-title">Vehicle History Report</h2>
+                    <p id="report-vin">VIN: Loading...</p>
+                    <p id="report-plan" style="font-size: 1rem; margin-top: 10px;"></p>
+                </div>
+                
+                <div class="report-body" id="reportBody">
+                    <!-- Will be populated by JavaScript -->
                 </div>
             </div>
+            
+            <div class="download-section">
+                <button class="btn btn-primary btn-lg" id="download-report-btn">
+                    <i class="fas fa-download"></i> Download Report as PDF
+                </button>
+                <p class="mt-3">
+                    <a href="index.html" class="btn btn-outline-primary">
+                        <i class="fas fa-arrow-left"></i> Back to Home
+                    </a>
+                </p>
+            </div>
         </div>
     </section>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        const { jsPDF } = window.jspdf;
+        // Add Bootstrap JS
+        const bootstrapScript = document.createElement('script');
+        bootstrapScript.src = 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js';
+        document.head.appendChild(bootstrapScript);
 
-        // COMPREHENSIVE VEHICLE DATABASE
+        // VEHICLE DATABASE
         const vehicleDatabase = {
             'JHLRW2H5XKX010064': {
-                // Vehicle Identification
                 makeModel: 'Honda CR-V',
                 year: '2019',
                 color: 'Platinum White Pearl',
@@ -494,8 +461,6 @@
                 trimVariations: 'EX',
                 countryOfOrigin: 'Japan',
                 cityOfOrigin: 'Yorii',
-                
-                // Vehicle Specifications
                 vehicleStyle: 'All-Wheel Drive',
                 vehicleType: 'Sport Utility Vehicle',
                 vehicleSize: 'Compact',
@@ -517,23 +482,15 @@
                 invoicePrice: 26894,
                 deliveryCharges: 0,
                 msrp: 28650,
-                
-                // Engine & Drivetrain
                 engine: '1.5L I-4 Turbo',
                 transmission: 'Continuously Variable (CVT)',
                 fuel: 'Gasoline',
-                
-                // Image
                 image: 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
-                
-                // History Report
                 accidentHistory: 'Minor accident reported in 2020. Damage to front bumper.',
                 titleRecords: 'Clean title. No salvage or rebuilt records.',
                 odometerReadings: 'Verified readings: 45,200 miles (2023), 32,100 miles (2022), 18,500 miles (2021)',
                 serviceHistory: 'Regular maintenance. Last service: Brake inspection at 44,500 miles.',
                 theftRecords: 'No theft records found.',
-                
-                // Sales Records
                 salesRecords: [
                     { date: '2019-03-04', seller: 'Honda City', location: 'Levittown, NY 11756', price: 29695, mileage: 'N/A', color: 'Platinum White Pearl' },
                     { date: '2022-05-11', seller: 'Sloane Honda', location: 'Philadelphia, PA', price: 30628, mileage: '31,585 miles', color: '–' },
@@ -563,153 +520,24 @@
                     { date: '2022-07-26', seller: 'Sloane Honda', location: 'Philadelphia, PA', price: 29840, mileage: '31,585 miles', color: 'Platinum White Pearl' },
                     { date: '2022-07-27', seller: 'Sloane Toyota Of Glenside', location: 'Glenside, PA 19038', price: 30840, mileage: '31,585 miles', color: 'Platinum White Pearl' }
                 ]
-            },
-            '1HGCM82633A123456': {
-                makeModel: 'Honda Accord',
-                year: '2020',
-                color: 'Silver',
-                trim: 'EX-L',
-                shortTrim: 'EX-L',
-                trimVariations: 'EX-L',
-                countryOfOrigin: 'USA',
-                cityOfOrigin: 'Marysville',
-                vehicleStyle: 'Front-Wheel Drive',
-                vehicleType: 'Sedan',
-                vehicleSize: 'Midsize',
-                vehicleCategory: 'Midsize Car',
-                doors: 4,
-                fuelCapacity: 14.8,
-                cityMileage: 30,
-                highwayMileage: 38,
-                drivenWheels: 'Front-Wheel Drive',
-                antiBrakeSystem: '4-Wheel ABS',
-                steeringType: 'Rack & Pinion',
-                curbWeight: 3200,
-                grossWeight: 4500,
-                overallHeight: 57.1,
-                overallLength: 192.2,
-                overallWidth: 72.8,
-                standardSeating: 5,
-                optionalSeating: null,
-                invoicePrice: 26500,
-                deliveryCharges: 995,
-                msrp: 28500,
-                engine: '2.0L 4-Cylinder',
-                transmission: 'Automatic',
-                fuel: 'Gasoline',
-                image: 'https://images.unsplash.com/photo-1621135802920-133df2871f31?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
-                accidentHistory: 'No accidents reported. Clean history.',
-                titleRecords: 'Clean title. No salvage or rebuilt records.',
-                odometerReadings: 'Verified readings: 28,500 miles (2023), 15,200 miles (2022), 5,000 miles (2021)',
-                serviceHistory: 'Regular maintenance records available. Last service: Oil change at 27,800 miles.',
-                theftRecords: 'No theft records found.',
-                salesRecords: [
-                    { date: '2020-05-15', seller: 'Honda Dealer', location: 'Columbus, OH', price: 28500, mileage: '10 miles', color: 'Silver' },
-                    { date: '2022-03-20', seller: 'AutoMax', location: 'Cleveland, OH', price: 24500, mileage: '18,500 miles', color: 'Silver' }
-                ]
-            },
-            '2FMDK3GC5DBA12345': {
-                makeModel: 'Ford Escape',
-                year: '2019',
-                color: 'Blue',
-                trim: 'SE',
-                shortTrim: 'SE',
-                trimVariations: 'SE',
-                countryOfOrigin: 'USA',
-                cityOfOrigin: 'Louisville',
-                vehicleStyle: 'All-Wheel Drive',
-                vehicleType: 'Sport Utility Vehicle',
-                vehicleSize: 'Compact',
-                vehicleCategory: 'Small Sport Utility Vehicle 4WD',
-                doors: 4,
-                fuelCapacity: 15.7,
-                cityMileage: 23,
-                highwayMileage: 30,
-                drivenWheels: 'All-Wheel Drive',
-                antiBrakeSystem: '4-Wheel ABS',
-                steeringType: 'Rack & Pinion',
-                curbWeight: 3650,
-                grossWeight: 5200,
-                overallHeight: 66.3,
-                overallLength: 181.1,
-                overallWidth: 74.1,
-                standardSeating: 5,
-                optionalSeating: null,
-                invoicePrice: 25500,
-                deliveryCharges: 1095,
-                msrp: 27500,
-                engine: '1.5L EcoBoost',
-                transmission: 'Automatic',
-                fuel: 'Gasoline',
-                image: 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
-                accidentHistory: 'Minor accident reported in 2020. Damage to front bumper.',
-                titleRecords: 'Clean title. No salvage or rebuilt records.',
-                odometerReadings: 'Verified readings: 45,200 miles (2023), 32,100 miles (2022), 18,500 miles (2021)',
-                serviceHistory: 'Regular maintenance. Last service: Brake inspection at 44,500 miles.',
-                theftRecords: 'No theft records found.',
-                salesRecords: [
-                    { date: '2019-08-10', seller: 'Ford Dealer', location: 'Detroit, MI', price: 27500, mileage: '25 miles', color: 'Blue' },
-                    { date: '2021-11-15', seller: 'CarMax', location: 'Chicago, IL', price: 23500, mileage: '25,000 miles', color: 'Blue' }
-                ]
-            },
-            '5YJSA1E21GF123456': {
-                makeModel: 'Tesla Model S',
-                year: '2021',
-                color: 'Red',
-                trim: 'Long Range',
-                shortTrim: 'LR',
-                trimVariations: 'Long Range',
-                countryOfOrigin: 'USA',
-                cityOfOrigin: 'Fremont',
-                vehicleStyle: 'All-Wheel Drive',
-                vehicleType: 'Sedan',
-                vehicleSize: 'Large',
-                vehicleCategory: 'Large Car',
-                doors: 4,
-                fuelCapacity: 0,
-                cityMileage: 120,
-                highwayMileage: 115,
-                drivenWheels: 'All-Wheel Drive',
-                antiBrakeSystem: '4-Wheel ABS',
-                steeringType: 'Rack & Pinion',
-                curbWeight: 4561,
-                grossWeight: 5500,
-                overallHeight: 56.9,
-                overallLength: 196.0,
-                overallWidth: 77.3,
-                standardSeating: 5,
-                optionalSeating: 7,
-                invoicePrice: 84990,
-                deliveryCharges: 1200,
-                msrp: 89990,
-                engine: 'Electric',
-                transmission: 'Automatic',
-                fuel: 'Electric',
-                image: 'https://images.unsplash.com/photo-1560958089-b8a1929cea89?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
-                accidentHistory: 'No accidents reported. Clean history.',
-                titleRecords: 'Clean title. No salvage or rebuilt records.',
-                odometerReadings: 'Verified readings: 18,500 miles (2023), 9,200 miles (2022)',
-                serviceHistory: 'Software updates regularly. Last service: Tire rotation at 17,800 miles.',
-                theftRecords: 'No theft records found.',
-                salesRecords: [
-                    { date: '2021-06-01', seller: 'Tesla Store', location: 'Los Angeles, CA', price: 89990, mileage: '15 miles', color: 'Red' },
-                    { date: '2022-12-10', seller: 'Tesla Certified', location: 'San Francisco, CA', price: 78900, mileage: '12,500 miles', color: 'Red' }
-                ]
             }
         };
 
         // DOM Elements
-        const statusMessage = document.getElementById('status-message');
-        const purchaseInfo = document.getElementById('purchase-info');
-        const reportContent = document.getElementById('report-content');
+        const successMessage = document.getElementById('successMessage');
+        const errorMessage = document.getElementById('errorMessage');
+        const reportContainer = document.getElementById('reportContainer');
         const vehicleTitle = document.getElementById('vehicle-title');
         const reportVin = document.getElementById('report-vin');
-        const reportContainer = document.getElementById('report-container');
+        const reportPlan = document.getElementById('report-plan');
+        const reportBody = document.getElementById('reportBody');
+        const downloadReportBtn = document.getElementById('download-report-btn');
 
-        // Get URL parameters
-        const urlParams = new URLSearchParams(window.location.search);
-        const vinFromUrl = urlParams.get('vin');
-        const planFromUrl = urlParams.get('plan');
+        // State variables
+        let currentVin = '';
+        let currentPlan = '';
+        let currentPrice = 0;
+        let currentVehicle = null;
 
         // Format currency
         function formatCurrency(amount) {
@@ -722,6 +550,12 @@
             }).format(amount);
         }
 
+        // Format number with units
+        function formatNumber(value, unit = '') {
+            if (value === null || value === undefined || value === 'N/A') return 'N/A';
+            return `${value.toLocaleString()}${unit ? ' ' + unit : ''}`;
+        }
+
         // Format date
         function formatDate(dateString) {
             const date = new Date(dateString);
@@ -732,72 +566,79 @@
             });
         }
 
-        // Show message
-        function showMessage(text, type = 'error') {
-            statusMessage.textContent = text;
-            statusMessage.className = `status-message status-${type}`;
-            statusMessage.style.display = 'block';
-        }
-
-        // Hide message
-        function hideMessage() {
-            statusMessage.style.display = 'none';
-        }
-
-        // Check purchase validity
-        function checkPurchaseValidity(vin) {
-            // Check localStorage for purchase
-            const purchaseData = localStorage.getItem(`purchase_${vin}`);
+        // Check for payment and load report
+        function checkAndLoadReport() {
+            // Check localStorage for VIN and plan
+            const storedVin = localStorage.getItem('carUsed_vin');
+            const storedPlan = localStorage.getItem('carUsed_plan');
             
-            if (!purchaseData) {
-                return { valid: false, reason: 'No purchase record found' };
-            }
-            
-            try {
-                const purchase = JSON.parse(purchaseData);
+            if (storedVin && storedPlan) {
+                currentVin = storedVin.toUpperCase();
+                currentPlan = storedPlan;
                 
-                // Check if purchase is for this VIN
-                if (purchase.vin !== vin) {
-                    return { valid: false, reason: 'Purchase does not match VIN' };
-                }
+                // Set price based on plan
+                currentPrice = currentPlan === 'regular' ? 25 : 100;
                 
-                // Check if purchase is expired (for demo, purchases don't expire)
-                // In production, you might check date
+                // Load and display the report
+                loadVehicleReport();
                 
-                return { valid: true, data: purchase };
-            } catch (e) {
-                return { valid: false, reason: 'Invalid purchase data' };
+                // Clear localStorage after use
+                localStorage.removeItem('carUsed_vin');
+                localStorage.removeItem('carUsed_plan');
+            } else {
+                // No report data found
+                showErrorMessage();
+                return;
             }
         }
 
-        // Display purchase info
-        function displayPurchaseInfo(purchaseData) {
-            const planName = purchaseData.plan === 'premium' ? 'Premium Report' : 'Basic Report';
-            const amountText = purchaseData.isTest ? 'TEST (Free)' : formatCurrency(purchaseData.amount);
-            const date = new Date(purchaseData.date).toLocaleDateString();
-            
-            purchaseInfo.innerHTML = `
-                <div>
-                    <span><i class="fas fa-check-circle me-2"></i>Report Purchased: ${planName}</span>
-                    <span><i class="fas fa-dollar-sign me-2"></i>Amount: ${amountText}</span>
-                    <span><i class="fas fa-calendar me-2"></i>Date: ${date}</span>
-                </div>
-                <div>
-                    <span class="badge">${purchaseData.isTest ? 'TEST MODE' : 'PAID'}</span>
-                </div>
-            `;
-            purchaseInfo.style.display = 'flex';
+        // Show error message
+        function showErrorMessage() {
+            successMessage.style.display = 'none';
+            reportContainer.style.display = 'none';
+            errorMessage.style.display = 'block';
         }
 
-        // Generate report content based on plan
-        function generateReportContent(vehicle, plan, vin) {
-            const isPremium = plan === 'premium';
+        // Load and display vehicle report
+        function loadVehicleReport() {
+            const vehicle = vehicleDatabase[currentVin];
             
-            let content = `
+            if (!vehicle) {
+                showErrorMessage();
+                return;
+            }
+
+            currentVehicle = vehicle;
+            
+            // Update header
+            vehicleTitle.textContent = `${vehicle.year} ${vehicle.makeModel}`;
+            reportVin.textContent = `VIN: ${currentVin}`;
+            reportPlan.textContent = `Report Type: ${currentPlan.charAt(0).toUpperCase() + currentPlan.slice(1)} Report | Price: ${formatCurrency(currentPrice)}`;
+            
+            // Generate report based on plan
+            let reportHTML = '';
+            
+            if (currentPlan === 'regular') {
+                reportHTML = generateRegularReport(vehicle);
+            } else {
+                reportHTML = generatePremiumReport(vehicle);
+            }
+            
+            reportBody.innerHTML = reportHTML;
+            
+            // Show success message and report
+            successMessage.style.display = 'block';
+            reportContainer.style.display = 'block';
+            errorMessage.style.display = 'none';
+        }
+
+        // Generate regular report HTML
+        function generateRegularReport(vehicle) {
+            return `
                 <!-- Vehicle Overview -->
                 <div class="vehicle-overview">
                     <div class="vehicle-image-container">
-                        <img src="${vehicle.image}" alt="${vehicle.makeModel}" class="vehicle-image" id="vehicle-img">
+                        <img src="${vehicle.image}" alt="Vehicle Image" class="vehicle-image">
                     </div>
                     
                     <div class="vehicle-basic-info">
@@ -807,7 +648,7 @@
                                 <p><span class="label">Make & Model:</span> <span class="value">${vehicle.makeModel}</span></p>
                                 <p><span class="label">Year:</span> <span class="value">${vehicle.year}</span></p>
                                 <p><span class="label">Color:</span> <span class="value">${vehicle.color}</span></p>
-                                <p><span class="label">VIN:</span> <span class="value">${vin}</span></p>
+                                <p><span class="label">VIN:</span> <span class="value">${currentVin}</span></p>
                             </div>
                             <div class="info-card">
                                 <h5>Trim & Origin</h5>
@@ -838,49 +679,30 @@
                 <div class="data-section">
                     <h4><i class="fas fa-car"></i> Vehicle Specifications</h4>
                     <div class="data-grid">
-            `;
-            
-            if (isPremium) {
-                content += `
-                    <div class="data-card">
-                        <h5><i class="fas fa-cogs"></i> Technical Specs</h5>
-                        <div class="data-item"><span class="label">Engine Type:</span> <span class="value">${vehicle.engine}</span></div>
-                        <div class="data-item"><span class="label">Transmission:</span> <span class="value">${vehicle.transmission}</span></div>
-                        <div class="data-item"><span class="label">Drivetrain:</span> <span class="value">${vehicle.drivenWheels}</span></div>
-                        <div class="data-item"><span class="label">Braking System:</span> <span class="value">${vehicle.antiBrakeSystem}</span></div>
-                        <div class="data-item"><span class="label">Steering Type:</span> <span class="value">${vehicle.steeringType}</span></div>
-                    </div>
-                    <div class="data-card">
-                        <h5><i class="fas fa-gas-pump"></i> Fuel & Efficiency</h5>
-                        <div class="data-item"><span class="label">Fuel Type:</span> <span class="value">${vehicle.fuel}</span></div>
-                        <div class="data-item"><span class="label">Fuel Capacity:</span> <span class="value">${vehicle.fuelCapacity} gallons</span></div>
-                        <div class="data-item"><span class="label">City MPG:</span> <span class="value">${vehicle.cityMileage}</span></div>
-                        <div class="data-item"><span class="label">Highway MPG:</span> <span class="value">${vehicle.highwayMileage}</span></div>
-                        <div class="data-item"><span class="label">Vehicle Category:</span> <span class="value">${vehicle.vehicleCategory}</span></div>
-                    </div>
-                    <div class="data-card">
-                        <h5><i class="fas fa-info-circle"></i> Vehicle Details</h5>
-                        <div class="data-item"><span class="label">Vehicle Style:</span> <span class="value">${vehicle.vehicleStyle}</span></div>
-                        <div class="data-item"><span class="label">Vehicle Size:</span> <span class="value">${vehicle.vehicleSize}</span></div>
-                        <div class="data-item"><span class="label">Vehicle Type:</span> <span class="value">${vehicle.vehicleType}</span></div>
-                        <div class="data-item"><span class="label">Trim Variations:</span> <span class="value">${vehicle.trimVariations}</span></div>
-                        <div class="data-item"><span class="label">Country of Origin:</span> <span class="value">${vehicle.countryOfOrigin}</span></div>
-                    </div>
-                `;
-            } else {
-                content += `
-                    <div class="data-card">
-                        <h5><i class="fas fa-info-circle"></i> Basic Information</h5>
-                        <div class="data-item"><span class="label">Vehicle Type:</span> <span class="value">${vehicle.vehicleType}</span></div>
-                        <div class="data-item"><span class="label">Drivetrain:</span> <span class="value">${vehicle.drivenWheels}</span></div>
-                        <div class="data-item"><span class="label">Vehicle Size:</span> <span class="value">${vehicle.vehicleSize}</span></div>
-                        <div class="data-item"><span class="label">Country of Origin:</span> <span class="value">${vehicle.countryOfOrigin}</span></div>
-                        <div class="data-item"><span class="label">Status:</span> <span class="value">Basic Report - Upgrade for Full Specs</span></div>
-                    </div>
-                `;
-            }
-            
-            content += `
+                        <div class="data-card">
+                            <h5><i class="fas fa-cogs"></i> Technical Specs</h5>
+                            <div class="data-item"><span class="label">Engine Type:</span> <span class="value">${vehicle.engine}</span></div>
+                            <div class="data-item"><span class="label">Transmission:</span> <span class="value">${vehicle.transmission}</span></div>
+                            <div class="data-item"><span class="label">Drivetrain:</span> <span class="value">${vehicle.drivenWheels}</span></div>
+                            <div class="data-item"><span class="label">Braking System:</span> <span class="value">${vehicle.antiBrakeSystem}</span></div>
+                            <div class="data-item"><span class="label">Steering Type:</span> <span class="value">${vehicle.steeringType}</span></div>
+                        </div>
+                        <div class="data-card">
+                            <h5><i class="fas fa-gas-pump"></i> Fuel & Efficiency</h5>
+                            <div class="data-item"><span class="label">Fuel Type:</span> <span class="value">${vehicle.fuel}</span></div>
+                            <div class="data-item"><span class="label">Fuel Capacity:</span> <span class="value">${vehicle.fuelCapacity} gallons</span></div>
+                            <div class="data-item"><span class="label">City MPG:</span> <span class="value">${vehicle.cityMileage}</span></div>
+                            <div class="data-item"><span class="label">Highway MPG:</span> <span class="value">${vehicle.highwayMileage}</span></div>
+                            <div class="data-item"><span class="label">Vehicle Category:</span> <span class="value">${vehicle.vehicleCategory}</span></div>
+                        </div>
+                        <div class="data-card">
+                            <h5><i class="fas fa-info-circle"></i> Vehicle Details</h5>
+                            <div class="data-item"><span class="label">Vehicle Style:</span> <span class="value">${vehicle.vehicleStyle}</span></div>
+                            <div class="data-item"><span class="label">Vehicle Size:</span> <span class="value">${vehicle.vehicleSize}</span></div>
+                            <div class="data-item"><span class="label">Vehicle Type:</span> <span class="value">${vehicle.vehicleType}</span></div>
+                            <div class="data-item"><span class="label">Trim Variations:</span> <span class="value">${vehicle.trimVariations}</span></div>
+                            <div class="data-item"><span class="label">Country of Origin:</span> <span class="value">${vehicle.countryOfOrigin}</span></div>
+                        </div>
                     </div>
                 </div>
 
@@ -888,42 +710,24 @@
                 <div class="data-section">
                     <h4><i class="fas fa-ruler-combined"></i> Dimensions & Weights</h4>
                     <div class="data-grid">
-            `;
-            
-            if (isPremium) {
-                content += `
-                    <div class="data-card">
-                        <h5><i class="fas fa-weight-hanging"></i> Weights</h5>
-                        <div class="data-item"><span class="label">Curb Weight:</span> <span class="value">${vehicle.curbWeight.toLocaleString()} lbs</span></div>
-                        <div class="data-item"><span class="label">Gross Weight:</span> <span class="value">${vehicle.grossWeight.toLocaleString()} lbs</span></div>
-                    </div>
-                    <div class="data-card">
-                        <h5><i class="fas fa-ruler-vertical"></i> Exterior Dimensions</h5>
-                        <div class="data-item"><span class="label">Length:</span> <span class="value">${vehicle.overallLength} in</span></div>
-                        <div class="data-item"><span class="label">Width:</span> <span class="value">${vehicle.overallWidth} in</span></div>
-                        <div class="data-item"><span class="label">Height:</span> <span class="value">${vehicle.overallHeight} in</span></div>
-                    </div>
-                    <div class="data-card">
-                        <h5><i class="fas fa-users"></i> Interior & Capacity</h5>
-                        <div class="data-item"><span class="label">Standard Seating:</span> <span class="value">${vehicle.standardSeating}</span></div>
-                        <div class="data-item"><span class="label">Optional Seating:</span> <span class="value">${vehicle.optionalSeating || 'N/A'}</span></div>
-                        <div class="data-item"><span class="label">Doors:</span> <span class="value">${vehicle.doors}</span></div>
-                        <div class="data-item"><span class="label">Fuel Capacity:</span> <span class="value">${vehicle.fuelCapacity} gal</span></div>
-                    </div>
-                `;
-            } else {
-                content += `
-                    <div class="data-card">
-                        <h5><i class="fas fa-info-circle"></i> Basic Dimensions</h5>
-                        <div class="data-item"><span class="label">Doors:</span> <span class="value">${vehicle.doors}</span></div>
-                        <div class="data-item"><span class="label">Seating:</span> <span class="value">${vehicle.standardSeating}</span></div>
-                        <div class="data-item"><span class="label">Fuel Economy:</span> <span class="value">${vehicle.cityMileage}/${vehicle.highwayMileage} MPG</span></div>
-                        <div class="data-item"><span class="label">Status:</span> <span class="value">Basic Report - Upgrade for Detailed Specs</span></div>
-                    </div>
-                `;
-            }
-            
-            content += `
+                        <div class="data-card">
+                            <h5><i class="fas fa-weight-hanging"></i> Weights</h5>
+                            <div class="data-item"><span class="label">Curb Weight:</span> <span class="value">${formatNumber(vehicle.curbWeight, 'lbs')}</span></div>
+                            <div class="data-item"><span class="label">Gross Weight:</span> <span class="value">${formatNumber(vehicle.grossWeight, 'lbs')}</span></div>
+                        </div>
+                        <div class="data-card">
+                            <h5><i class="fas fa-ruler-vertical"></i> Exterior Dimensions</h5>
+                            <div class="data-item"><span class="label">Length:</span> <span class="value">${vehicle.overallLength} in</span></div>
+                            <div class="data-item"><span class="label">Width:</span> <span class="value">${vehicle.overallWidth} in</span></div>
+                            <div class="data-item"><span class="label">Height:</span> <span class="value">${vehicle.overallHeight} in</span></div>
+                        </div>
+                        <div class="data-card">
+                            <h5><i class="fas fa-users"></i> Interior & Capacity</h5>
+                            <div class="data-item"><span class="label">Standard Seating:</span> <span class="value">${vehicle.standardSeating}</span></div>
+                            <div class="data-item"><span class="label">Optional Seating:</span> <span class="value">${vehicle.optionalSeating || 'N/A'}</span></div>
+                            <div class="data-item"><span class="label">Doors:</span> <span class="value">${vehicle.doors}</span></div>
+                            <div class="data-item"><span class="label">Fuel Capacity:</span> <span class="value">${vehicle.fuelCapacity} gal</span></div>
+                        </div>
                     </div>
                 </div>
 
@@ -931,28 +735,131 @@
                 <div class="data-section">
                     <h4><i class="fas fa-dollar-sign"></i> Pricing Information</h4>
                     <div class="data-grid">
+                        <div class="data-card">
+                            <h5><i class="fas fa-tag"></i> Manufacturer Pricing</h5>
+                            <div class="data-item"><span class="label">MSRP:</span> <span class="value">${formatCurrency(vehicle.msrp)}</span></div>
+                            <div class="data-item"><span class="label">Invoice Price:</span> <span class="value">${formatCurrency(vehicle.invoicePrice)}</span></div>
+                            <div class="data-item"><span class="label">Delivery Charges:</span> <span class="value">${formatCurrency(vehicle.deliveryCharges)}</span></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="alert alert-info mt-4">
+                    <i class="fas fa-info-circle"></i> 
+                    <strong>Upgrade to Premium Report for $100 to get:</strong> Complete accident history, detailed sales records, theft & title records, service history, and odometer verification.
+                </div>
             `;
-            
-            if (isPremium) {
-                content += `
-                    <div class="data-card">
-                        <h5><i class="fas fa-tag"></i> Manufacturer Pricing</h5>
-                        <div class="data-item"><span class="label">MSRP:</span> <span class="value">${formatCurrency(vehicle.msrp)}</span></div>
-                        <div class="data-item"><span class="label">Invoice Price:</span> <span class="value">${formatCurrency(vehicle.invoicePrice)}</span></div>
-                        <div class="data-item"><span class="label">Delivery Charges:</span> <span class="value">${formatCurrency(vehicle.deliveryCharges)}</span></div>
+        }
+
+        // Generate premium report HTML
+        function generatePremiumReport(vehicle) {
+            return `
+                <!-- Vehicle Overview -->
+                <div class="vehicle-overview">
+                    <div class="vehicle-image-container">
+                        <img src="${vehicle.image}" alt="Vehicle Image" class="vehicle-image">
                     </div>
-                `;
-            } else {
-                content += `
-                    <div class="data-card">
-                        <h5><i class="fas fa-info-circle"></i> Basic Pricing</h5>
-                        <div class="data-item"><span class="label">MSRP:</span> <span class="value">${formatCurrency(vehicle.msrp)}</span></div>
-                        <div class="data-item"><span class="label">Status:</span> <span class="value">Basic Report - Upgrade for Detailed Pricing</span></div>
+                    
+                    <div class="vehicle-basic-info">
+                        <div class="basic-info-grid">
+                            <div class="info-card">
+                                <h5>Vehicle Identification</h5>
+                                <p><span class="label">Make & Model:</span> <span class="value">${vehicle.makeModel}</span></p>
+                                <p><span class="label">Year:</span> <span class="value">${vehicle.year}</span></p>
+                                <p><span class="label">Color:</span> <span class="value">${vehicle.color}</span></p>
+                                <p><span class="label">VIN:</span> <span class="value">${currentVin}</span></p>
+                            </div>
+                            <div class="info-card">
+                                <h5>Trim & Origin</h5>
+                                <p><span class="label">Trim Level:</span> <span class="value">${vehicle.trim}</span></p>
+                                <p><span class="label">Short Trim:</span> <span class="value">${vehicle.shortTrim}</span></p>
+                                <p><span class="label">Country:</span> <span class="value">${vehicle.countryOfOrigin}</span></p>
+                                <p><span class="label">City:</span> <span class="value">${vehicle.cityOfOrigin}</span></p>
+                            </div>
+                            <div class="info-card">
+                                <h5>Engine & Performance</h5>
+                                <p><span class="label">Engine:</span> <span class="value">${vehicle.engine}</span></p>
+                                <p><span class="label">Transmission:</span> <span class="value">${vehicle.transmission}</span></p>
+                                <p><span class="label">Fuel Type:</span> <span class="value">${vehicle.fuel}</span></p>
+                                <p><span class="label">Fuel Economy:</span> <span class="value">${vehicle.cityMileage}/${vehicle.highwayMileage} MPG</span></p>
+                            </div>
+                            <div class="info-card">
+                                <h5>Key Specifications</h5>
+                                <p><span class="label">Vehicle Type:</span> <span class="value">${vehicle.vehicleType}</span></p>
+                                <p><span class="label">Drivetrain:</span> <span class="value">${vehicle.drivenWheels}</span></p>
+                                <p><span class="label">Doors:</span> <span class="value">${vehicle.doors}</span></p>
+                                <p><span class="label">Seating:</span> <span class="value">${vehicle.standardSeating}${vehicle.optionalSeating ? '+' + vehicle.optionalSeating : ''}</span></p>
+                            </div>
+                        </div>
                     </div>
-                `;
-            }
-            
-            content += `
+                </div>
+
+                <!-- Vehicle Specifications -->
+                <div class="data-section">
+                    <h4><i class="fas fa-car"></i> Vehicle Specifications</h4>
+                    <div class="data-grid">
+                        <div class="data-card">
+                            <h5><i class="fas fa-cogs"></i> Technical Specs</h5>
+                            <div class="data-item"><span class="label">Engine Type:</span> <span class="value">${vehicle.engine}</span></div>
+                            <div class="data-item"><span class="label">Transmission:</span> <span class="value">${vehicle.transmission}</span></div>
+                            <div class="data-item"><span class="label">Drivetrain:</span> <span class="value">${vehicle.drivenWheels}</span></div>
+                            <div class="data-item"><span class="label">Braking System:</span> <span class="value">${vehicle.antiBrakeSystem}</span></div>
+                            <div class="data-item"><span class="label">Steering Type:</span> <span class="value">${vehicle.steeringType}</span></div>
+                        </div>
+                        <div class="data-card">
+                            <h5><i class="fas fa-gas-pump"></i> Fuel & Efficiency</h5>
+                            <div class="data-item"><span class="label">Fuel Type:</span> <span class="value">${vehicle.fuel}</span></div>
+                            <div class="data-item"><span class="label">Fuel Capacity:</span> <span class="value">${vehicle.fuelCapacity} gallons</span></div>
+                            <div class="data-item"><span class="label">City MPG:</span> <span class="value">${vehicle.cityMileage}</span></div>
+                            <div class="data-item"><span class="label">Highway MPG:</span> <span class="value">${vehicle.highwayMileage}</span></div>
+                            <div class="data-item"><span class="label">Vehicle Category:</span> <span class="value">${vehicle.vehicleCategory}</span></div>
+                        </div>
+                        <div class="data-card">
+                            <h5><i class="fas fa-info-circle"></i> Vehicle Details</h5>
+                            <div class="data-item"><span class="label">Vehicle Style:</span> <span class="value">${vehicle.vehicleStyle}</span></div>
+                            <div class="data-item"><span class="label">Vehicle Size:</span> <span class="value">${vehicle.vehicleSize}</span></div>
+                            <div class="data-item"><span class="label">Vehicle Type:</span> <span class="value">${vehicle.vehicleType}</span></div>
+                            <div class="data-item"><span class="label">Trim Variations:</span> <span class="value">${vehicle.trimVariations}</span></div>
+                            <div class="data-item"><span class="label">Country of Origin:</span> <span class="value">${vehicle.countryOfOrigin}</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dimensions & Weights -->
+                <div class="data-section">
+                    <h4><i class="fas fa-ruler-combined"></i> Dimensions & Weights</h4>
+                    <div class="data-grid">
+                        <div class="data-card">
+                            <h5><i class="fas fa-weight-hanging"></i> Weights</h5>
+                            <div class="data-item"><span class="label">Curb Weight:</span> <span class="value">${formatNumber(vehicle.curbWeight, 'lbs')}</span></div>
+                            <div class="data-item"><span class="label">Gross Weight:</span> <span class="value">${formatNumber(vehicle.grossWeight, 'lbs')}</span></div>
+                        </div>
+                        <div class="data-card">
+                            <h5><i class="fas fa-ruler-vertical"></i> Exterior Dimensions</h5>
+                            <div class="data-item"><span class="label">Length:</span> <span class="value">${vehicle.overallLength} in</span></div>
+                            <div class="data-item"><span class="label">Width:</span> <span class="value">${vehicle.overallWidth} in</span></div>
+                            <div class="data-item"><span class="label">Height:</span> <span class="value">${vehicle.overallHeight} in</span></div>
+                        </div>
+                        <div class="data-card">
+                            <h5><i class="fas fa-users"></i> Interior & Capacity</h5>
+                            <div class="data-item"><span class="label">Standard Seating:</span> <span class="value">${vehicle.standardSeating}</span></div>
+                            <div class="data-item"><span class="label">Optional Seating:</span> <span class="value">${vehicle.optionalSeating || 'N/A'}</span></div>
+                            <div class="data-item"><span class="label">Doors:</span> <span class="value">${vehicle.doors}</span></div>
+                            <div class="data-item"><span class="label">Fuel Capacity:</span> <span class="value">${vehicle.fuelCapacity} gal</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pricing Information -->
+                <div class="data-section">
+                    <h4><i class="fas fa-dollar-sign"></i> Pricing Information</h4>
+                    <div class="data-grid">
+                        <div class="data-card">
+                            <h5><i class="fas fa-tag"></i> Manufacturer Pricing</h5>
+                            <div class="data-item"><span class="label">MSRP:</span> <span class="value">${formatCurrency(vehicle.msrp)}</span></div>
+                            <div class="data-item"><span class="label">Invoice Price:</span> <span class="value">${formatCurrency(vehicle.invoicePrice)}</span></div>
+                            <div class="data-item"><span class="label">Delivery Charges:</span> <span class="value">${formatCurrency(vehicle.deliveryCharges)}</span></div>
+                        </div>
                     </div>
                 </div>
 
@@ -972,10 +879,6 @@
                             <h5><i class="fas fa-tachometer-alt"></i> Odometer Readings</h5>
                             <p>${vehicle.odometerReadings}</p>
                         </div>
-            `;
-            
-            if (isPremium) {
-                content += `
                         <div class="history-card">
                             <h5><i class="fas fa-wrench"></i> Service History</h5>
                             <p>${vehicle.serviceHistory}</p>
@@ -984,31 +887,12 @@
                             <h5><i class="fas fa-shield-alt"></i> Theft Records</h5>
                             <p>${vehicle.theftRecords}</p>
                         </div>
-                `;
-            } else {
-                content += `
-                        <div class="history-card">
-                            <h5><i class="fas fa-wrench"></i> Service History</h5>
-                            <p class="text-muted"><i class="fas fa-lock me-2"></i>Upgrade to Premium to view service history</p>
-                        </div>
-                        <div class="history-card">
-                            <h5><i class="fas fa-shield-alt"></i> Theft Records</h5>
-                            <p class="text-muted"><i class="fas fa-lock me-2"></i>Upgrade to Premium to view theft records</p>
-                        </div>
-                `;
-            }
-            
-            content += `
                     </div>
                 </div>
 
                 <!-- Sales Records -->
                 <div class="data-section">
                     <h4><i class="fas fa-chart-line"></i> Sales Records</h4>
-            `;
-            
-            if (isPremium && vehicle.salesRecords && vehicle.salesRecords.length > 0) {
-                content += `
                     <div class="sales-table-container">
                         <table class="sales-table">
                             <thead>
@@ -1037,410 +921,57 @@
                             </tbody>
                         </table>
                     </div>
-                `;
-            } else if (!isPremium) {
-                content += `
-                    <div class="locked-content">
-                        <i class="fas fa-lock"></i>
-                        <h5>Sales Records Locked</h5>
-                        <p>Upgrade to Premium Report to view complete sales history</p>
-                        <button class="btn btn-primary mt-3" onclick="window.location.href='index.html?vin=${vin}'">
-                            <i class="fas fa-arrow-up"></i> Upgrade to Premium
-                        </button>
-                    </div>
-                `;
-            } else {
-                content += `
-                    <div class="locked-content">
-                        <i class="fas fa-info-circle"></i>
-                        <h5>No Sales Records Available</h5>
-                        <p>This vehicle has no recorded sales history</p>
-                    </div>
-                `;
-            }
-            
-            content += `
-                </div>
-
-                <!-- Download Section -->
-                <div class="download-section">
-            `;
-            
-            if (isPremium) {
-                content += `
-                    <button class="btn btn-primary btn-lg" id="download-pdf-btn">
-                        <i class="fas fa-download"></i> Download Complete Report (PDF)
-                    </button>
-                    <div class="mt-3">
-                        <div class="spinner-border text-primary d-none" role="status" id="pdf-spinner">
-                            <span class="visually-hidden">Generating PDF...</span>
-                        </div>
-                        <p class="text-muted mt-2" id="pdf-status"></p>
-                    </div>
-                `;
-            } else {
-                content += `
-                    <div class="locked-content">
-                        <i class="fas fa-lock"></i>
-                        <h5>PDF Download Locked</h5>
-                        <p>Upgrade to Premium Report to download complete PDF report</p>
-                        <button class="btn btn-primary mt-3" onclick="window.location.href='index.html?vin=${vin}'">
-                            <i class="fas fa-arrow-up"></i> Upgrade to Premium
-                        </button>
-                    </div>
-                `;
-            }
-            
-            content += `
                 </div>
             `;
-            
-            return content;
         }
 
-        // Generate PDF
-        async function generatePDF(vin, vehicle, plan) {
-            try {
-                const pdfSpinner = document.getElementById('pdf-spinner');
-                const pdfStatus = document.getElementById('pdf-status');
+        // Generate and download PDF report
+        async function downloadPDFReport() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('p', 'pt', 'a4');
+            
+            // Add report content to PDF
+            const element = document.getElementById('reportContainer');
+            
+            html2canvas(element, {
+                scale: 2,
+                useCORS: true,
+                logging: false,
+                backgroundColor: '#ffffff'
+            }).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const imgWidth = 595.28; // A4 width in points
+                const pageHeight = 841.89; // A4 height in points
+                const imgHeight = canvas.height * imgWidth / canvas.width;
                 
-                pdfSpinner.classList.remove('d-none');
-                pdfStatus.textContent = 'Preparing PDF...';
+                let heightLeft = imgHeight;
+                let position = 0;
                 
-                // Create PDF
-                const pdf = new jsPDF({
-                    orientation: 'portrait',
-                    unit: 'mm',
-                    format: 'a4',
-                    compress: true
-                });
-
-                // Add header
-                pdf.setFontSize(20);
-                pdf.setTextColor(10, 36, 99);
-                pdf.text('VEHICLE HISTORY REPORT', 105, 20, { align: 'center' });
+                // Add first page
+                doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                heightLeft -= pageHeight;
                 
-                pdf.setFontSize(12);
-                pdf.setTextColor(100);
-                pdf.text(`VIN: ${vin}`, 105, 30, { align: 'center' });
-                pdf.text(`${vehicle.year} ${vehicle.makeModel}`, 105, 35, { align: 'center' });
-                pdf.text(`Report Generated: ${new Date().toLocaleDateString()}`, 105, 40, { align: 'center' });
-
-                let yPos = 50;
-
-                // Vehicle Information
-                pdf.setFontSize(16);
-                pdf.setTextColor(10, 36, 99);
-                pdf.text('Vehicle Information', 20, yPos);
-                yPos += 10;
-
-                pdf.setFontSize(10);
-                pdf.setTextColor(0);
-                const vehicleInfo = [
-                    `Make & Model: ${vehicle.makeModel}`,
-                    `Year: ${vehicle.year}`,
-                    `Color: ${vehicle.color}`,
-                    `Trim: ${vehicle.trim}`,
-                    `Country of Origin: ${vehicle.countryOfOrigin}`,
-                    `City of Origin: ${vehicle.cityOfOrigin}`,
-                    `Vehicle Type: ${vehicle.vehicleType}`,
-                    `Drivetrain: ${vehicle.drivenWheels}`
-                ];
-
-                vehicleInfo.forEach(info => {
-                    if (yPos > 270) {
-                        pdf.addPage();
-                        yPos = 20;
-                    }
-                    pdf.text(info, 20, yPos);
-                    yPos += 6;
-                });
-                yPos += 5;
-
-                // Technical Specifications
-                if (plan === 'premium') {
-                    if (yPos > 250) {
-                        pdf.addPage();
-                        yPos = 20;
-                    }
-                    
-                    pdf.setFontSize(16);
-                    pdf.setTextColor(10, 36, 99);
-                    pdf.text('Technical Specifications', 20, yPos);
-                    yPos += 10;
-
-                    pdf.setFontSize(10);
-                    const techSpecs = [
-                        `Engine: ${vehicle.engine}`,
-                        `Transmission: ${vehicle.transmission}`,
-                        `Fuel Type: ${vehicle.fuel}`,
-                        `Fuel Economy: ${vehicle.cityMileage} city / ${vehicle.highwayMileage} highway MPG`,
-                        `Fuel Capacity: ${vehicle.fuelCapacity} gallons`,
-                        `Braking System: ${vehicle.antiBrakeSystem}`,
-                        `Steering Type: ${vehicle.steeringType}`
-                    ];
-
-                    techSpecs.forEach(spec => {
-                        if (yPos > 270) {
-                            pdf.addPage();
-                            yPos = 20;
-                        }
-                        pdf.text(spec, 20, yPos);
-                        yPos += 6;
-                    });
-                    yPos += 5;
-                }
-
-                // Dimensions & Weights
-                if (plan === 'premium') {
-                    if (yPos > 250) {
-                        pdf.addPage();
-                        yPos = 20;
-                    }
-                    
-                    pdf.setFontSize(16);
-                    pdf.setTextColor(10, 36, 99);
-                    pdf.text('Dimensions & Weights', 20, yPos);
-                    yPos += 10;
-
-                    pdf.setFontSize(10);
-                    const dimensions = [
-                        `Length: ${vehicle.overallLength} inches`,
-                        `Width: ${vehicle.overallWidth} inches`,
-                        `Height: ${vehicle.overallHeight} inches`,
-                        `Curb Weight: ${vehicle.curbWeight.toLocaleString()} lbs`,
-                        `Gross Weight: ${vehicle.grossWeight.toLocaleString()} lbs`,
-                        `Seating: ${vehicle.standardSeating} passengers`,
-                        `Doors: ${vehicle.doors}`
-                    ];
-
-                    dimensions.forEach(dim => {
-                        if (yPos > 270) {
-                            pdf.addPage();
-                            yPos = 20;
-                        }
-                        pdf.text(dim, 20, yPos);
-                        yPos += 6;
-                    });
-                    yPos += 5;
-                }
-
-                // Vehicle History
-                if (yPos > 250) {
-                    pdf.addPage();
-                    yPos = 20;
+                // Add additional pages if needed
+                while (heightLeft >= 0) {
+                    position = heightLeft - imgHeight;
+                    doc.addPage();
+                    doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                    heightLeft -= pageHeight;
                 }
                 
-                pdf.setFontSize(16);
-                pdf.setTextColor(10, 36, 99);
-                pdf.text('Vehicle History', 20, yPos);
-                yPos += 10;
-
-                pdf.setFontSize(10);
-                const history = [
-                    `Accident History: ${vehicle.accidentHistory}`,
-                    `Title Records: ${vehicle.titleRecords}`,
-                    `Odometer Readings: ${vehicle.odometerReadings}`
-                ];
-
-                if (plan === 'premium') {
-                    history.push(`Service History: ${vehicle.serviceHistory}`);
-                    history.push(`Theft Records: ${vehicle.theftRecords}`);
-                }
-
-                history.forEach(item => {
-                    if (yPos > 270) {
-                        pdf.addPage();
-                        yPos = 20;
-                    }
-                    
-                    // Split long text into multiple lines
-                    const maxLineLength = 80;
-                    if (item.length > maxLineLength) {
-                        const parts = [];
-                        let currentPart = '';
-                        const words = item.split(' ');
-                        
-                        for (const word of words) {
-                            if ((currentPart + ' ' + word).length <= maxLineLength) {
-                                currentPart += (currentPart ? ' ' : '') + word;
-                            } else {
-                                parts.push(currentPart);
-                                currentPart = word;
-                            }
-                        }
-                        if (currentPart) parts.push(currentPart);
-                        
-                        parts.forEach(part => {
-                            pdf.text(part, 20, yPos);
-                            yPos += 6;
-                            if (yPos > 270) {
-                                pdf.addPage();
-                                yPos = 20;
-                            }
-                        });
-                    } else {
-                        pdf.text(item, 20, yPos);
-                        yPos += 6;
-                    }
-                });
-                yPos += 5;
-
-                // Sales Records (Premium only, first 5 records)
-                if (plan === 'premium' && vehicle.salesRecords && vehicle.salesRecords.length > 0) {
-                    if (yPos > 250) {
-                        pdf.addPage();
-                        yPos = 20;
-                    }
-                    
-                    pdf.setFontSize(16);
-                    pdf.setTextColor(10, 36, 99);
-                    pdf.text('Recent Sales Records', 20, yPos);
-                    yPos += 10;
-
-                    pdf.setFontSize(10);
-                    // Show only first 5 sales records in PDF
-                    const recentSales = vehicle.salesRecords.slice(0, 5);
-                    recentSales.forEach((record, index) => {
-                        if (yPos > 270) {
-                            pdf.addPage();
-                            yPos = 20;
-                        }
-                        
-                        const date = formatDate(record.date);
-                        pdf.text(`${index + 1}. ${date} - ${record.seller}`, 20, yPos);
-                        yPos += 6;
-                        
-                        if (yPos > 270) {
-                            pdf.addPage();
-                            yPos = 20;
-                        }
-                        
-                        pdf.text(`   Location: ${record.location}`, 25, yPos);
-                        yPos += 6;
-                        
-                        if (yPos > 270) {
-                            pdf.addPage();
-                            yPos = 20;
-                        }
-                        
-                        pdf.text(`   Price: ${formatCurrency(record.price)} | Mileage: ${record.mileage}`, 25, yPos);
-                        yPos += 6;
-                        
-                        if (yPos > 270) {
-                            pdf.addPage();
-                            yPos = 20;
-                        }
-                    });
-                    
-                    if (vehicle.salesRecords.length > 5) {
-                        pdf.text(`... and ${vehicle.salesRecords.length - 5} more records`, 20, yPos);
-                        yPos += 6;
-                    }
-                }
-
-                // Footer
-                const pageCount = pdf.internal.getNumberOfPages();
-                for (let i = 1; i <= pageCount; i++) {
-                    pdf.setPage(i);
-                    pdf.setFontSize(8);
-                    pdf.setTextColor(100);
-                    pdf.text(`Page ${i} of ${pageCount}`, 105, 287, { align: 'center' });
-                    pdf.text('CarUsed Vehicle Reports', 20, 287);
-                    pdf.text(plan === 'premium' ? 'Premium Report' : 'Basic Report', 190, 287, { align: 'right' });
-                }
-
                 // Save the PDF
-                pdf.save(`Vehicle_Report_${vin}.pdf`);
-                
-                pdfSpinner.classList.add('d-none');
-                pdfStatus.textContent = 'PDF downloaded successfully!';
-                
-                setTimeout(() => {
-                    pdfStatus.textContent = '';
-                }, 3000);
-                
-            } catch (error) {
-                console.error('PDF Generation Error:', error);
-                const pdfSpinner = document.getElementById('pdf-spinner');
-                const pdfStatus = document.getElementById('pdf-status');
-                
-                if (pdfSpinner) pdfSpinner.classList.add('d-none');
-                if (pdfStatus) pdfStatus.textContent = 'Error generating PDF. Please try again.';
-                
-                alert('Error generating PDF: ' + error.message);
-            }
+                doc.save(`Vehicle_Report_${currentVin}_${currentPlan}.pdf`);
+            });
         }
 
-        // Initialize report page
-        async function initializeReportPage() {
-            if (!vinFromUrl || !planFromUrl) {
-                showMessage('Invalid report request. Missing VIN or plan information.', 'error');
-                setTimeout(() => {
-                    window.location.href = 'index.html';
-                }, 3000);
-                return;
-            }
+        // Event Listeners
+        downloadReportBtn.addEventListener('click', downloadPDFReport);
 
-            // Check purchase validity
-            const purchaseCheck = checkPurchaseValidity(vinFromUrl);
-            
-            if (!purchaseCheck.valid) {
-                showMessage(`Access denied: ${purchaseCheck.reason}. Redirecting to purchase page...`, 'error');
-                setTimeout(() => {
-                    window.location.href = `index.html?vin=${vinFromUrl}`;
-                }, 3000);
-                return;
-            }
-
-            // Check if plan matches
-            if (purchaseCheck.data.plan !== planFromUrl) {
-                showMessage('Plan mismatch. Redirecting...', 'error');
-                setTimeout(() => {
-                    window.location.href = `index.html?vin=${vinFromUrl}`;
-                }, 3000);
-                return;
-            }
-
-            // Check if vehicle exists
-            const vehicle = vehicleDatabase[vinFromUrl];
-            if (!vehicle) {
-                showMessage('Vehicle not found in database.', 'error');
-                setTimeout(() => {
-                    window.location.href = 'index.html';
-                }, 3000);
-                return;
-            }
-
-            // Update header
-            vehicleTitle.textContent = `${vehicle.year} ${vehicle.makeModel}`;
-            reportVin.textContent = `VIN: ${vinFromUrl}`;
-
-            // Display purchase info
-            displayPurchaseInfo(purchaseCheck.data);
-
-            // Generate and display report content
-            const content = generateReportContent(vehicle, planFromUrl, vinFromUrl);
-            reportContent.innerHTML = content;
-
-            // Hide any error messages
-            hideMessage();
-
-            // Add PDF download event listener if premium
-            if (planFromUrl === 'premium') {
-                setTimeout(() => {
-                    const downloadBtn = document.getElementById('download-pdf-btn');
-                    if (downloadBtn) {
-                        downloadBtn.addEventListener('click', () => {
-                            generatePDF(vinFromUrl, vehicle, planFromUrl);
-                        });
-                    }
-                }, 100);
-            }
-        }
-
-        // Initialize on page load
-        document.addEventListener('DOMContentLoaded', initializeReportPage);
+        // Initialize
+        window.onload = () => {
+            // Check for payment and load report
+            checkAndLoadReport();
+        };
     </script>
 </body>
 </html>
