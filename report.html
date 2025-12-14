@@ -599,9 +599,9 @@
                     plan: storedPlan
                 });
                 
-                if (storedVin && storedPlan) {
+                if (storedVin ) {
                     currentVin = storedVin.toUpperCase();
-                    currentPlan = storedPlan;
+                    //currentPlan = storedPlan;
                     
                     // Set price based on plan
                     currentPrice = currentPlan === 'regular' ? 25 : 100;
@@ -636,10 +636,10 @@
                     plan: storedPlan
                 });
                 
-                if (paymentCompleted === 'true' && storedVin && storedPlan) {
+                if (paymentCompleted === 'true' && storedVin ) {
                     console.log('Previous payment found in localStorage');
                     currentVin = storedVin.toUpperCase();
-                    currentPlan = storedPlan;
+                    //currentPlan = storedPlan;
                     currentPrice = currentPlan === 'regular' ? 25 : 100;
                     loadVehicleReport();
                     return;
