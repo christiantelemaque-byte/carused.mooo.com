@@ -592,12 +592,12 @@
             });
             
             // Check if we have COMPLETED in URL OR if we have VIN and plan in localStorage
-            if ((paymentStatus && paymentStatus.toUpperCase() === 'COMPLETED') || (storedVin && storedPlan)) {
+            if ((paymentStatus && paymentStatus.toUpperCase() === 'COMPLETED') || (storedVin )) {
                 console.log('Payment completed or data found in localStorage');
                 
-                if (storedVin && storedPlan) {
+                if (storedVin ) {
                     currentVin = storedVin.toUpperCase();
-                    currentPlan = storedPlan;
+                    //currentPlan = storedPlan;
                     
                     // Set price based on plan
                     currentPrice = currentPlan === 'regular' ? 25 : 100;
@@ -631,10 +631,10 @@
                     plan: storedPlan
                 });
                 
-                if (paymentCompleted === 'true' && storedVin && storedPlan) {
+                if (paymentCompleted === 'true' && storedVin ) {
                     console.log('Previous payment found in localStorage');
                     currentVin = storedVin.toUpperCase();
-                    currentPlan = storedPlan;
+                    //currentPlan = storedPlan;
                     currentPrice = currentPlan === 'regular' ? 25 : 100;
                     loadVehicleReport();
                     return;
