@@ -781,6 +781,9 @@
                 paymentVin.textContent = currentVin;
                 paymentSection.style.display = 'block';
                 
+                // Store VIN in localStorage for later use
+                localStorage.setItem('carUsed_vin', currentVin);
+                
                 // Initialize PayPal buttons if not already done
                 if (!paypalButtonsInitialized) {
                     initializePayPalButtons();
@@ -796,17 +799,28 @@
 
         // Initialize PayPal buttons
         function initializePayPalButtons() {
+            // Store VIN before creating buttons
+            const vin = localStorage.getItem('carUsed_vin') || currentVin;
+            
             // Regular Report PayPal Button - $25
             paypal.HostedButtons({
                 hostedButtonId: "2B8T5BWD5RDSW",
                 onInit: function(data, actions) {
-                    console.log('Regular PayPal button initialized');
+                    console.log('Regular PayPal button initialized for VIN:', vin);
                 },
                 onClick: function(data, actions) {
-                    // Store the VIN and plan in localStorage
-                    localStorage.setItem('carUsed_vin', currentVin);
+                    // Store the plan in localStorage
                     localStorage.setItem('carUsed_plan', 'regular');
-                    console.log('Regular report selected for VIN:', currentVin);
+                    localStorage.setItem('carUsed_vin', vin);
+                    console.log('Regular report selected for VIN:', vin);
+                },
+                onApprove: function(data, actions) {
+                    // This function is called when the payment is approved
+                    console.log('Payment approved for regular report, VIN:', vin);
+                    // Redirect to report page after payment
+                    setTimeout(() => {
+                        window.location.href = 'report.html';
+                    }, 2000);
                 },
                 onError: function(err) {
                     console.error('PayPal error:', err);
@@ -820,13 +834,21 @@
             paypal.HostedButtons({
                 hostedButtonId: "2B8T5BWD5RDSW", // REPLACE THIS WITH YOUR ACTUAL PREMIUM BUTTON ID
                 onInit: function(data, actions) {
-                    console.log('Premium PayPal button initialized');
+                    console.log('Premium PayPal button initialized for VIN:', vin);
                 },
                 onClick: function(data, actions) {
-                    // Store the VIN and plan in localStorage
-                    localStorage.setItem('carUsed_vin', currentVin);
+                    // Store the plan in localStorage
                     localStorage.setItem('carUsed_plan', 'premium');
-                    console.log('Premium report selected for VIN:', currentVin);
+                    localStorage.setItem('carUsed_vin', vin);
+                    console.log('Premium report selected for VIN:', vin);
+                },
+                onApprove: function(data, actions) {
+                    // This function is called when the payment is approved
+                    console.log('Payment approved for premium report, VIN:', vin);
+                    // Redirect to report page after payment
+                    setTimeout(() => {
+                        window.location.href = 'report.html';
+                    }, 2000);
                 },
                 onError: function(err) {
                     console.error('PayPal error:', err);
@@ -886,9 +908,12 @@
             // Hide payment section initially
             paymentSection.style.display = 'none';
             
-            // Clear any existing localStorage
-            localStorage.removeItem('carUsed_vin');
-            localStorage.removeItem('carUsed_plan');
+            // Check if there's a VIN in localStorage from previous session
+            const storedVin = localStorage.getItem('carUsed_vin');
+            if (storedVin) {
+                vinInput.value = storedVin;
+                showPaymentOptions(storedVin);
+            }
         };
     </script>
 </body>
