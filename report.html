@@ -582,28 +582,28 @@
             const paymentStatus = getUrlParameter('st');
             console.log('Payment status from URL:', paymentStatus);
             
-            // Check localStorage for VIN and plan
-            const storedVin = localStorage.getItem('carUsed_vin');
-            const storedPlan = localStorage.getItem('carUsed_plan');
+            // Check sessionStorage for VIN and plan
+            const storedVin = sessionStorage.getItem('carUsed_vin');
+            const storedPlan = sessionStorage.getItem('carUsed_plan');
             
-            console.log('LocalStorage data:', {
+            console.log('sessionStorage data:', {
                 vin: storedVin,
                 plan: storedPlan
             });
             
-            // Check if we have COMPLETED in URL OR if we have VIN and plan in localStorage
-            if ((paymentStatus && paymentStatus.toUpperCase() === 'COMPLETED') && (storedVin )) {
-                console.log('Payment completed or data found in localStorage');
+            // Check if we have COMPLETED in URL OR if we have VIN and plan in sessionStorage
+            if ((paymentStatus && paymentStatus.toUpperCase() === 'COMPLETED') || (storedVin && storedPlan)) {
+                console.log('Payment completed or data found in sessionStorage');
                 
-                if (storedVin ) {
+                if (storedVin && storedPlan) {
                     currentVin = storedVin.toUpperCase();
-                    //currentPlan = storedPlan;
+                    currentPlan = storedPlan;
                     
                     // Set price based on plan
                     currentPrice = currentPlan === 'regular' ? 25 : 100;
                     
-                    // Store payment completion in localStorage for future reference
-                    localStorage.setItem('carUsed_payment_completed', 'true');
+                    // Store payment completion in sessionStorage for future reference
+                    sessionStorage.setItem('carUsed_payment_completed', 'true');
                     
                     // Load and display the report
                     loadVehicleReport();
@@ -617,27 +617,26 @@
                     
                     return;
                 } else {
-                    console.error('Missing VIN or plan in localStorage');
+                    console.error('Missing VIN or plan in sessionStorage');
                     showErrorMessage();
                     return;
                 }
             } else {
-                // Check if we have payment completion stored in localStorage
-                const paymentCompleted = localStorage.getItem('carUsed_payment_completed');
+                // Check if we have payment completion stored in sessionStorage
+                const paymentCompleted = sessionStorage.getItem('carUsed_payment_completed');
                 
-                console.log('Checking localStorage for previous payment:', {
+                console.log('Checking sessionStorage for previous payment:', {
                     paymentCompleted: paymentCompleted,
                     vin: storedVin,
                     plan: storedPlan
                 });
                 
-                if (paymentCompleted === 'true' && storedVin ) {
-                    console.log('Previous payment found in localStorage');
+                if (paymentCompleted === 'true' && storedVin && storedPlan) {
+                    console.log('Previous payment found in sessionStorage');
                     currentVin = storedVin.toUpperCase();
-                    //currentPlan = storedPlan;
+                    currentPlan = storedPlan;
                     currentPrice = currentPlan === 'regular' ? 25 : 100;
                     loadVehicleReport();
-                    paymentCompleted = '';
                     return;
                 } else {
                     console.error('No valid payment found');
@@ -1034,14 +1033,14 @@
             checkAndLoadReport();
         };
         
-        // Clear localStorage when user goes back to home page from report page
+        // Clear sessionStorage when user goes back to home page from report page
         document.querySelector('a[href="index.html"]').addEventListener('click', function() {
-            // Clear all CarUsed related localStorage items
-            localStorage.removeItem('carUsed_vin');
-            localStorage.removeItem('carUsed_plan');
-            localStorage.removeItem('carUsed_payment_completed');
-            localStorage.removeItem('carUsed_transaction_id');
-            console.log('Cleared localStorage before going back to home page');
+            // Clear all CarUsed related sessionStorage items
+            sessionStorage.removeItem('carUsed_vin');
+            sessionStorage.removeItem('carUsed_plan');
+            sessionStorage.removeItem('carUsed_payment_completed');
+            sessionStorage.removeItem('carUsed_transaction_id');
+            console.log('Cleared sessionStorage before going back to home page');
         });
     </script>
 </body>
