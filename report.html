@@ -637,6 +637,7 @@
                     //currentPlan = storedPlan;
                     currentPrice = currentPlan === 'regular' ? 25 : 100;
                     loadVehicleReport();
+                    paymentCompleted = '';
                     return;
                 } else {
                     console.error('No valid payment found');
