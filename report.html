@@ -450,6 +450,14 @@
         bootstrapScript.src = 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js';
         document.head.appendChild(bootstrapScript);
 
+        // Function to get URL parameters
+        function getUrlParameter(name) {
+            name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+            const regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+            const results = regex.exec(location.search);
+            return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+        }
+
         // VEHICLE DATABASE
         const vehicleDatabase = {
             'JHLRW2H5XKX010064': {
@@ -568,33 +576,78 @@
 
         // Check for payment and load report
         function checkAndLoadReport() {
-            // Check localStorage for VIN and plan
-            const storedVin = localStorage.getItem('carUsed_vin');
-            const storedPlan = localStorage.getItem('carUsed_plan');
+            // Check URL parameters for payment completion
+            const paymentStatus = getUrlParameter('st');
+            const transactionId = getUrlParameter('tx');
             
-            console.log('Checking localStorage for report data:');
-            console.log('VIN:', storedVin);
-            console.log('Plan:', storedPlan);
+            console.log('URL Parameters:', {
+                paymentStatus: paymentStatus,
+                transactionId: transactionId,
+                fullURL: window.location.href
+            });
             
-            if (storedVin && storedPlan) {
-                currentVin = storedVin.toUpperCase();
-                currentPlan = storedPlan;
+            // Check if payment is completed in URL
+            if (paymentStatus === 'COMPLETED' || paymentStatus === 'Completed' || paymentStatus === 'completed') {
+                console.log('Payment completed detected in URL');
                 
-                // Set price based on plan
-                currentPrice = currentPlan === 'regular' ? 25 : 100;
+                // Check localStorage for VIN and plan
+                const storedVin = localStorage.getItem('carUsed_vin');
+                const storedPlan = localStorage.getItem('carUsed_plan');
                 
-                // Load and display the report
-                loadVehicleReport();
+                console.log('LocalStorage data:', {
+                    vin: storedVin,
+                    plan: storedPlan
+                });
                 
-                // Don't clear localStorage immediately - keep it for debugging
-                // Only clear if the user explicitly navigates away
-                // localStorage.removeItem('carUsed_vin');
-                // localStorage.removeItem('carUsed_plan');
+                if (storedVin && storedPlan) {
+                    currentVin = storedVin.toUpperCase();
+                    currentPlan = storedPlan;
+                    
+                    // Set price based on plan
+                    currentPrice = currentPlan === 'regular' ? 25 : 100;
+                    
+                    // Store payment completion in localStorage for future reference
+                    localStorage.setItem('carUsed_payment_completed', 'true');
+                    localStorage.setItem('carUsed_transaction_id', transactionId || 'N/A');
+                    
+                    // Load and display the report
+                    loadVehicleReport();
+                    
+                    // Clean URL parameters to avoid issues on refresh
+                    setTimeout(() => {
+                        window.history.replaceState({}, document.title, window.location.pathname);
+                    }, 100);
+                    
+                    return;
+                } else {
+                    console.error('Missing VIN or plan in localStorage');
+                    showErrorMessage();
+                    return;
+                }
             } else {
-                // No report data found
-                console.error('No report data found in localStorage');
-                showErrorMessage();
-                return;
+                // Check if we have payment completion stored in localStorage
+                const paymentCompleted = localStorage.getItem('carUsed_payment_completed');
+                const storedVin = localStorage.getItem('carUsed_vin');
+                const storedPlan = localStorage.getItem('carUsed_plan');
+                
+                console.log('Checking localStorage for previous payment:', {
+                    paymentCompleted: paymentCompleted,
+                    vin: storedVin,
+                    plan: storedPlan
+                });
+                
+                if (paymentCompleted === 'true' && storedVin && storedPlan) {
+                    console.log('Previous payment found in localStorage');
+                    currentVin = storedVin.toUpperCase();
+                    currentPlan = storedPlan;
+                    currentPrice = currentPlan === 'regular' ? 25 : 100;
+                    loadVehicleReport();
+                    return;
+                } else {
+                    console.error('No valid payment found');
+                    showErrorMessage();
+                    return;
+                }
             }
         }
 
@@ -978,6 +1031,9 @@
 
         // Initialize
         window.onload = () => {
+            console.log('Report page loaded');
+            console.log('Current URL:', window.location.href);
+            
             // Check for payment and load report
             checkAndLoadReport();
         };
