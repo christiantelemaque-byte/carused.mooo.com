@@ -592,7 +592,7 @@
             });
             
             // Check if we have COMPLETED in URL OR if we have VIN and plan in sessionStorage
-            if ((paymentStatus && paymentStatus.toUpperCase() === 'COMPLETED') || (storedVin && storedPlan)) {
+            if ((paymentStatus && paymentStatus.toUpperCase() === 'COMPLETED') || (storedVin )) {
                 console.log('Payment completed or data found in sessionStorage');
                 
                 if (storedVin ) {
