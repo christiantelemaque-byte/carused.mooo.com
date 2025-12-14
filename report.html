@@ -572,6 +572,10 @@
             const storedVin = localStorage.getItem('carUsed_vin');
             const storedPlan = localStorage.getItem('carUsed_plan');
             
+            console.log('Checking localStorage for report data:');
+            console.log('VIN:', storedVin);
+            console.log('Plan:', storedPlan);
+            
             if (storedVin && storedPlan) {
                 currentVin = storedVin.toUpperCase();
                 currentPlan = storedPlan;
@@ -582,11 +586,13 @@
                 // Load and display the report
                 loadVehicleReport();
                 
-                // Clear localStorage after use
-                localStorage.removeItem('carUsed_vin');
-                localStorage.removeItem('carUsed_plan');
+                // Don't clear localStorage immediately - keep it for debugging
+                // Only clear if the user explicitly navigates away
+                // localStorage.removeItem('carUsed_vin');
+                // localStorage.removeItem('carUsed_plan');
             } else {
                 // No report data found
+                console.error('No report data found in localStorage');
                 showErrorMessage();
                 return;
             }
@@ -604,6 +610,7 @@
             const vehicle = vehicleDatabase[currentVin];
             
             if (!vehicle) {
+                console.error('Vehicle not found in database for VIN:', currentVin);
                 showErrorMessage();
                 return;
             }
@@ -630,6 +637,8 @@
             successMessage.style.display = 'block';
             reportContainer.style.display = 'block';
             errorMessage.style.display = 'none';
+            
+            console.log('Report loaded successfully for VIN:', currentVin, 'Plan:', currentPlan);
         }
 
         // Generate regular report HTML
