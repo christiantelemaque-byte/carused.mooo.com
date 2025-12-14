@@ -781,8 +781,8 @@
                 paymentVin.textContent = currentVin;
                 paymentSection.style.display = 'block';
                 
-                // Store VIN in localStorage for later use
-                localStorage.setItem('carUsed_vin', currentVin);
+                // Store VIN in sessionStorage for later use
+                sessionStorage.setItem('carUsed_vin', currentVin);
                 
                 // Initialize PayPal buttons if not already done
                 if (!paypalButtonsInitialized) {
@@ -800,7 +800,7 @@
         // Initialize PayPal buttons
         function initializePayPalButtons() {
             // Store VIN before creating buttons
-            const vin = localStorage.getItem('carUsed_vin') || currentVin;
+            const vin = sessionStorage.getItem('carUsed_vin') || currentVin;
             
             // Regular Report PayPal Button - $25 (Specific ID provided)
             paypal.HostedButtons({
@@ -809,9 +809,9 @@
                     console.log('Regular PayPal button initialized for VIN:', vin);
                 },
                 onClick: function(data, actions) {
-                    // Store the plan in localStorage
-                    localStorage.setItem('carUsed_plan', 'regular');
-                    localStorage.setItem('carUsed_vin', vin);
+                    // Store the plan in sessionStorage
+                    sessionStorage.setItem('carUsed_plan', 'regular');
+                    sessionStorage.setItem('carUsed_vin', vin);
                     console.log('Regular report selected for VIN:', vin);
                 },
                 onApprove: function(data, actions) {
@@ -837,9 +837,9 @@
                     console.log('Premium PayPal button initialized for VIN:', vin);
                 },
                 onClick: function(data, actions) {
-                    // Store the plan in localStorage
-                    localStorage.setItem('carUsed_plan', 'premium');
-                    localStorage.setItem('carUsed_vin', vin);
+                    // Store the plan in sessionStorage
+                    sessionStorage.setItem('carUsed_plan', 'premium');
+                    sessionStorage.setItem('carUsed_vin', vin);
                     console.log('Premium report selected for VIN:', vin);
                 },
                 onApprove: function(data, actions) {
@@ -902,22 +902,22 @@
 
         // Initialize
         window.onload = () => {
-            // Clear VIN input - don't auto-fill from localStorage
+            // Clear VIN input - don't auto-fill from sessionStorage
             vinInput.value = '';
             
             // Hide payment section initially
             paymentSection.style.display = 'none';
             
-            // Check if there's a VIN in localStorage from previous session
+            // Check if there's a VIN in sessionStorage from previous session
             // But we won't auto-fill it or show payment section
-            const storedVin = localStorage.getItem('carUsed_vin');
+            const storedVin = sessionStorage.getItem('carUsed_vin');
             
-            // If user is coming back from report page, clear localStorage for new search
-            // We'll keep the VIN in localStorage only during the current session
+            // If user is coming back from report page, clear sessionStorage for new search
+            // We'll keep the VIN in sessionStorage only during the current session
             // When page loads fresh, we don't want to auto-populate
         };
         
-        // Clear localStorage when user goes back to home page intentionally
+        // Clear sessionStorage when user goes back to home page intentionally
         window.addEventListener('pageshow', function(event) {
             // If the page is being shown from cache (back/forward navigation)
             // Clear the VIN input field
