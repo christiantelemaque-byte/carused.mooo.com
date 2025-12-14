@@ -595,7 +595,7 @@
             if ((paymentStatus && paymentStatus.toUpperCase() === 'COMPLETED') || (storedVin && storedPlan)) {
                 console.log('Payment completed or data found in sessionStorage');
                 
-                if (storedVin && storedPlan) {
+                if (storedVin ) {
                     currentVin = storedVin.toUpperCase();
                     currentPlan = storedPlan;
                     
@@ -631,7 +631,7 @@
                     plan: storedPlan
                 });
                 
-                if (paymentCompleted === 'true' && storedVin && storedPlan) {
+                if (paymentCompleted === 'true' && storedVin) {
                     console.log('Previous payment found in sessionStorage');
                     currentVin = storedVin.toUpperCase();
                     currentPlan = storedPlan;
