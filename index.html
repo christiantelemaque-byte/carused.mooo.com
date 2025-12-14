@@ -532,7 +532,7 @@
                         </li>
                     </ul>
                     
-                    <div class="paypal-button-container" id="paypal-container-regular"></div>
+                    <div class="paypal-button-container" id="paypal-container-H4VCCDRB3LLLN"></div>
                     <p class="mt-2" style="font-size: 0.9rem; color: var(--text-color);">
                         After payment, you'll be redirected to view your report.
                     </p>
@@ -802,9 +802,9 @@
             // Store VIN before creating buttons
             const vin = localStorage.getItem('carUsed_vin') || currentVin;
             
-            // Regular Report PayPal Button - $25
+            // Regular Report PayPal Button - $25 (Specific ID provided)
             paypal.HostedButtons({
-                hostedButtonId: "2B8T5BWD5RDSW",
+                hostedButtonId: "H4VCCDRB3LLLN",
                 onInit: function(data, actions) {
                     console.log('Regular PayPal button initialized for VIN:', vin);
                 },
@@ -826,7 +826,7 @@
                     console.error('PayPal error:', err);
                     alert('An error occurred with PayPal. Please try again or contact support.');
                 }
-            }).render("#paypal-container-regular");
+            }).render("#paypal-container-H4VCCDRB3LLLN");
 
             // Premium Report PayPal Button - $100
             // Note: You need to create a separate hosted button for $100 in your PayPal dashboard
