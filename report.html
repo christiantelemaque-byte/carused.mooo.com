@@ -576,47 +576,44 @@
 
         // Check for payment and load report
         function checkAndLoadReport() {
+            console.log('Checking for payment and loading report...');
+            
             // Check URL parameters for payment completion
             const paymentStatus = getUrlParameter('st');
-            const transactionId = getUrlParameter('tx');
+            console.log('Payment status from URL:', paymentStatus);
             
-            console.log('URL Parameters:', {
-                paymentStatus: paymentStatus,
-                transactionId: transactionId,
-                fullURL: window.location.href
+            // Check localStorage for VIN and plan
+            const storedVin = localStorage.getItem('carUsed_vin');
+            const storedPlan = localStorage.getItem('carUsed_plan');
+            
+            console.log('LocalStorage data:', {
+                vin: storedVin,
+                plan: storedPlan
             });
             
-            // Check if payment is completed in URL
-            if (paymentStatus === 'COMPLETED' || paymentStatus === 'Completed' || paymentStatus === 'completed') {
-                console.log('Payment completed detected in URL');
+            // Check if we have COMPLETED in URL OR if we have VIN and plan in localStorage
+            if ((paymentStatus && paymentStatus.toUpperCase() === 'COMPLETED') || (storedVin && storedPlan)) {
+                console.log('Payment completed or data found in localStorage');
                 
-                // Check localStorage for VIN and plan
-                const storedVin = localStorage.getItem('carUsed_vin');
-                const storedPlan = localStorage.getItem('carUsed_plan');
-                
-                console.log('LocalStorage data:', {
-                    vin: storedVin,
-                    plan: storedPlan
-                });
-                
-                if (storedVin ) {
+                if (storedVin && storedPlan) {
                     currentVin = storedVin.toUpperCase();
-                    //currentPlan = storedPlan;
+                    currentPlan = storedPlan;
                     
                     // Set price based on plan
                     currentPrice = currentPlan === 'regular' ? 25 : 100;
                     
                     // Store payment completion in localStorage for future reference
                     localStorage.setItem('carUsed_payment_completed', 'true');
-                    localStorage.setItem('carUsed_transaction_id', transactionId || 'N/A');
                     
                     // Load and display the report
                     loadVehicleReport();
                     
                     // Clean URL parameters to avoid issues on refresh
-                    setTimeout(() => {
-                        window.history.replaceState({}, document.title, window.location.pathname);
-                    }, 100);
+                    if (paymentStatus) {
+                        setTimeout(() => {
+                            window.history.replaceState({}, document.title, window.location.pathname);
+                        }, 100);
+                    }
                     
                     return;
                 } else {
@@ -627,8 +624,6 @@
             } else {
                 // Check if we have payment completion stored in localStorage
                 const paymentCompleted = localStorage.getItem('carUsed_payment_completed');
-                const storedVin = localStorage.getItem('carUsed_vin');
-                const storedPlan = localStorage.getItem('carUsed_plan');
                 
                 console.log('Checking localStorage for previous payment:', {
                     paymentCompleted: paymentCompleted,
@@ -636,10 +631,10 @@
                     plan: storedPlan
                 });
                 
-                if (paymentCompleted === 'true' && storedVin ) {
+                if (paymentCompleted === 'true' && storedVin && storedPlan) {
                     console.log('Previous payment found in localStorage');
                     currentVin = storedVin.toUpperCase();
-                    //currentPlan = storedPlan;
+                    currentPlan = storedPlan;
                     currentPrice = currentPlan === 'regular' ? 25 : 100;
                     loadVehicleReport();
                     return;
@@ -1037,6 +1032,16 @@
             // Check for payment and load report
             checkAndLoadReport();
         };
+        
+        // Clear localStorage when user goes back to home page from report page
+        document.querySelector('a[href="index.html"]').addEventListener('click', function() {
+            // Clear all CarUsed related localStorage items
+            localStorage.removeItem('carUsed_vin');
+            localStorage.removeItem('carUsed_plan');
+            localStorage.removeItem('carUsed_payment_completed');
+            localStorage.removeItem('carUsed_transaction_id');
+            console.log('Cleared localStorage before going back to home page');
+        });
     </script>
 </body>
 </html>
