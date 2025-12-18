@@ -8,10 +8,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- PayPal SDK -->
-    <script 
-        src="https://www.paypal.com/sdk/js?client-id=BAAs22kpX_5V3OLFvZ9Yw0BJ1o3HegBJ6w2IsAu3HdW5af4hVAKr_DY3v3cTFMrwfyHl7JcOGqtL1ingE4&components=hosted-buttons&disable-funding=venmo&currency=USD">
-    </script>
+    <!-- Stripe Buy Button SDK -->
+    <script async src="https://js.stripe.com/v3/buy-button.js"></script>
     
     <style>
         :root {
@@ -276,10 +274,14 @@
             flex: 1;
         }
 
-        /* PayPal Button Container */
-        .paypal-button-container {
+        /* Stripe Button Container */
+        .stripe-button-container {
             margin-top: 20px;
             min-height: 50px;
+        }
+
+        .stripe-button-container stripe-buy-button {
+            width: 100%;
         }
 
         /* How to Order Section */
@@ -498,7 +500,7 @@
             <div class="pricing-cards">
                 <div class="pricing-card">
                     <h3>Regular Report</h3>
-                    <div class="price">$25</div>
+                    <div class="price">$19.99</div>
                     <p>Basic vehicle information and specifications</p>
                     
                     <ul class="pricing-features">
@@ -532,7 +534,14 @@
                         </li>
                     </ul>
                     
-                    <div class="paypal-button-container" id="paypal-container-H4VCCDRB3LLLN"></div>
+                    <!-- Stripe Button Container for Regular Report -->
+                    <div class="stripe-button-container" id="stripe-button-container-regular">
+                        <stripe-buy-button
+                            buy-button-id="buy_btn_1SfQa9FiAep3lhtUT3XublXz"
+                            publishable-key="pk_live_Z3DOEXDkQ29anfNUNNsk2XNb"
+                        >
+                        </stripe-buy-button>
+                    </div>
                     <p class="mt-2" style="font-size: 0.9rem; color: var(--text-color);">
                         After payment, you'll be redirected to view your report.
                     </p>
@@ -575,7 +584,10 @@
                         </li>
                     </ul>
                     
-                    <div class="paypal-button-container" id="paypal-container-premium"></div>
+                    <!-- PayPal Button Container for Premium Report -->
+                    <div class="stripe-button-container" id="paypal-container-premium">
+                        <div class="paypal-button-container" id="paypal-button-container-premium"></div>
+                    </div>
                     <p class="mt-2" style="font-size: 0.9rem; color: var(--text-color);">
                         After payment, you'll be redirected to view your report.
                     </p>
@@ -602,13 +614,13 @@
                 <div class="step-card">
                     <div class="step-number">2</div>
                     <h4>Select Report Type</h4>
-                    <p>Choose between our Regular Report ($25) for basic information or Premium Report ($100) for comprehensive history including accidents, sales records, and more.</p>
+                    <p>Choose between our Regular Report ($19.99) for basic information or Premium Report ($100) for comprehensive history including accidents, sales records, and more.</p>
                 </div>
                 
                 <div class="step-card">
                     <div class="step-number">3</div>
                     <h4>Complete Payment</h4>
-                    <p>Click the PayPal button for your chosen report. You'll be redirected to PayPal to complete your payment securely. After payment, you'll view your report.</p>
+                    <p>Click the payment button for your chosen report. You'll be redirected to complete your payment securely. After payment, you'll view your report.</p>
                 </div>
             </div>
             
@@ -691,7 +703,7 @@
                     <p>Due to the nature of digital products, all sales of vehicle history reports are final. Once a report has been accessed, downloaded, or delivered via email, no refunds will be issued under any circumstances.</p>
                     
                     <h5 class="mt-4">2. Product Description</h5>
-                    <p>We provide detailed descriptions of our Regular ($25) and Premium ($100) reports on our website. Customers are responsible for reviewing these descriptions before purchase. Refunds will not be granted based on customer expectations that differ from the product description.</p>
+                    <p>We provide detailed descriptions of our Regular ($19.99) and Premium ($100) reports on our website. Customers are responsible for reviewing these descriptions before purchase. Refunds will not be granted based on customer expectations that differ from the product description.</p>
                     
                     <h5 class="mt-4">3. Technical Issues</h5>
                     <p>If you experience technical difficulties accessing your report, please contact our support team at support@carused.com. We will work to resolve any legitimate technical issues but cannot issue refunds for reports that have been successfully delivered to your email address.</p>
@@ -767,7 +779,6 @@
 
         // State variables
         let currentVin = '';
-        let paypalButtonsInitialized = false;
 
         // Validate VIN
         function validateVIN(vin) {
@@ -784,77 +795,11 @@
                 // Store VIN in sessionStorage for later use
                 sessionStorage.setItem('carUsed_vin', currentVin);
                 
-                // Initialize PayPal buttons if not already done
-                if (!paypalButtonsInitialized) {
-                    initializePayPalButtons();
-                    paypalButtonsInitialized = true;
-                }
-                
                 // Scroll to payment section
                 paymentSection.scrollIntoView({ behavior: 'smooth' });
             } else {
                 alert('Please enter a valid 17-character VIN. VIN should contain only letters and numbers (except I, O, Q).');
             }
-        }
-
-        // Initialize PayPal buttons
-        function initializePayPalButtons() {
-            // Store VIN before creating buttons
-            const vin = sessionStorage.getItem('carUsed_vin') || currentVin;
-            
-            // Regular Report PayPal Button - $25 (Specific ID provided)
-            paypal.HostedButtons({
-                hostedButtonId: "H4VCCDRB3LLLN",
-                onInit: function(data, actions) {
-                    console.log('Regular PayPal button initialized for VIN:', vin);
-                },
-                onClick: function(data, actions) {
-                    // Store the plan in sessionStorage
-                    sessionStorage.setItem('carUsed_plan', 'regular');
-                    sessionStorage.setItem('carUsed_vin', vin);
-                    console.log('Regular report selected for VIN:', vin);
-                },
-                onApprove: function(data, actions) {
-                    // This function is called when the payment is approved
-                    console.log('Payment approved for regular report, VIN:', vin);
-                    // Redirect to report page after payment
-                    setTimeout(() => {
-                        window.location.href = 'report.html';
-                    }, 2000);
-                },
-                onError: function(err) {
-                    console.error('PayPal error:', err);
-                    alert('An error occurred with PayPal. Please try again or contact support.');
-                }
-            }).render("#paypal-container-H4VCCDRB3LLLN");
-
-            // Premium Report PayPal Button - $100
-            // Note: You need to create a separate hosted button for $100 in your PayPal dashboard
-            // and replace the hostedButtonId below with your actual premium button ID
-            paypal.HostedButtons({
-                hostedButtonId: "2B8T5BWD5RDSW", // REPLACE THIS WITH YOUR ACTUAL PREMIUM BUTTON ID
-                onInit: function(data, actions) {
-                    console.log('Premium PayPal button initialized for VIN:', vin);
-                },
-                onClick: function(data, actions) {
-                    // Store the plan in sessionStorage
-                    sessionStorage.setItem('carUsed_plan', 'premium');
-                    sessionStorage.setItem('carUsed_vin', vin);
-                    console.log('Premium report selected for VIN:', vin);
-                },
-                onApprove: function(data, actions) {
-                    // This function is called when the payment is approved
-                    console.log('Payment approved for premium report, VIN:', vin);
-                    // Redirect to report page after payment
-                    setTimeout(() => {
-                        window.location.href = 'report.html';
-                    }, 2000);
-                },
-                onError: function(err) {
-                    console.error('PayPal error:', err);
-                    alert('An error occurred with PayPal. Please try again or contact support.');
-                }
-            }).render("#paypal-container-premium");
         }
 
         // Event Listeners
@@ -923,6 +868,31 @@
             // Clear the VIN input field
             vinInput.value = '';
         });
+
+        // Set up Stripe button click handler
+        document.addEventListener('DOMContentLoaded', function() {
+            // Wait for Stripe button to be available
+            const checkStripeButton = setInterval(function() {
+                const stripeButton = document.querySelector('stripe-buy-button');
+                if (stripeButton) {
+                    clearInterval(checkStripeButton);
+                    
+                    // Add click event to parent container
+                    const stripeContainer = document.getElementById('stripe-button-container-regular');
+                    if (stripeContainer) {
+                        stripeContainer.addEventListener('click', function() {
+                            // Store the plan in sessionStorage when Stripe button is clicked
+                            const vin = sessionStorage.getItem('carUsed_vin') || currentVin;
+                            if (vin) {
+                                sessionStorage.setItem('carUsed_plan', 'regular');
+                                sessionStorage.setItem('carUsed_vin', vin);
+                                console.log('Stripe button clicked for regular report, VIN:', vin);
+                            }
+                        });
+                    }
+                }
+            }, 100);
+        });
     </script>
 </body>
-</html>
+        </html>
