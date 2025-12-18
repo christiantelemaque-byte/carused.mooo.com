@@ -550,7 +550,7 @@
                 <div class="pricing-card popular">
                     <div class="popular-badge">MOST POPULAR</div>
                     <h3>Premium Report</h3>
-                    <div class="price">$100</div>
+                    <div class="price">$29.99</div>
                     <p>Complete vehicle history and detailed analysis</p>
                     
                     <ul class="pricing-features">
@@ -584,9 +584,13 @@
                         </li>
                     </ul>
                     
-                    <!-- PayPal Button Container for Premium Report -->
-                    <div class="stripe-button-container" id="paypal-container-premium">
-                        <div class="paypal-button-container" id="paypal-button-container-premium"></div>
+                    <!-- Stripe Button Container for Premium Report -->
+                    <div class="stripe-button-container" id="stripe-button-container-premium">
+                        <stripe-buy-button
+                            buy-button-id="buy_btn_1SflukFiAep3lhtU82vX7Y5S"
+                            publishable-key="pk_live_Z3DOEXDkQ29anfNUNNsk2XNb"
+                        >
+                        </stripe-buy-button>
                     </div>
                     <p class="mt-2" style="font-size: 0.9rem; color: var(--text-color);">
                         After payment, you'll be redirected to view your report.
@@ -614,13 +618,13 @@
                 <div class="step-card">
                     <div class="step-number">2</div>
                     <h4>Select Report Type</h4>
-                    <p>Choose between our Regular Report ($19.99) for basic information or Premium Report ($100) for comprehensive history including accidents, sales records, and more.</p>
+                    <p>Choose between our Regular Report ($19.99) for basic information or Premium Report ($29.99) for comprehensive history including accidents, sales records, and more.</p>
                 </div>
                 
                 <div class="step-card">
                     <div class="step-number">3</div>
                     <h4>Complete Payment</h4>
-                    <p>Click the payment button for your chosen report. You'll be redirected to complete your payment securely. After payment, you'll view your report.</p>
+                    <p>Click the Stripe button for your chosen report. You'll be redirected to complete your payment securely. After payment, you'll view your report.</p>
                 </div>
             </div>
             
@@ -703,7 +707,7 @@
                     <p>Due to the nature of digital products, all sales of vehicle history reports are final. Once a report has been accessed, downloaded, or delivered via email, no refunds will be issued under any circumstances.</p>
                     
                     <h5 class="mt-4">2. Product Description</h5>
-                    <p>We provide detailed descriptions of our Regular ($19.99) and Premium ($100) reports on our website. Customers are responsible for reviewing these descriptions before purchase. Refunds will not be granted based on customer expectations that differ from the product description.</p>
+                    <p>We provide detailed descriptions of our Regular ($19.99) and Premium ($29.99) reports on our website. Customers are responsible for reviewing these descriptions before purchase. Refunds will not be granted based on customer expectations that differ from the product description.</p>
                     
                     <h5 class="mt-4">3. Technical Issues</h5>
                     <p>If you experience technical difficulties accessing your report, please contact our support team at support@carused.com. We will work to resolve any legitimate technical issues but cannot issue refunds for reports that have been successfully delivered to your email address.</p>
@@ -869,19 +873,19 @@
             vinInput.value = '';
         });
 
-        // Set up Stripe button click handler
+        // Set up Stripe button click handlers
         document.addEventListener('DOMContentLoaded', function() {
-            // Wait for Stripe button to be available
-            const checkStripeButton = setInterval(function() {
-                const stripeButton = document.querySelector('stripe-buy-button');
-                if (stripeButton) {
-                    clearInterval(checkStripeButton);
+            // Wait for Stripe buttons to be available
+            const checkStripeButtons = setInterval(function() {
+                const stripeButtons = document.querySelectorAll('stripe-buy-button');
+                if (stripeButtons.length >= 2) {
+                    clearInterval(checkStripeButtons);
                     
-                    // Add click event to parent container
-                    const stripeContainer = document.getElementById('stripe-button-container-regular');
-                    if (stripeContainer) {
-                        stripeContainer.addEventListener('click', function() {
-                            // Store the plan in sessionStorage when Stripe button is clicked
+                    // Add click event to regular Stripe button container
+                    const regularContainer = document.getElementById('stripe-button-container-regular');
+                    if (regularContainer) {
+                        regularContainer.addEventListener('click', function() {
+                            // Store the plan in sessionStorage when regular Stripe button is clicked
                             const vin = sessionStorage.getItem('carUsed_vin') || currentVin;
                             if (vin) {
                                 sessionStorage.setItem('carUsed_plan', 'regular');
@@ -890,9 +894,23 @@
                             }
                         });
                     }
+                    
+                    // Add click event to premium Stripe button container
+                    const premiumContainer = document.getElementById('stripe-button-container-premium');
+                    if (premiumContainer) {
+                        premiumContainer.addEventListener('click', function() {
+                            // Store the plan in sessionStorage when premium Stripe button is clicked
+                            const vin = sessionStorage.getItem('carUsed_vin') || currentVin;
+                            if (vin) {
+                                sessionStorage.setItem('carUsed_plan', 'premium');
+                                sessionStorage.setItem('carUsed_vin', vin);
+                                console.log('Stripe button clicked for premium report, VIN:', vin);
+                            }
+                        });
+                    }
                 }
             }, 100);
         });
     </script>
 </body>
-        </html>
+                </html>
