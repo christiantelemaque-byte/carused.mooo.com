@@ -865,6 +865,61 @@
                     </p>
                 </div>
                 
+                <!-- Premium Report Card (TEST MODE) -->
+                <div class="pricing-card popular">
+                    <div class="popular-badge">TEST MODE</div>
+                    <h3>Premium Report - TEST</h3>
+                    <div class="price">$29.99</div>
+                    <p>Complete vehicle history and detailed analysis</p>
+                    
+                    <ul class="pricing-features">
+                        <li class="feature-included">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Everything in Regular Report</span>
+                        </li>
+                        <li class="feature-included">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Complete Accident History</span>
+                        </li>
+                        <li class="feature-included">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Detailed Sales Records</span>
+                        </li>
+                        <li class="feature-included">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Theft & Title Records</span>
+                        </li>
+                        <li class="feature-included">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Service History</span>
+                        </li>
+                        <li class="feature-included">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Odometer Verification</span>
+                        </li>
+                        <li class="feature-included">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Priority Support</span>
+                        </li>
+                    </ul>
+                    
+                    <!-- TEST PAYMENT BUTTON (Your new sandbox button) -->
+                    <div class="stripe-button-container" id="stripe-button-container-premium">
+                        <stripe-buy-button
+                            buy-button-id="buy_btn_1Sg8ijFgJ4riDAJpm0GS6Gfy"
+                            publishable-key="pk_test_51Sg8RWFgJ4riDAJpAoM71KB6U1vZAxEJDQ9oaljCsQyskXMssyhexp5AwubX309bGLEcYfoXHfL0xDY9rhB46tO700ajSHYVeN"
+                        >
+                        </stripe-buy-button>
+                    </div>
+                    <p class="mt-2" style="font-size: 0.9rem; color: var(--text-color);">
+                        ⚠️ <strong>TEST MODE ACTIVE</strong> - Use card <code>4242 4242 4242 4242</code>
+                    </p>
+                </div>
+                
+                <!--
+                    ORIGINAL PREMIUM REPORT CARD (COMMENTED OUT)
+                    Keep this safe to restore when going live!
+                    
                 <div class="pricing-card popular">
                     <div class="popular-badge">MOST POPULAR</div>
                     <h3>Premium Report</h3>
@@ -902,7 +957,6 @@
                         </li>
                     </ul>
                     
-                    <!-- Stripe Button Container for Premium Report -->
                     <div class="stripe-button-container" id="stripe-button-container-premium">
                         <stripe-buy-button
                             buy-button-id="buy_btn_1SflukFiAep3lhtU82vX7Y5S"
@@ -914,6 +968,7 @@
                         After payment, you'll be redirected to view your report.
                     </p>
                 </div>
+                -->
             </div>
         </div>
     </section>
@@ -973,6 +1028,60 @@
                     </div>
                 </div>
                 
+                <!-- Premium Report Card for Pricing Section (TEST MODE) -->
+                <div class="pricing-card popular">
+                    <div class="popular-badge">TEST MODE</div>
+                    <h3>Premium Report - TEST</h3>
+                    <div class="price">$29.99</div>
+                    <p>Complete vehicle history and detailed analysis</p>
+                    
+                    <ul class="pricing-features">
+                        <li class="feature-included">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Everything in Regular Report</span>
+                        </li>
+                        <li class="feature-included">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Complete Accident History</span>
+                        </li>
+                        <li class="feature-included">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Detailed Sales Records</span>
+                        </li>
+                        <li class="feature-included">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Theft & Title Records</span>
+                        </li>
+                        <li class="feature-included">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Service History</span>
+                        </li>
+                        <li class="feature-included">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Odometer Verification</span>
+                        </li>
+                        <li class="feature-included">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Priority Support</span>
+                        </li>
+                    </ul>
+                    
+                    <!-- TEST PAYMENT BUTTON (Your new sandbox button) -->
+                    <div class="stripe-button-container" id="stripe-button-container-premium-pricing">
+                        <stripe-buy-button
+                            buy-button-id="buy_btn_1Sg8ijFgJ4riDAJpm0GS6Gfy"
+                            publishable-key="pk_test_51Sg8RWFgJ4riDAJpAoM71KB6U1vZAxEJDQ9oaljCsQyskXMssyhexp5AwubX309bGLEcYfoXHfL0xDY9rhB46tO700ajSHYVeN"
+                        >
+                        </stripe-buy-button>
+                    </div>
+                    <p class="mt-2" style="font-size: 0.9rem; color: var(--text-color);">
+                        ⚠️ <strong>TEST MODE ACTIVE</strong> - Use card <code>4242 4242 4242 4242</code>
+                    </p>
+                </div>
+                
+                <!--
+                    ORIGINAL PREMIUM REPORT CARD FOR PRICING SECTION (COMMENTED OUT)
+                    
                 <div class="pricing-card popular">
                     <div class="popular-badge">MOST POPULAR</div>
                     <h3>Premium Report</h3>
@@ -1019,6 +1128,7 @@
                         </p>
                     </div>
                 </div>
+                -->
             </div>
             
             <div class="text-center mt-5">
@@ -1503,6 +1613,20 @@
                             }
                         });
                     }
+                    
+                    // Add click event to premium pricing section button
+                    const premiumPricingContainer = document.getElementById('stripe-button-container-premium-pricing');
+                    if (premiumPricingContainer) {
+                        premiumPricingContainer.addEventListener('click', function() {
+                            // Store the plan in sessionStorage when premium pricing Stripe button is clicked
+                            const vin = sessionStorage.getItem('carUsed_vin') || currentVin;
+                            if (vin) {
+                                sessionStorage.setItem('carUsed_plan', 'premium');
+                                sessionStorage.setItem('carUsed_vin', vin);
+                                console.log('Stripe button clicked for premium report (pricing section), VIN:', vin);
+                            }
+                        });
+                    }
                 }
             }, 100);
         });
@@ -1525,7 +1649,7 @@
                 'refund': 'All sales of vehicle history reports are final. We do not issue refunds for digital downloads once accessed or delivered.',
                 'customer support': 'You can reach our customer support at +1 (858) 651-5050 during business hours, or send us a message through our website.',
                 'contact': 'You can reach our customer support at +1 (858) 651-5050 during business hours, or send us a message through our website.',
-                'wrong vin': 'Customers are responsible for entering the correct VIN. No refunds will be issued for reports generated with incorrect VIN numbers.',
+                'wrong vin': 'Customers are responsible for entering the correct VIN. No refunds will be issued for reports generated with incorrect VIN numbers provided by the customer.',
                 'how quickly will i receive my report': 'Reports are delivered instantly in digital format, and you can access them 24/7 after payment.',
                 'delivery': 'Reports are delivered instantly in digital format, and you can access them 24/7 after payment.',
                 'personal information secure': 'Yes, we implement appropriate measures to protect your personal data against unauthorized access and ensure your privacy.',
