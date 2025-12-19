@@ -714,11 +714,7 @@
                         <div id="form-message" style="display: none;"></div>
                         
                         <!-- Google Apps Script Form -->
-                        <form id="contactForm" method="POST" target="_blank">
-                            <!-- Hidden fields for Gmail configuration -->
-                            <input type="hidden" name="to_email" value="christiantelemaque@gmail.com">
-                            <input type="hidden" name="subject_prefix" value="CarUsed Contact Form: ">
-                            
+                        <form id="contactForm" method="POST">
                             <div class="row">
                                 <div class="col-md-6">
                                     <input type="text" class="form-control" id="name" name="name" placeholder="Your Name" required>
@@ -916,22 +912,22 @@
             submitBtn.disabled = true;
             
             try {
-                // Google Apps Script Web App URL
-            const scriptURL = 'https://script.google.com/macros/s/AKfycbzJRsWjYVUwG9q9hHpLRZKTDypHRwBPhB77YTqxydhGwCU9i3tYfU20LrHj70MfLwvoAw/exec';
+                // Your new Google Apps Script Web App URL
+                const scriptURL = 'https://script.google.com/macros/s/AKfycbzJRsWjYVUwG9q9hHpLRZKTDypHRwBPhB77YTqxydhGwCU9i3tYfU20LrHj70MfLwvoAw/exec';
                 
-                // Create form data for submission
-                const data = new FormData();
-                data.append('name', formData.name);
-                data.append('email', formData.email);
-                data.append('subject', formData.subject);
-                data.append('message', formData.message);
-                data.append('to_email', formData.to_email);
-                data.append('subject_prefix', formData.subject_prefix);
+                // Create URL encoded form data
+                const formDataEncoded = new URLSearchParams();
+                formDataEncoded.append('name', formData.name);
+                formDataEncoded.append('email', formData.email);
+                formDataEncoded.append('subject', formData.subject);
+                formDataEncoded.append('message', formData.message);
+                formDataEncoded.append('to_email', formData.to_email);
+                formDataEncoded.append('subject_prefix', formData.subject_prefix);
                 
                 // Submit to Google Apps Script
                 const response = await fetch(scriptURL, {
                     method: 'POST',
-                    body: data,
+                    body: formDataEncoded,
                     mode: 'no-cors' // Required for Google Apps Script
                 });
                 
