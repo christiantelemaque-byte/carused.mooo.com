@@ -447,6 +447,186 @@
             color: #991b1b;
         }
 
+        /* Custom Chatbot Styling */
+        .chatbot-widget {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            font-family: 'Lexend', sans-serif;
+        }
+
+        .chatbot-toggle {
+            width: 60px;
+            height: 60px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(10, 36, 99, 0.3);
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .chatbot-toggle:hover {
+            background: #081c4a;
+            transform: scale(1.1);
+        }
+
+        .chatbot-container {
+            width: 350px;
+            height: 500px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+
+        .chatbot-container.active {
+            display: flex;
+        }
+
+        .chatbot-header {
+            background: var(--primary-color);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .chatbot-header h4 {
+            margin: 0;
+            font-weight: 600;
+        }
+
+        .chatbot-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background 0.3s ease;
+        }
+
+        .chatbot-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .chatbot-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #f8f9fa;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            display: flex;
+        }
+
+        .message.bot {
+            justify-content: flex-start;
+        }
+
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        .message-content {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            line-height: 1.4;
+        }
+
+        .message.bot .message-content {
+            background: white;
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+        }
+
+        .message.user .message-content {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .chatbot-input {
+            padding: 15px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            background: white;
+        }
+
+        .chatbot-input input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 25px;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border 0.3s ease;
+        }
+
+        .chatbot-input input:focus {
+            border-color: var(--primary-color);
+        }
+
+        .chatbot-input button {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            margin-left: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s ease;
+        }
+
+        .chatbot-input button:hover {
+            background: #081c4a;
+        }
+
+        .typing-indicator {
+            display: flex;
+            padding: 10px 0;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: #ccc;
+            border-radius: 50%;
+            margin: 0 3px;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes typing {
+            0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
+            40% { transform: scale(1); opacity: 1; }
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .vin-search-container h1 {
@@ -465,6 +645,12 @@
             }
             .contact-form {
                 padding: 30px 20px;
+            }
+            .chatbot-container {
+                width: 300px;
+                height: 450px;
+                right: 10px;
+                bottom: 80px;
             }
         }
 
@@ -884,6 +1070,35 @@
         </div>
     </footer>
 
+    <!-- Custom Chatbot Widget -->
+    <div class="chatbot-widget">
+        <div class="chatbot-container" id="chatbotContainer">
+            <div class="chatbot-header">
+                <h4><i class="fas fa-robot me-2"></i> CarUsed Assistant</h4>
+                <button class="chatbot-close" id="chatbotClose">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="chatbot-messages" id="chatbotMessages">
+                <!-- Messages will appear here -->
+                <div class="message bot">
+                    <div class="message-content">
+                        Hello! I'm your CarUsed assistant. I can help answer questions about our vehicle history reports, pricing, and how to order. What would you like to know?
+                    </div>
+                </div>
+            </div>
+            <div class="chatbot-input">
+                <input type="text" id="chatbotInput" placeholder="Type your question here..." autocomplete="off">
+                <button id="chatbotSend">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+        <button class="chatbot-toggle" id="chatbotToggle">
+            <i class="fas fa-comment-dots"></i>
+        </button>
+    </div>
+
     <!-- Refund Policy Modal -->
     <div class="modal fade" id="refundModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
@@ -975,6 +1190,14 @@
         const contactForm = document.getElementById('contactForm');
         const formMessage = document.getElementById('form-message');
         const submitBtn = document.getElementById('submit-btn');
+
+        // Chatbot DOM Elements
+        const chatbotToggle = document.getElementById('chatbotToggle');
+        const chatbotContainer = document.getElementById('chatbotContainer');
+        const chatbotClose = document.getElementById('chatbotClose');
+        const chatbotMessages = document.getElementById('chatbotMessages');
+        const chatbotInput = document.getElementById('chatbotInput');
+        const chatbotSend = document.getElementById('chatbotSend');
 
         // State variables
         let currentVin = '';
@@ -1201,20 +1424,262 @@
                 }
             }, 100);
         });
-    </script>
 
-    <!--Start of Tawk.to Script-->
-    <script type="text/javascript">
-    var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
-    (function(){
-    var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
-    s1.async=true;
-    s1.src='https://embed.tawk.to/694561c402ad43198166d1e6/1jcrgbq8n';
-    s1.charset='UTF-8';
-    s1.setAttribute('crossorigin','*');
-    s0.parentNode.insertBefore(s1,s0);
-    })();
+        // ============================================
+        // CUSTOM CHATBOT FUNCTIONALITY
+        // ============================================
+
+        // Chatbot state and knowledge base
+        const chatbotKnowledge = {
+            // Extract text content from the page
+            pageContent: '',
+            
+            // Common questions and their answers
+            commonQuestions: {
+                'price': 'We offer two pricing plans: Regular Report for $19.99 and Premium Report for $29.99.',
+                'pricing': 'Our pricing is simple: Regular Report costs $19.99 and Premium Report costs $29.99.',
+                'cost': 'The Regular Report is $19.99 and the Premium Report is $29.99.',
+                'regular': 'The Regular Report costs $19.99 and includes vehicle specifications, basic history check, dimensions & weights, and manufacturer pricing.',
+                'premium': 'The Premium Report costs $29.99 and includes everything in the Regular Report plus complete accident history, detailed sales records, theft & title records, service history, odometer verification, and priority support.',
+                'what is vin': 'A VIN (Vehicle Identification Number) is a 17-character unique code that identifies your vehicle. You can find it on your dashboard or driver\'s side door jamb.',
+                'where is vin': 'Your VIN is located on your dashboard (visible through the windshield) or on the driver\'s side door jamb.',
+                'how to order': 'Ordering is simple: 1) Enter your 17-character VIN above, 2) Select your report type (Regular $19.99 or Premium $29.99), 3) Complete payment using Stripe.',
+                'how order': 'To order: 1) Enter your VIN, 2) Choose Regular ($19.99) or Premium ($29.99) report, 3) Pay securely with Stripe.',
+                'contact': 'You can contact us by phone at +1 (858) 651-5050 (Mon-Fri 9AM-6PM EST) or use the contact form on our website. Our address is 93 Lombard Ave, Winnipeg, Manitoba, Canada R3B 0T4.',
+                'phone': 'Our phone number is +1 (858) 651-5050. We\'re available Monday-Friday 9:00 AM - 6:00 PM EST and Saturday 10:00 AM - 4:00 PM EST.',
+                'address': 'Our address is 93 Lombard Ave, Winnipeg, Manitoba, Canada R3B 0T4.',
+                'refund': 'Due to the nature of digital products, all sales of vehicle history reports are final. No refunds are issued once a report has been accessed or delivered.',
+                'privacy': 'We respect your privacy and protect your personal data. All information is used only to provide and improve our services.',
+                'report': 'We offer two types of reports: Regular ($19.99) for basic information and Premium ($29.99) for complete history including accidents, sales records, and service history.',
+                'what included': 'Regular Report ($19.99): Vehicle specifications, basic history, dimensions, manufacturer pricing. Premium Report ($29.99): Everything in Regular plus accident history, sales records, theft records, service history, odometer verification, priority support.',
+                'features': 'Regular Report features: Vehicle specs, basic history, dimensions, manufacturer pricing. Premium Report adds: Accident history, sales records, theft records, service history, odometer verification, priority support.',
+                'difference': 'The main difference is that Premium Report ($29.99) includes accident history, sales records, theft records, and service history, while Regular Report ($19.99) does not.',
+                'hello': 'Hello! How can I help you with CarUsed vehicle history reports today?',
+                'hi': 'Hi there! I\'m here to help with any questions about CarUsed vehicle history reports.',
+                'help': 'I can help you with questions about pricing, how to order, what\'s included in our reports, contact information, and more. What would you like to know?'
+            },
+            
+            // Keywords to identify question types
+            keywords: {
+                'price': ['price', 'cost', 'how much', 'pricing', '$'],
+                'report': ['report', 'what\'s included', 'features', 'include', 'contain'],
+                'vin': ['vin', 'vehicle identification', 'where vin', 'find vin'],
+                'order': ['order', 'how to', 'process', 'steps', 'buy', 'purchase'],
+                'contact': ['contact', 'phone', 'call', 'email', 'address', 'location'],
+                'refund': ['refund', 'return', 'money back', 'cancel'],
+                'privacy': ['privacy', 'data', 'information', 'secure'],
+                'greeting': ['hello', 'hi', 'hey', 'greetings']
+            }
+        };
+
+        // Initialize chatbot
+        function initChatbot() {
+            // Extract content from the page
+            extractPageContent();
+            
+            // Set up event listeners
+            chatbotToggle.addEventListener('click', toggleChatbot);
+            chatbotClose.addEventListener('click', toggleChatbot);
+            chatbotSend.addEventListener('click', sendMessage);
+            chatbotInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+            
+            // Load any previous messages from localStorage
+            loadChatHistory();
+        }
+
+        // Extract text content from the page for the chatbot to use
+        function extractPageContent() {
+            // Get all text content from the page (excluding scripts and styles)
+            const bodyText = document.body.innerText;
+            chatbotKnowledge.pageContent = bodyText
+                .replace(/\s+/g, ' ') // Replace multiple spaces with single space
+                .substring(0, 5000); // Limit to first 5000 characters
+        }
+
+        // Toggle chatbot visibility
+        function toggleChatbot() {
+            chatbotContainer.classList.toggle('active');
+            if (chatbotContainer.classList.contains('active')) {
+                chatbotInput.focus();
+                scrollToBottom();
+            }
+        }
+
+        // Send a message
+        function sendMessage() {
+            const message = chatbotInput.value.trim();
+            if (!message) return;
+            
+            // Add user message to chat
+            addMessage(message, 'user');
+            
+            // Clear input
+            chatbotInput.value = '';
+            
+            // Show typing indicator
+            showTypingIndicator();
+            
+            // Process and respond after a short delay
+            setTimeout(() => {
+                removeTypingIndicator();
+                const response = generateResponse(message);
+                addMessage(response, 'bot');
+                scrollToBottom();
+                
+                // Save to chat history
+                saveToChatHistory(message, response);
+            }, 1000 + Math.random() * 1000); // Random delay for natural feel
+        }
+
+        // Add a message to the chat
+        function addMessage(text, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+            contentDiv.textContent = text;
+            
+            messageDiv.appendChild(contentDiv);
+            chatbotMessages.appendChild(messageDiv);
+            
+            scrollToBottom();
+        }
+
+        // Show typing indicator
+        function showTypingIndicator() {
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'typing-indicator';
+            typingDiv.id = 'typingIndicator';
+            
+            for (let i = 0; i < 3; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'typing-dot';
+                typingDiv.appendChild(dot);
+            }
+            
+            chatbotMessages.appendChild(typingDiv);
+            scrollToBottom();
+        }
+
+        // Remove typing indicator
+        function removeTypingIndicator() {
+            const typingIndicator = document.getElementById('typingIndicator');
+            if (typingIndicator) {
+                typingIndicator.remove();
+            }
+        }
+
+        // Scroll to bottom of chat
+        function scrollToBottom() {
+            chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+        }
+
+        // Generate a response based on the user's message
+        function generateResponse(userMessage) {
+            const lowerMessage = userMessage.toLowerCase();
+            
+            // Check for exact matches in common questions
+            for (const [question, answer] of Object.entries(chatbotKnowledge.commonQuestions)) {
+                if (lowerMessage.includes(question)) {
+                    return answer;
+                }
+            }
+            
+            // Check for keyword matches
+            for (const [category, keywords] of Object.entries(chatbotKnowledge.keywords)) {
+                for (const keyword of keywords) {
+                    if (lowerMessage.includes(keyword)) {
+                        // Return the corresponding common question answer
+                        const answer = chatbotKnowledge.commonQuestions[category];
+                        if (answer) {
+                            return answer;
+                        }
+                    }
+                }
+            }
+            
+            // Search in page content for relevant information
+            const relevantContent = searchInPageContent(lowerMessage);
+            if (relevantContent) {
+                return relevantContent;
+            }
+            
+            // Default response
+            return "I'm not sure about that. You can ask me about pricing, how to order, what's included in our reports, or contact information. Would you like to know about any of these?";
+        }
+
+        // Search for relevant information in page content
+        function searchInPageContent(query) {
+            const sentences = chatbotKnowledge.pageContent.split(/[.!?]+/);
+            const queryWords = query.toLowerCase().split(' ');
+            
+            // Find sentences that contain query words
+            const relevantSentences = sentences.filter(sentence => {
+                const lowerSentence = sentence.toLowerCase();
+                return queryWords.some(word => 
+                    word.length > 3 && lowerSentence.includes(word)
+                );
+            });
+            
+            if (relevantSentences.length > 0) {
+                // Return the most relevant sentence (first match)
+                const relevantSentence = relevantSentences[0].trim();
+                if (relevantSentence.length > 10 && relevantSentence.length < 200) {
+                    return relevantSentence;
+                }
+            }
+            
+            // If no direct match, look for related content
+            if (query.includes('price') || query.includes('cost') || query.includes('$')) {
+                return "Our Regular Report is $19.99 and Premium Report is $29.99. Both provide valuable vehicle history information.";
+            } else if (query.includes('report') || query.includes('include')) {
+                return "We offer two reports: Regular includes basic specs and history, Premium adds accident history, sales records, and service history.";
+            } else if (query.includes('vin')) {
+                return "Your VIN is a 17-character code found on your dashboard or driver's side door jamb.";
+            }
+            
+            return null;
+        }
+
+        // Save message to chat history
+        function saveToChatHistory(userMessage, botResponse) {
+            try {
+                let chatHistory = JSON.parse(localStorage.getItem('carUsedChatHistory') || '[]');
+                chatHistory.push({
+                    user: userMessage,
+                    bot: botResponse,
+                    timestamp: new Date().toISOString()
+                });
+                
+                // Keep only last 50 messages
+                if (chatHistory.length > 50) {
+                    chatHistory = chatHistory.slice(-50);
+                }
+                
+                localStorage.setItem('carUsedChatHistory', JSON.stringify(chatHistory));
+            } catch (e) {
+                console.error('Error saving chat history:', e);
+            }
+        }
+
+        // Load chat history from localStorage
+        function loadChatHistory() {
+            try {
+                const chatHistory = JSON.parse(localStorage.getItem('carUsedChatHistory') || '[]');
+                // We're not loading old messages by default, but the function is here if needed
+            } catch (e) {
+                console.error('Error loading chat history:', e);
+            }
+        }
+
+        // Initialize chatbot when page loads
+        document.addEventListener('DOMContentLoaded', initChatbot);
+
     </script>
-    <!--End of Tawk.to Script-->
 </body>
     </html>
