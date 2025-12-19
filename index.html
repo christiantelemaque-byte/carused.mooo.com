@@ -627,7 +627,7 @@
             40% { transform: scale(1); opacity: 1; }
         }
 
-        /* Responsive */
+        /* Responsive Styles */
         @media (max-width: 768px) {
             .vin-search-container h1 {
                 font-size: 2.2rem;
@@ -646,11 +646,89 @@
             .contact-form {
                 padding: 30px 20px;
             }
-            .chatbot-container {
-                width: 300px;
-                height: 450px;
+            
+            /* Responsive Chatbot */
+            .chatbot-widget {
+                bottom: 10px;
                 right: 10px;
-                bottom: 80px;
+                left: 10px;
+            }
+            
+            .chatbot-toggle {
+                width: 50px;
+                height: 50px;
+                font-size: 20px;
+                position: fixed;
+                bottom: 10px;
+                right: 10px;
+            }
+            
+            .chatbot-container {
+                width: 100%;
+                height: 400px;
+                max-height: 80vh;
+                position: fixed;
+                bottom: 70px;
+                right: 10px;
+                left: 10px;
+                margin: 0 auto;
+                border-radius: 10px;
+            }
+            
+            .chatbot-container.active {
+                display: flex;
+            }
+            
+            .chatbot-messages {
+                padding: 15px;
+            }
+            
+            .message-content {
+                max-width: 85%;
+                padding: 10px 14px;
+                font-size: 0.9rem;
+            }
+            
+            .chatbot-input {
+                padding: 10px;
+            }
+            
+            .chatbot-input input {
+                padding: 10px 12px;
+                font-size: 0.9rem;
+            }
+            
+            .chatbot-input button {
+                width: 40px;
+                height: 40px;
+            }
+        }
+
+        /* Extra small devices */
+        @media (max-width: 480px) {
+            .chatbot-container {
+                height: 350px;
+            }
+            
+            .chatbot-messages {
+                padding: 12px;
+            }
+            
+            .message-content {
+                max-width: 90%;
+                padding: 8px 12px;
+                font-size: 0.85rem;
+            }
+            
+            .chatbot-header h4 {
+                font-size: 1rem;
+            }
+        }
+
+        /* Landscape mode for mobile */
+        @media (max-height: 600px) and (max-width: 768px) {
+            .chatbot-container {
+                height: 300px;
             }
         }
 
@@ -1074,7 +1152,7 @@
     <div class="chatbot-widget">
         <div class="chatbot-container" id="chatbotContainer">
             <div class="chatbot-header">
-                <h4><i class="fas fa-robot me-2"></i> CarUsed Assistant</h4>
+                <h4><i class="fas fa-robot me-2"></i> James - CarUsed Assistant</h4>
                 <button class="chatbot-close" id="chatbotClose">
                     <i class="fas fa-times"></i>
                 </button>
@@ -1083,7 +1161,10 @@
                 <!-- Messages will appear here -->
                 <div class="message bot">
                     <div class="message-content">
-                        Hello! I'm your CarUsed assistant. I can help answer questions about our vehicle history reports, pricing, and how to order. What would you like to know?
+                        <strong>👋 Welcome to CarUsed!</strong><br><br>
+                        Hello! I'm <strong>James</strong>, your CarUsed assistant. 😊<br><br>
+                        I'm here to help you with any questions about our vehicle history reports, pricing, how to order, or anything else you need.<br><br>
+                        Feel free to ask me anything – I'm here to help make your vehicle research easy and stress-free!
                     </div>
                 </div>
             </div>
@@ -1201,6 +1282,7 @@
 
         // State variables
         let currentVin = '';
+        let isFirstInteraction = true;
 
         // Validate VIN
         function validateVIN(vin) {
@@ -1431,52 +1513,58 @@
 
         // Chatbot state and knowledge base
         const chatbotKnowledge = {
-            // Extract text content from the page
-            pageContent: '',
-            
-            // Common questions and their answers
+            // Updated answers as requested
             commonQuestions: {
+                'what types of vehicle history reports do you offer': 'We offer two types of reports: a Regular Report for $19.99, which includes basic vehicle information, and a Premium Report for $29.99, which provides a complete history and detailed analysis.',
+                'types of reports': 'We offer two types of reports: a Regular Report for $19.99, which includes basic vehicle information, and a Premium Report for $29.99, which provides a complete history and detailed analysis.',
+                'how do i order': 'To order, enter your VIN, select the report type, and complete the payment. You\'ll be redirected to view your report after payment.',
+                'how to order': 'To order, enter your VIN, select the report type, and complete the payment. You\'ll be redirected to view your report after payment.',
+                'what is included in the regular report': 'The Regular Report includes vehicle specifications, basic history check, accident history, sales records, and detailed service history.',
+                'regular report': 'The Regular Report includes vehicle specifications, basic history check, accident history, sales records, and detailed service history.',
+                'hidden fees': 'No, there are no hidden fees. The prices for our reports are clearly stated, and you pay only the listed amount.',
+                'refund': 'All sales of vehicle history reports are final. We do not issue refunds for digital downloads once accessed or delivered.',
+                'customer support': 'You can reach our customer support at +1 (858) 651-5050 during business hours, or send us a message through our website.',
+                'contact': 'You can reach our customer support at +1 (858) 651-5050 during business hours, or send us a message through our website.',
+                'wrong vin': 'Customers are responsible for entering the correct VIN. No refunds will be issued for reports generated with incorrect VIN numbers.',
+                'how quickly will i receive my report': 'Reports are delivered instantly in digital format, and you can access them 24/7 after payment.',
+                'delivery': 'Reports are delivered instantly in digital format, and you can access them 24/7 after payment.',
+                'personal information secure': 'Yes, we implement appropriate measures to protect your personal data against unauthorized access and ensure your privacy.',
+                'security': 'Yes, we implement appropriate measures to protect your personal data against unauthorized access and ensure your privacy.',
+                'privacy': 'Yes, we implement appropriate measures to protect your personal data against unauthorized access and ensure your privacy.',
+                
+                // Additional common questions
+                'hello': 'Hello again! How can I assist you today? 😊',
+                'hi': 'Hi there! I\'m James, your CarUsed assistant. What can I help you with?',
+                'help': 'I can help you with questions about our reports, pricing, ordering process, refunds, contact information, and more. What would you like to know?',
                 'price': 'We offer two pricing plans: Regular Report for $19.99 and Premium Report for $29.99.',
                 'pricing': 'Our pricing is simple: Regular Report costs $19.99 and Premium Report costs $29.99.',
                 'cost': 'The Regular Report is $19.99 and the Premium Report is $29.99.',
-                'regular': 'The Regular Report costs $19.99 and includes vehicle specifications, basic history check, dimensions & weights, and manufacturer pricing.',
-                'premium': 'The Premium Report costs $29.99 and includes everything in the Regular Report plus complete accident history, detailed sales records, theft & title records, service history, odometer verification, and priority support.',
                 'what is vin': 'A VIN (Vehicle Identification Number) is a 17-character unique code that identifies your vehicle. You can find it on your dashboard or driver\'s side door jamb.',
                 'where is vin': 'Your VIN is located on your dashboard (visible through the windshield) or on the driver\'s side door jamb.',
-                'how to order': 'Ordering is simple: 1) Enter your 17-character VIN above, 2) Select your report type (Regular $19.99 or Premium $29.99), 3) Complete payment using Stripe.',
-                'how order': 'To order: 1) Enter your VIN, 2) Choose Regular ($19.99) or Premium ($29.99) report, 3) Pay securely with Stripe.',
-                'contact': 'You can contact us by phone at +1 (858) 651-5050 (Mon-Fri 9AM-6PM EST) or use the contact form on our website. Our address is 93 Lombard Ave, Winnipeg, Manitoba, Canada R3B 0T4.',
                 'phone': 'Our phone number is +1 (858) 651-5050. We\'re available Monday-Friday 9:00 AM - 6:00 PM EST and Saturday 10:00 AM - 4:00 PM EST.',
                 'address': 'Our address is 93 Lombard Ave, Winnipeg, Manitoba, Canada R3B 0T4.',
-                'refund': 'Due to the nature of digital products, all sales of vehicle history reports are final. No refunds are issued once a report has been accessed or delivered.',
-                'privacy': 'We respect your privacy and protect your personal data. All information is used only to provide and improve our services.',
                 'report': 'We offer two types of reports: Regular ($19.99) for basic information and Premium ($29.99) for complete history including accidents, sales records, and service history.',
-                'what included': 'Regular Report ($19.99): Vehicle specifications, basic history, dimensions, manufacturer pricing. Premium Report ($29.99): Everything in Regular plus accident history, sales records, theft records, service history, odometer verification, priority support.',
-                'features': 'Regular Report features: Vehicle specs, basic history, dimensions, manufacturer pricing. Premium Report adds: Accident history, sales records, theft records, service history, odometer verification, priority support.',
-                'difference': 'The main difference is that Premium Report ($29.99) includes accident history, sales records, theft records, and service history, while Regular Report ($19.99) does not.',
-                'hello': 'Hello! How can I help you with CarUsed vehicle history reports today?',
-                'hi': 'Hi there! I\'m here to help with any questions about CarUsed vehicle history reports.',
-                'help': 'I can help you with questions about pricing, how to order, what\'s included in our reports, contact information, and more. What would you like to know?'
+                'what included': 'Regular Report ($19.99): Vehicle specifications, basic history, accident history, sales records, service history. Premium Report ($29.99): Everything in Regular plus additional detailed analysis.',
+                'features': 'Regular Report features: Vehicle specs, basic history, accident history, sales records, service history. Premium Report adds: Complete detailed analysis and additional vehicle data.',
+                'difference': 'The main difference is that Premium Report ($29.99) provides more comprehensive analysis and additional data points compared to the Regular Report ($19.99).'
             },
             
             // Keywords to identify question types
             keywords: {
-                'price': ['price', 'cost', 'how much', 'pricing', '$'],
-                'report': ['report', 'what\'s included', 'features', 'include', 'contain'],
-                'vin': ['vin', 'vehicle identification', 'where vin', 'find vin'],
-                'order': ['order', 'how to', 'process', 'steps', 'buy', 'purchase'],
-                'contact': ['contact', 'phone', 'call', 'email', 'address', 'location'],
+                'price': ['price', 'cost', 'how much', 'pricing', '$', 'fee'],
+                'report': ['report', 'what\'s included', 'features', 'include', 'contain', 'regular report', 'premium report', 'types of vehicle history reports'],
+                'vin': ['vin', 'vehicle identification', 'where vin', 'find vin', 'wrong vin'],
+                'order': ['order', 'how to', 'process', 'steps', 'buy', 'purchase', 'how do i order'],
+                'contact': ['contact', 'phone', 'call', 'email', 'address', 'location', 'customer support'],
                 'refund': ['refund', 'return', 'money back', 'cancel'],
-                'privacy': ['privacy', 'data', 'information', 'secure'],
-                'greeting': ['hello', 'hi', 'hey', 'greetings']
+                'privacy': ['privacy', 'data', 'information', 'secure', 'security', 'personal information secure'],
+                'greeting': ['hello', 'hi', 'hey', 'greetings'],
+                'delivery': ['delivery', 'how quickly', 'when will i get', 'receive', 'instant']
             }
         };
 
         // Initialize chatbot
         function initChatbot() {
-            // Extract content from the page
-            extractPageContent();
-            
             // Set up event listeners
             chatbotToggle.addEventListener('click', toggleChatbot);
             chatbotClose.addEventListener('click', toggleChatbot);
@@ -1489,15 +1577,6 @@
             
             // Load any previous messages from localStorage
             loadChatHistory();
-        }
-
-        // Extract text content from the page for the chatbot to use
-        function extractPageContent() {
-            // Get all text content from the page (excluding scripts and styles)
-            const bodyText = document.body.innerText;
-            chatbotKnowledge.pageContent = bodyText
-                .replace(/\s+/g, ' ') // Replace multiple spaces with single space
-                .substring(0, 5000); // Limit to first 5000 characters
         }
 
         // Toggle chatbot visibility
@@ -1523,7 +1602,7 @@
             // Show typing indicator
             showTypingIndicator();
             
-            // Process and respond after a short delay
+            // Process and respond after 10 seconds
             setTimeout(() => {
                 removeTypingIndicator();
                 const response = generateResponse(message);
@@ -1532,7 +1611,7 @@
                 
                 // Save to chat history
                 saveToChatHistory(message, response);
-            }, 1000 + Math.random() * 1000); // Random delay for natural feel
+            }, 10000); // 10 seconds delay
         }
 
         // Add a message to the chat
@@ -1542,7 +1621,18 @@
             
             const contentDiv = document.createElement('div');
             contentDiv.className = 'message-content';
-            contentDiv.textContent = text;
+            
+            // Add agent name for bot messages
+            if (sender === 'bot') {
+                const agentName = document.createElement('strong');
+                agentName.textContent = 'James: ';
+                agentName.style.color = 'var(--primary-color)';
+                contentDiv.appendChild(agentName);
+            }
+            
+            const messageText = document.createElement('span');
+            messageText.textContent = text;
+            contentDiv.appendChild(messageText);
             
             messageDiv.appendChild(contentDiv);
             chatbotMessages.appendChild(messageDiv);
@@ -1555,6 +1645,14 @@
             const typingDiv = document.createElement('div');
             typingDiv.className = 'typing-indicator';
             typingDiv.id = 'typingIndicator';
+            
+            const typingText = document.createElement('span');
+            typingText.textContent = 'James is typing...';
+            typingText.style.fontSize = '0.8rem';
+            typingText.style.color = 'var(--text-color)';
+            typingText.style.marginRight = '10px';
+            
+            typingDiv.appendChild(typingText);
             
             for (let i = 0; i < 3; i++) {
                 const dot = document.createElement('div');
@@ -1576,7 +1674,9 @@
 
         // Scroll to bottom of chat
         function scrollToBottom() {
-            chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+            setTimeout(() => {
+                chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+            }, 100);
         }
 
         // Generate a response based on the user's message
@@ -1585,7 +1685,7 @@
             
             // Check for exact matches in common questions
             for (const [question, answer] of Object.entries(chatbotKnowledge.commonQuestions)) {
-                if (lowerMessage.includes(question)) {
+                if (lowerMessage.includes(question.toLowerCase())) {
                     return answer;
                 }
             }
@@ -1603,47 +1703,8 @@
                 }
             }
             
-            // Search in page content for relevant information
-            const relevantContent = searchInPageContent(lowerMessage);
-            if (relevantContent) {
-                return relevantContent;
-            }
-            
             // Default response
-            return "I'm not sure about that. You can ask me about pricing, how to order, what's included in our reports, or contact information. Would you like to know about any of these?";
-        }
-
-        // Search for relevant information in page content
-        function searchInPageContent(query) {
-            const sentences = chatbotKnowledge.pageContent.split(/[.!?]+/);
-            const queryWords = query.toLowerCase().split(' ');
-            
-            // Find sentences that contain query words
-            const relevantSentences = sentences.filter(sentence => {
-                const lowerSentence = sentence.toLowerCase();
-                return queryWords.some(word => 
-                    word.length > 3 && lowerSentence.includes(word)
-                );
-            });
-            
-            if (relevantSentences.length > 0) {
-                // Return the most relevant sentence (first match)
-                const relevantSentence = relevantSentences[0].trim();
-                if (relevantSentence.length > 10 && relevantSentence.length < 200) {
-                    return relevantSentence;
-                }
-            }
-            
-            // If no direct match, look for related content
-            if (query.includes('price') || query.includes('cost') || query.includes('$')) {
-                return "Our Regular Report is $19.99 and Premium Report is $29.99. Both provide valuable vehicle history information.";
-            } else if (query.includes('report') || query.includes('include')) {
-                return "We offer two reports: Regular includes basic specs and history, Premium adds accident history, sales records, and service history.";
-            } else if (query.includes('vin')) {
-                return "Your VIN is a 17-character code found on your dashboard or driver's side door jamb.";
-            }
-            
-            return null;
+            return "I'm not sure about that. You can ask me about our reports, pricing, how to order, refunds, or contact information. What would you like to know?";
         }
 
         // Save message to chat history
