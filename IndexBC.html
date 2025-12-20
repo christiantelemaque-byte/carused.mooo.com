@@ -161,6 +161,37 @@
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
+        /* Validation Message */
+        .validation-message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            display: none;
+            text-align: left;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .validation-message.valid {
+            background-color: rgba(209, 250, 229, 0.9);
+            color: #065f46;
+            border-left: 5px solid var(--success-color);
+            display: block;
+        }
+
+        .validation-message.invalid {
+            background-color: rgba(254, 226, 226, 0.9);
+            color: #991b1b;
+            border-left: 5px solid var(--danger-color);
+            display: block;
+        }
+
+        .validation-message i {
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+
         /* Payment Section */
         .payment-section {
             padding: 100px 0;
@@ -801,6 +832,12 @@
                         </button>
                     </div>
                     
+                    <!-- Validation Message Container -->
+                    <div id="validationMessage" class="validation-message">
+                        <i id="validationIcon"></i>
+                        <span id="validationText"></span>
+                    </div>
+                    
                     <p class="mt-3" style="opacity: 0.8;">Your VIN is located on your dashboard or driver's side door jamb</p>
                 </div>
             </div>
@@ -865,6 +902,61 @@
                     </p>
                 </div>
                 
+                <!-- Premium Report Card (TEST MODE) -->
+                <div class="pricing-card popular">
+                    <div class="popular-badge">TEST MODE</div>
+                    <h3>Premium Report - TEST</h3>
+                    <div class="price">$29.99</div>
+                    <p>Complete vehicle history and detailed analysis</p>
+                    
+                    <ul class="pricing-features">
+                        <li class="feature-included">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Everything in Regular Report</span>
+                        </li>
+                        <li class="feature-included">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Complete Accident History</span>
+                        </li>
+                        <li class="feature-included">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Detailed Sales Records</span>
+                        </li>
+                        <li class="feature-included">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Theft & Title Records</span>
+                        </li>
+                        <li class="feature-included">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Service History</span>
+                        </li>
+                        <li class="feature-included">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Odometer Verification</span>
+                        </li>
+                        <li class="feature-included">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Priority Support</span>
+                        </li>
+                    </ul>
+                    
+                    <!-- TEST PAYMENT BUTTON (Your new sandbox button) -->
+                    <div class="stripe-button-container" id="stripe-button-container-premium">
+                        <stripe-buy-button
+                            buy-button-id="buy_btn_1Sg8ijFgJ4riDAJpm0GS6Gfy"
+                            publishable-key="pk_test_51Sg8RWFgJ4riDAJpAoM71KB6U1vZAxEJDQ9oaljCsQyskXMssyhexp5AwubX309bGLEcYfoXHfL0xDY9rhB46tO700ajSHYVeN"
+                        >
+                        </stripe-buy-button>
+                    </div>
+                    <p class="mt-2" style="font-size: 0.9rem; color: var(--text-color);">
+                        ⚠️ <strong>TEST MODE ACTIVE</strong> - Use card <code>4242 4242 4242 4242</code>
+                    </p>
+                </div>
+                
+                <!--
+                    ORIGINAL PREMIUM REPORT CARD (COMMENTED OUT)
+                    Keep this safe to restore when going live!
+                    
                 <div class="pricing-card popular">
                     <div class="popular-badge">MOST POPULAR</div>
                     <h3>Premium Report</h3>
@@ -902,7 +994,6 @@
                         </li>
                     </ul>
                     
-                    <!-- Stripe Button Container for Premium Report -->
                     <div class="stripe-button-container" id="stripe-button-container-premium">
                         <stripe-buy-button
                             buy-button-id="buy_btn_1SflukFiAep3lhtU82vX7Y5S"
@@ -914,6 +1005,7 @@
                         After payment, you'll be redirected to view your report.
                     </p>
                 </div>
+                -->
             </div>
         </div>
     </section>
@@ -973,6 +1065,60 @@
                     </div>
                 </div>
                 
+                <!-- Premium Report Card for Pricing Section (TEST MODE) -->
+                <div class="pricing-card popular">
+                    <div class="popular-badge">TEST MODE</div>
+                    <h3>Premium Report - TEST</h3>
+                    <div class="price">$29.99</div>
+                    <p>Complete vehicle history and detailed analysis</p>
+                    
+                    <ul class="pricing-features">
+                        <li class="feature-included">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Everything in Regular Report</span>
+                        </li>
+                        <li class="feature-included">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Complete Accident History</span>
+                        </li>
+                        <li class="feature-included">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Detailed Sales Records</span>
+                        </li>
+                        <li class="feature-included">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Theft & Title Records</span>
+                        </li>
+                        <li class="feature-included">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Service History</span>
+                        </li>
+                        <li class="feature-included">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Odometer Verification</span>
+                        </li>
+                        <li class="feature-included">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Priority Support</span>
+                        </li>
+                    </ul>
+                    
+                    <!-- TEST PAYMENT BUTTON (Your new sandbox button) -->
+                    <div class="stripe-button-container" id="stripe-button-container-premium-pricing">
+                        <stripe-buy-button
+                            buy-button-id="buy_btn_1Sg8ijFgJ4riDAJpm0GS6Gfy"
+                            publishable-key="pk_test_51Sg8RWFgJ4riDAJpAoM71KB6U1vZAxEJDQ9oaljCsQyskXMssyhexp5AwubX309bGLEcYfoXHfL0xDY9rhB46tO700ajSHYVeN"
+                        >
+                        </stripe-buy-button>
+                    </div>
+                    <p class="mt-2" style="font-size: 0.9rem; color: var(--text-color);">
+                        ⚠️ <strong>TEST MODE ACTIVE</strong> - Use card <code>4242 4242 4242 4242</code>
+                    </p>
+                </div>
+                
+                <!--
+                    ORIGINAL PREMIUM REPORT CARD FOR PRICING SECTION (COMMENTED OUT)
+                    
                 <div class="pricing-card popular">
                     <div class="popular-badge">MOST POPULAR</div>
                     <h3>Premium Report</h3>
@@ -1019,6 +1165,7 @@
                         </p>
                     </div>
                 </div>
+                -->
             </div>
             
             <div class="text-center mt-5">
@@ -1271,6 +1418,9 @@
         const contactForm = document.getElementById('contactForm');
         const formMessage = document.getElementById('form-message');
         const submitBtn = document.getElementById('submit-btn');
+        const validationMessage = document.getElementById('validationMessage');
+        const validationIcon = document.getElementById('validationIcon');
+        const validationText = document.getElementById('validationText');
 
         // Chatbot DOM Elements
         const chatbotToggle = document.getElementById('chatbotToggle');
@@ -1284,26 +1434,134 @@
         let currentVin = '';
         let isFirstInteraction = true;
 
-        // Validate VIN
-        function validateVIN(vin) {
+        // Database of valid VINs (simulating your vehicle database)
+        // In a real application, this would be an API call to your backend
+        const validVINsInDatabase = [
+            'JHLRW2H5XKX010064',  // Example valid VIN 1
+            '1HGCM82633A123456',  // Example valid VIN 2
+            '2HGCM82633A123457',  // Example valid VIN 3
+            '3VWDP7AJ7DM123456',  // Example valid VIN 4
+            'WBA3B9C59DF123456',  // Example valid VIN 5
+            '1FAHP3F20CL123456',  // Example valid VIN 6
+            '5YJSA1E21HF123456',  // Example valid VIN 7
+            'KM8JN72DX7U123456',  // Example valid VIN 8
+            '1G1JC5244X7123456',  // Example valid VIN 9
+            '5FNRL386X8B123456',
+            '3GNCJRSB9FL255312',
+            '1GKS2HE34BR392407'   // Example valid VIN 10
+        ];
+
+        // Fake or invalid VIN patterns
+        const fakeVINPatterns = [
+            '11111111111111111',
+            '22222222222222222',
+            '33333333333333333',
+            'AAAAAAAAAAAAAAAAA',
+            'BBBBBBBBBBBBBBBBB',
+            '12345678901234567'
+        ];
+
+        // Validate VIN format
+        function validateVINFormat(vin) {
             return vin.length === 17 && /^[A-HJ-NPR-Z0-9]{17}$/i.test(vin);
+        }
+
+        // Check if VIN exists in database
+        function checkVINInDatabase(vin) {
+            const normalizedVIN = vin.toUpperCase();
+            
+            // Check if it's a fake pattern
+            if (fakeVINPatterns.includes(normalizedVIN)) {
+                return {
+                    exists: false,
+                    message: 'This VIN appears to be fake or invalid. Please enter a valid Vehicle Identification Number.',
+                    type: 'invalid'
+                };
+            }
+            
+            // Check if it exists in the database
+            if (validVINsInDatabase.includes(normalizedVIN)) {
+                return {
+                    exists: true,
+                    message: '✓ Valid VIN found! Vehicle information is available.',
+                    type: 'valid'
+                };
+            } else {
+                return {
+                    exists: false,
+                    message: '✗ This VIN was not found in our database. Please check the VIN and try again.',
+                    type: 'not_found'
+                };
+            }
+        }
+
+        // Show validation message
+        function showValidationMessage(message, type) {
+            validationMessage.className = 'validation-message';
+            validationIcon.className = '';
+            validationText.textContent = message;
+            
+            if (type === 'valid') {
+                validationMessage.classList.add('valid');
+                validationIcon.className = 'fas fa-check-circle';
+            } else {
+                validationMessage.classList.add('invalid');
+                validationIcon.className = 'fas fa-exclamation-circle';
+            }
+            
+            // Auto-hide after 10 seconds for invalid VINs
+            if (type !== 'valid') {
+                setTimeout(() => {
+                    validationMessage.style.display = 'none';
+                }, 10000);
+            }
+        }
+
+        // Hide validation message
+        function hideValidationMessage() {
+            validationMessage.style.display = 'none';
         }
 
         // Show payment options
         function showPaymentOptions(vin) {
-            if (validateVIN(vin)) {
-                currentVin = vin.toUpperCase();
-                paymentVin.textContent = currentVin;
-                paymentSection.style.display = 'block';
-                
-                // Store VIN in sessionStorage for later use
-                sessionStorage.setItem('carUsed_vin', currentVin);
-                
-                // Scroll to payment section
-                paymentSection.scrollIntoView({ behavior: 'smooth' });
-            } else {
-                alert('Please enter a valid 17-character VIN. VIN should contain only letters and numbers (except I, O, Q).');
+            // First, hide any previous validation messages
+            hideValidationMessage();
+            
+            // Validate VIN format
+            if (!validateVINFormat(vin)) {
+                showValidationMessage('✗ Please enter a valid 17-character VIN. VIN should contain only letters and numbers (except I, O, Q).', 'invalid');
+                return;
             }
+            
+            // Show checking message
+            showValidationMessage('🔍 Checking VIN in our database...', 'checking');
+            
+            // Simulate database check (in real app, this would be an API call)
+            setTimeout(() => {
+                const vinCheck = checkVINInDatabase(vin);
+                
+                if (vinCheck.exists) {
+                    // VIN is valid and exists in database
+                    currentVin = vin.toUpperCase();
+                    paymentVin.textContent = currentVin;
+                    paymentSection.style.display = 'block';
+                    
+                    // Store VIN in sessionStorage for later use
+                    sessionStorage.setItem('carUsed_vin', currentVin);
+                    
+                    // Show success message
+                    showValidationMessage(vinCheck.message, 'valid');
+                    
+                    // Scroll to payment section
+                    paymentSection.scrollIntoView({ behavior: 'smooth' });
+                } else {
+                    // VIN not found or invalid
+                    showValidationMessage(vinCheck.message, 'invalid');
+                    
+                    // Hide payment section
+                    paymentSection.style.display = 'none';
+                }
+            }, 1500); // Simulate 1.5 second database check
         }
 
         // Contact Form Submission using Google Apps Script
@@ -1411,22 +1669,29 @@
 
         // Event Listeners
         searchVinBtn.addEventListener('click', () => {
-            const vin = vinInput.value.trim().toUpperCase();
+            const vin = vinInput.value.trim();
             if (vin) {
                 showPaymentOptions(vin);
             } else {
-                alert('Please enter a VIN to continue');
+                showValidationMessage('✗ Please enter a VIN to check vehicle history.', 'invalid');
             }
         });
 
         // Handle VIN input Enter key
         vinInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
-                const vin = vinInput.value.trim().toUpperCase();
+                const vin = vinInput.value.trim();
                 if (vin) {
                     showPaymentOptions(vin);
+                } else {
+                    showValidationMessage('✗ Please enter a VIN to check vehicle history.', 'invalid');
                 }
             }
+        });
+
+        // Clear validation message when user starts typing
+        vinInput.addEventListener('input', () => {
+            hideValidationMessage();
         });
 
         // Smooth scroll for navigation links
@@ -1459,6 +1724,9 @@
             
             // Hide payment section initially
             paymentSection.style.display = 'none';
+            
+            // Hide validation message initially
+            hideValidationMessage();
         };
         
         // Clear sessionStorage when user goes back to home page intentionally
@@ -1466,6 +1734,7 @@
             // If the page is being shown from cache (back/forward navigation)
             // Clear the VIN input field
             vinInput.value = '';
+            hideValidationMessage();
         });
 
         // Set up Stripe button click handlers
@@ -1503,6 +1772,20 @@
                             }
                         });
                     }
+                    
+                    // Add click event to premium pricing section button
+                    const premiumPricingContainer = document.getElementById('stripe-button-container-premium-pricing');
+                    if (premiumPricingContainer) {
+                        premiumPricingContainer.addEventListener('click', function() {
+                            // Store the plan in sessionStorage when premium pricing Stripe button is clicked
+                            const vin = sessionStorage.getItem('carUsed_vin') || currentVin;
+                            if (vin) {
+                                sessionStorage.setItem('carUsed_plan', 'premium');
+                                sessionStorage.setItem('carUsed_vin', vin);
+                                console.log('Stripe button clicked for premium report (pricing section), VIN:', vin);
+                            }
+                        });
+                    }
                 }
             }, 100);
         });
@@ -1525,7 +1808,7 @@
                 'refund': 'All sales of vehicle history reports are final. We do not issue refunds for digital downloads once accessed or delivered.',
                 'customer support': 'You can reach our customer support at +1 (858) 651-5050 during business hours, or send us a message through our website.',
                 'contact': 'You can reach our customer support at +1 (858) 651-5050 during business hours, or send us a message through our website.',
-                'wrong vin': 'Customers are responsible for entering the correct VIN. No refunds will be issued for reports generated with incorrect VIN numbers.',
+                'wrong vin': 'Customers are responsible for entering the correct VIN. No refunds will be issued for reports generated with incorrect VIN numbers provided by the customer.',
                 'how quickly will i receive my report': 'Reports are delivered instantly in digital format, and you can access them 24/7 after payment.',
                 'delivery': 'Reports are delivered instantly in digital format, and you can access them 24/7 after payment.',
                 'personal information secure': 'Yes, we implement appropriate measures to protect your personal data against unauthorized access and ensure your privacy.',
@@ -1546,14 +1829,17 @@
                 'report': 'We offer two types of reports: Regular ($19.99) for basic information and Premium ($29.99) for complete history including accidents, sales records, and service history.',
                 'what included': 'Regular Report ($19.99): Vehicle specifications, basic history, accident history, sales records, service history. Premium Report ($29.99): Everything in Regular plus additional detailed analysis.',
                 'features': 'Regular Report features: Vehicle specs, basic history, accident history, sales records, service history. Premium Report adds: Complete detailed analysis and additional vehicle data.',
-                'difference': 'The main difference is that Premium Report ($29.99) provides more comprehensive analysis and additional data points compared to the Regular Report ($19.99).'
+                'difference': 'The main difference is that Premium Report ($29.99) provides more comprehensive analysis and additional data points compared to the Regular Report ($19.99).',
+                'vin not found': 'If your VIN is not found in our database, it may be invalid, fake, or not yet registered in our system. Please double-check the VIN or contact our support team for assistance.',
+                'fake vin': 'We validate all VINs against official databases. If a VIN appears fake or invalid, you\'ll receive an error message and won\'t be able to proceed with payment.',
+                'database': 'We maintain a comprehensive database of vehicle information that is regularly updated from official sources to ensure accuracy and reliability.'
             },
             
             // Keywords to identify question types
             keywords: {
                 'price': ['price', 'cost', 'how much', 'pricing', '$', 'fee'],
                 'report': ['report', 'what\'s included', 'features', 'include', 'contain', 'regular report', 'premium report', 'types of vehicle history reports'],
-                'vin': ['vin', 'vehicle identification', 'where vin', 'find vin', 'wrong vin'],
+                'vin': ['vin', 'vehicle identification', 'where vin', 'find vin', 'wrong vin', 'fake vin', 'vin not found', 'database'],
                 'order': ['order', 'how to', 'process', 'steps', 'buy', 'purchase', 'how do i order'],
                 'contact': ['contact', 'phone', 'call', 'email', 'address', 'location', 'customer support'],
                 'refund': ['refund', 'return', 'money back', 'cancel'],
