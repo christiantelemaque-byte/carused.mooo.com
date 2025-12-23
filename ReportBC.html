@@ -60,3 +60,1538 @@
 
         .btn-primary:hover {
             background-color: #081c4a;
+            border-color: #081c4a;
+            transform: translateY(-3px);
+            box-shadow: 0 7px 14px rgba(10, 36, 99, 0.2);
+        }
+
+        /* Navbar Styling */
+        .navbar {
+            padding: 15px 0;
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-bottom: 1px solid var(--border-color);
+            z-index: 1040;
+        }
+        .navbar-brand {
+            font-weight: 600;
+            font-size: 1.6rem;
+            color: var(--heading-color) !important;
+        }
+        .navbar-brand span {
+            color: var(--secondary-color);
+        }
+
+        /* Report Container */
+        .vehicle-report-section {
+            padding: 100px 0;
+        }
+
+        .report-container {
+            background: var(--surface-color);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+
+        .report-header {
+            background: var(--primary-color);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .report-header h2 {
+            color: white;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+        }
+
+        .report-header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .report-body {
+            padding: 50px;
+        }
+
+        /* Success Message */
+        .success-message {
+            background: linear-gradient(135deg, var(--success-color) 0%, #0da271 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .success-message h4 {
+            color: white;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        /* Report Content Styling */
+        .vehicle-overview {
+            display: flex;
+            gap: 40px;
+            margin-bottom: 50px;
+            flex-wrap: wrap;
+        }
+
+        .vehicle-image-container {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .vehicle-image {
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .vehicle-basic-info {
+            flex: 2;
+            min-width: 300px;
+        }
+
+        .basic-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .info-card {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .info-card h5 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .info-card p {
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .info-card span.label {
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .info-card span.value {
+            color: var(--heading-color);
+            text-align: right;
+        }
+
+        .data-section {
+            margin-bottom: 50px;
+        }
+
+        .data-section h4 {
+            color: var(--primary-color);
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--border-color);
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .data-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
+        }
+
+        .data-card {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 10px;
+            transition: transform 0.3s ease;
+        }
+
+        .data-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        .data-card h5 {
+            color: var(--secondary-color);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.2rem;
+        }
+
+        .data-item {
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .data-item:last-child {
+            border-bottom: none;
+        }
+
+        .data-item .label {
+            font-weight: 600;
+            color: var(--text-color);
+            flex: 1;
+        }
+
+        .data-item .value {
+            color: var(--heading-color);
+            text-align: right;
+            flex: 1;
+        }
+
+        .history-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+
+        .history-card {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 10px;
+            border-top: 4px solid var(--secondary-color);
+            transition: transform 0.3s ease;
+        }
+
+        .history-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .history-card h5 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.2rem;
+        }
+
+        .sales-table-container {
+            margin-top: 20px;
+            overflow-x: auto;
+        }
+
+        .sales-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .sales-table th {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 18px;
+            text-align: left;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+
+        .sales-table td {
+            padding: 18px;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: top;
+        }
+
+        .sales-table tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        .sales-table tr:hover {
+            background-color: #e9ecef;
+        }
+
+        .sales-date {
+            font-weight: 600;
+            color: var(--primary-color);
+            white-space: nowrap;
+        }
+
+        .sales-seller {
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .sales-location {
+            color: var(--text-color);
+            font-size: 0.95rem;
+        }
+
+        .sales-price {
+            font-weight: 600;
+            color: #28a745;
+            text-align: right;
+        }
+
+        .sales-mileage {
+            color: var(--text-color);
+            font-size: 0.95rem;
+        }
+
+        /* Download Section */
+        .download-section {
+            text-align: center;
+            padding-top: 50px;
+            margin-top: 50px;
+            border-top: 2px solid var(--border-color);
+        }
+
+        .download-buttons {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        /* Loading Button Styles */
+        .btn-loading {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+            color: white;
+            position: relative;
+            padding-left: 50px;
+        }
+
+        .btn-loading .spinner {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: translateY(-50%) rotate(360deg);
+            }
+        }
+
+        /* Error Message */
+        .error-message {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 40px;
+            text-align: center;
+            display: none;
+        }
+
+        .error-message h4 {
+            color: white;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .vehicle-overview {
+                flex-direction: column;
+            }
+            .basic-info-grid {
+                grid-template-columns: 1fr;
+            }
+            .data-grid {
+                grid-template-columns: 1fr;
+            }
+            .history-cards {
+                grid-template-columns: 1fr;
+            }
+            .download-buttons {
+                flex-direction: column;
+                gap: 10px;
+            }
+            .btn-loading {
+                padding-left: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">Car<span>Used</span></a>
+        </div>
+    </nav>
+
+    <!-- Vehicle Report Section -->
+    <section class="vehicle-report-section">
+        <div class="container">
+            <div class="success-message" id="successMessage">
+                <h4><i class="fas fa-check-circle"></i> Payment Successful!</h4>
+                <p>Your vehicle history report is ready. You can view it below and download it as PDF.</p>
+            </div>
+
+            <div class="error-message" id="errorMessage">
+                <h4><i class="fas fa-exclamation-triangle"></i> No Report Found</h4>
+                <p>Please go back to the <a href="index.html" style="color: white; text-decoration: underline;">main page</a> and purchase a vehicle report first.</p>
+            </div>
+            
+            <div class="report-container" id="reportContainer">
+                <div class="report-header">
+                    <h2 id="vehicle-title">Vehicle History Report</h2>
+                    <p id="report-vin">VIN: Loading...</p>
+                    <p id="report-plan" style="font-size: 1rem; margin-top: 10px;"></p>
+                </div>
+                
+                <div class="report-body" id="reportBody">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+            </div>
+            
+            <div class="download-section">
+                <div class="download-buttons">
+                    <button class="btn btn-primary btn-lg" id="download-report-btn">
+                        <i class="fas fa-download"></i> Download Report as PDF
+                    </button>
+                    <button class="btn btn-loading btn-lg" id="loading-btn" style="display: none;">
+                        <span class="spinner"></span>
+                        Generating PDF...
+                    </button>
+                </div>
+                <p class="mt-3">
+                    <a href="index.html" class="btn btn-outline-primary">
+                        <i class="fas fa-arrow-left"></i> Back to Home
+                    </a>
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Add Bootstrap JS
+        const bootstrapScript = document.createElement('script');
+        bootstrapScript.src = 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js';
+        document.head.appendChild(bootstrapScript);
+
+        // Function to get URL parameters
+        function getUrlParameter(name) {
+            name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+            const regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+            const results = regex.exec(location.search);
+            return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+        }
+
+        // VEHICLE DATABASE
+        const vehicleDatabase = {
+            'JHLRW2H5XKX010064': {
+                makeModel: 'Honda CR-V',
+                year: '2019',
+                color: 'Platinum White Pearl',
+                trim: 'EX',
+                shortTrim: 'EX',
+                trimVariations: 'EX',
+                countryOfOrigin: 'Japan',
+                cityOfOrigin: 'Yorii',
+                vehicleStyle: 'All-Wheel Drive',
+                vehicleType: 'Sport Utility Vehicle',
+                vehicleSize: 'Compact',
+                vehicleCategory: 'Small Sport Utility Vehicle 4WD',
+                doors: 4,
+                fuelCapacity: 14.0,
+                cityMileage: 27,
+                highwayMileage: 33,
+                drivenWheels: 'All-Wheel Drive',
+                antiBrakeSystem: '4-Wheel ABS',
+                steeringType: 'Rack & Pinion',
+                curbWeight: 3473,
+                grossWeight: 5000,
+                overallHeight: 66.5,
+                overallLength: 180.6,
+                overallWidth: 73.0,
+                standardSeating: 5,
+                optionalSeating: null,
+                invoicePrice: 26894,
+                deliveryCharges: 0,
+                msrp: 28650,
+                engine: '1.5L I-4 Turbo',
+                transmission: 'Continuously Variable (CVT)',
+                fuel: 'Gasoline',
+                image: 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
+                accidentHistory: 'Minor accident reported in 2020. Damage to front bumper.',
+                titleRecords: 'Clean title. No salvage or rebuilt records.',
+                odometerReadings: 'Verified readings: 45,200 miles (2023), 32,100 miles (2022), 18,500 miles (2021)',
+                serviceHistory: 'Regular maintenance. Last service: Brake inspection at 44,500 miles.',
+                theftRecords: 'No theft records found.',
+                salesRecords: [
+                    { date: '2019-03-04', seller: 'Honda City', location: 'Levittown, NY 11756', price: 29695, mileage: 'N/A', color: 'Platinum White Pearl' },
+                    { date: '2022-05-11', seller: 'Sloane Honda', location: 'Philadelphia, PA', price: 30628, mileage: '31,585 miles', color: '–' },
+                    { date: '2022-05-11', seller: 'Infiniti Of Massapequa', location: 'Massapequa, NY 11758', price: 28500, mileage: '31,576 miles', color: 'White' },
+                    { date: '2022-06-06', seller: 'Sloane Toyota Of Philadelphia', location: 'Philadelphia, PA 19111', price: 33999, mileage: '31,585 miles', color: 'N/A' },
+                    { date: '2022-06-06', seller: 'Sloane Honda', location: 'Philadelphia, PA', price: 0, mileage: '31,585 miles', color: 'Platinum White Pearl' },
+                    { date: '2022-06-06', seller: 'Infiniti Of Massapequa', location: 'Massapequa, NY 11758', price: 28500, mileage: '31,576 miles', color: 'White' },
+                    { date: '2022-06-07', seller: 'Sloane Honda', location: 'Philadelphia, PA', price: 30628, mileage: '31,585 miles', color: '–' },
+                    { date: '2022-06-07', seller: 'Sloane Honda', location: 'Philadelphia, PA', price: 32999, mileage: '31,585 miles', color: 'Platinum White Pearl' },
+                    { date: '2022-06-15', seller: 'Sloane Toyota Of Philadelphia', location: 'Philadelphia, PA 19111', price: 33999, mileage: '31,585 miles', color: 'N/A' },
+                    { date: '2022-06-15', seller: 'Sloane Honda', location: 'Philadelphia, PA', price: 31149, mileage: '31,585 miles', color: 'Platinum White Pearl' },
+                    { date: '2022-06-15', seller: 'Sloane Honda', location: 'Philadelphia, PA', price: 32999, mileage: '31,585 miles', color: 'Platinum White Pearl' },
+                    { date: '2022-06-16', seller: 'Sloane Toyota Of Philadelphia', location: 'Philadelphia, PA 19111', price: 32149, mileage: '31,585 miles', color: 'N/A' },
+                    { date: '2022-06-26', seller: 'Sloane Toyota Of Philadelphia', location: 'Philadelphia, PA 19111', price: 32149, mileage: '31,585 miles', color: 'N/A' },
+                    { date: '2022-06-27', seller: 'Sloane Honda', location: 'Philadelphia, PA', price: 30628, mileage: '31,585 miles', color: 'White' },
+                    { date: '2022-06-27', seller: 'Sloane Honda', location: 'Philadelphia, PA', price: 31149, mileage: '31,585 miles', color: 'Platinum White Pearl' },
+                    { date: '2022-06-28', seller: 'Sloane Toyota Of Philadelphia', location: 'Philadelphia, PA 19111', price: 31628, mileage: '31,585 miles', color: 'Platinum White Pearl' },
+                    { date: '2022-07-05', seller: 'Sloane Honda', location: 'Philadelphia, PA', price: 0, mileage: '31,585 miles', color: 'Platinum White Pearl' },
+                    { date: '2022-07-13', seller: 'Sloane Honda', location: 'Philadelphia, PA', price: 30192, mileage: '31,585 miles', color: 'Platinum White Pearl' },
+                    { date: '2022-07-13', seller: 'Sloane Honda', location: 'Philadelphia, PA', price: 30628, mileage: '31,585 miles', color: 'White' },
+                    { date: '2022-07-14', seller: 'Sloane Toyota Of Philadelphia', location: 'Philadelphia, PA 19111', price: 31192, mileage: '31,585 miles', color: 'Platinum White Pearl' },
+                    { date: '2022-07-14', seller: 'Sloane Toyota Of Philadelphia', location: 'Philadelphia, PA 19111', price: 31628, mileage: '31,585 miles', color: 'Platinum White Pearl' },
+                    { date: '2022-07-20', seller: 'Sloane Honda', location: 'Philadelphia, PA', price: 29840, mileage: '31,585 miles', color: 'Platinum White Pearl' },
+                    { date: '2022-07-21', seller: 'Sloane Honda', location: 'Philadelphia, PA', price: 30192, mileage: '31,585 miles', color: 'Platinum White Pearl' },
+                    { date: '2022-07-21', seller: 'Sloane Toyota Of Glenside', location: 'Glenside, PA 19038', price: 30840, mileage: '31,585 miles', color: 'Platinum White Pearl' },
+                    { date: '2022-07-21', seller: 'Sloane Toyota Of Philadelphia', location: 'Philadelphia, PA 19111', price: 31192, mileage: '31,585 miles', color: 'Platinum White Pearl' },
+                    { date: '2022-07-26', seller: 'Sloane Honda', location: 'Philadelphia, PA', price: 29840, mileage: '31,585 miles', color: 'Platinum White Pearl' },
+                    { date: '2022-07-27', seller: 'Sloane Toyota Of Glenside', location: 'Glenside, PA 19038', price: 30840, mileage: '31,585 miles', color: 'Platinum White Pearl' }
+                ]
+            },
+            '1GKS2HE34BR392407': {
+                makeModel: 'GMC Yukon XL',
+                year: '2011',
+                color: 'Black',
+                trim: 'SLE',
+                shortTrim: 'SLE',
+                trimVariations: 'SLE',
+                countryOfOrigin: 'United States',
+                cityOfOrigin: 'Tulsa, OK',
+                vehicleStyle: '4-Door Wagon/Sport Utility',
+                vehicleType: 'Sport Utility Vehicle',
+                vehicleSize: 'Full-Size',
+                vehicleCategory: 'Full-Size Sport Utility Vehicle 4WD',
+                doors: 4,
+                fuelCapacity: 31.0,
+                cityMileage: 14,
+                highwayMileage: 18,
+                drivenWheels: 'Rear Wheel Drive with 4x4',
+                antiBrakeSystem: '4-Wheel ABS',
+                steeringType: 'Rack & Pinion',
+                curbWeight: 5600,
+                grossWeight: 7100,
+                overallHeight: 76.7,
+                overallLength: 222.4,
+                overallWidth: 79.0,
+                standardSeating: 8,
+                optionalSeating: null,
+                invoicePrice: 39875,
+                deliveryCharges: 1200,
+                msrp: 43250,
+                engine: '5.3L V8 F OHV 16V',
+                transmission: '6-Speed Automatic',
+                fuel: 'Flex Fuel',
+                image: 'https://platform.cstatic-images.com/in/v2/stock_photos/5bc21635-96d4-493a-8081-79f97378878e/3f99785a-f211-4db8-8dd1-b254549ff575.png',
+                accidentHistory: 'Two minor accidents reported: 09/17/2019 - Damage to rear with another vehicle; 11/14/2019 - Minor damage with another vehicle. No structural damage reported. CARFAX recommends inspection by collision repair specialist.',
+                titleRecords: 'Clean title with no salvage, junk, rebuilt, fire, flood, hail or lemon records. 5 previous owners reported. First owner was rental fleet.',
+                odometerReadings: 'Verified readings: 203,213 miles (2025), 136,904 miles (2019), 40,159 miles (2012). No indication of odometer rollback.',
+                serviceHistory: '42 service history records. Regular maintenance including oil changes, brake repairs, tire rotations, transmission service, and inspections. Last service: Multiple in 2019 including oil change, spark plug replacement, and A/C service.',
+                theftRecords: 'No theft records found.',
+                salesRecords: [
+                    { date: '2011-08-01', seller: 'Michigan Motor Vehicle Dept', location: 'Tulsa, OK', price: 0, mileage: '10 mi', color: 'Black' },
+                    { date: '2012-08-27', seller: 'Fleet/Lease Company', location: 'Location not specified', price: 0, mileage: '40,159 mi', color: 'Black' },
+                    { date: '2012-09-14', seller: 'Country Club Motors', location: 'Oneonta, NY 13820', price: 0, mileage: '40,402 mi', color: 'Black' },
+                    { date: '2012-09-17', seller: 'Oneonta GMC Certified Dealer', location: 'Oneonta, NY 13820', price: 39500, mileage: 'N/A', color: 'Black' },
+                    { date: '2012-11-28', seller: 'Private Owner', location: 'Oneonta, NY 13820', price: 0, mileage: 'N/A', color: 'Black' },
+                    { date: '2018-08-28', seller: 'Dealer Inventory', location: 'Oneonta, NY', price: 0, mileage: 'N/A', color: 'Black' },
+                    { date: '2018-12-21', seller: 'Auto Auction', location: 'Northeast Region', price: 0, mileage: '135,977 mi', color: 'Black' },
+                    { date: '2019-01-07', seller: 'Cortland Autobody Repair & Service', location: 'Cortland, NY 13045', price: 0, mileage: '136,904 mi', color: 'Black' },
+                    { date: '2019-01-23', seller: 'Private Owner', location: 'Cortland, NY 13045', price: 0, mileage: 'N/A', color: 'Black' },
+                    { date: '2019-07-29', seller: 'C.A.R.S. - Cortland Autobody Repair', location: 'Cortland, NY 13045', price: 0, mileage: '151,423 mi', color: 'Black' },
+                    { date: '2019-09-17', seller: 'Accident Repair', location: 'Cortland, NY 13045', price: 0, mileage: 'N/A', color: 'Black' },
+                    { date: '2022-06-15', seller: 'Dealer Inventory', location: 'Syracuse, NY', price: 18995, mileage: '185,000 mi', color: 'Black' },
+                    { date: '2023-01-20', seller: 'Used Car Dealer', location: 'Buffalo, NY', price: 14995, mileage: '195,500 mi', color: 'Black' },
+                    { date: '2023-08-10', seller: 'Online Auction', location: 'Northeast Region', price: 11200, mileage: '200,150 mi', color: 'Black' },
+                    { date: '2024-02-28', seller: 'Independent Dealer', location: 'Rochester, NY', price: 12995, mileage: '203,213 mi', color: 'Black' }
+                ]
+            },
+            '3GNCJRSB9FL255312': {
+    makeModel: 'Chevrolet Trax',
+    year: '2015',
+    color: 'Black', // Default assumption since not specified
+    trim: 'LT',
+    shortTrim: 'LT',
+    trimVariations: 'LT',
+    countryOfOrigin: 'United States',
+    cityOfOrigin: 'Unknown', // Not specified in report
+    vehicleStyle: '4-Door Wagon/Sport Utility',
+    vehicleType: 'Sport Utility Vehicle',
+    vehicleSize: 'Compact',
+    vehicleCategory: 'Compact Sport Utility Vehicle',
+    doors: 4,
+    fuelCapacity: 14.0, // Estimated for this model
+    cityMileage: 24, // Estimated for 2015 Trax
+    highwayMileage: 31, // Estimated for 2015 Trax
+    drivenWheels: 'All Wheel Drive',
+    antiBrakeSystem: '4-Wheel ABS', // Standard for this model
+    steeringType: 'Rack & Pinion', // Standard for this model
+    curbWeight: 3200, // Estimated for 2015 Trax
+    grossWeight: 4200, // Estimated for 2015 Trax
+    overallHeight: 64.8, // Estimated for 2015 Trax
+    overallLength: 167.7, // Estimated for 2015 Trax
+    overallWidth: 69.9, // Estimated for 2015 Trax
+    standardSeating: 5,
+    optionalSeating: null,
+    invoicePrice: 20000, // Estimated
+    deliveryCharges: 900, // Estimated
+    msrp: 22000, // Estimated for 2015 Trax LT
+    engine: '1.4L I4 F DOHC 16V',
+    transmission: '6-Speed Automatic', // Common for this model
+    fuel: 'Gasoline',
+    image: 'https://file.kelleybluebookimages.com/kbb/base/evox/CP/10195/2015-Chevrolet-Trax-front_10195_032_2400x1800_GAZ.png',
+    accidentHistory: 'Two accidents reported: 01/20/2020 - Minor damage with another motor vehicle (damage to left front and front); 10/11/2024 - Accident reported with another motor vehicle (damage to front). CARFAX recommends inspection by collision repair specialist.',
+    titleRecords: 'Clean title with no salvage, junk, rebuilt, fire, flood, hail or lemon records. 3 previous owners reported. First owner was personal lease. Vehicle reported stolen on 11/11/2021 and recovered on 11/15/2021.',
+    odometerReadings: 'Verified readings: 72,613 miles (2025), 66,745 miles (2021), 45,157 miles (2018), 5 miles (2015). No indication of odometer rollback.',
+    serviceHistory: '19 service history records. Regular maintenance including oil changes, brake repairs, tire rotations, inspections, and emissions testing. Last service: 03/18/2025 at 72,335 miles for maintenance inspection and wheel check.',
+    theftRecords: 'Vehicle reported stolen on 11/11/2021 and recovered on 11/15/2021 in Schenectady, NY.',
+    salesRecords: [
+        { date: '2015-08-24', seller: 'West Herr Chevrolet', location: 'New York, NY', price: 0, mileage: '5 mi', color: 'Black' },
+        { date: '2015-08-27', seller: 'Tradition Chevrolet', location: 'Geneva, New York', price: 0, mileage: '49 mi', color: 'Black' },
+        { date: '2017-12-15', seller: 'Vehicle Manufacturer', location: 'Not specified', price: 0, mileage: '44,963 mi', color: 'Black' },
+        { date: '2017-12-19', seller: 'Wally\'s Ford of East Greenbush', location: 'East Greenbush, New York', price: 0, mileage: '44,969 mi', color: 'Black' },
+        { date: '2018-01-09', seller: 'Wally\'s Ford of East Greenbush', location: 'East Greenbush, New York', price: 0, mileage: 'N/A', color: 'Black' },
+        { date: '2018-01-13', seller: 'Wally\'s Ford of East Greenbush', location: 'East Greenbush, New York', price: 0, mileage: '45,157 mi', color: 'Black' },
+        { date: '2021-11-11', seller: 'Theft Report', location: 'Schenectady, New York', price: 0, mileage: 'N/A', color: 'Black' },
+        { date: '2021-11-15', seller: 'Recovery Report', location: 'Schenectady, New York', price: 0, mileage: 'N/A', color: 'Black' },
+        { date: '2023-11-06', seller: 'Private Owner Transfer', location: 'Schenectady, New York', price: 0, mileage: 'N/A', color: 'Black' }
+    ]
+        },'2HJYK16278H533414': {
+    makeModel: 'Honda Ridgeline',
+    year: '2008',
+    color: 'Gray',
+    trim: 'RT',
+    shortTrim: 'RT',
+    trimVariations: 'RT',
+    countryOfOrigin: 'Canada',
+    cityOfOrigin: 'Unknown',
+    vehicleStyle: 'Crew Pickup Truck',
+    vehicleType: 'Pickup Truck',
+    vehicleSize: 'Midsize',
+    vehicleCategory: 'Crew Cab Pickup',
+    doors: 4,
+    fuelCapacity: 22.0,
+    cityMileage: 15,
+    highwayMileage: 20,
+    drivenWheels: 'All Wheel Drive',
+    antiBrakeSystem: '4-Wheel ABS',
+    steeringType: 'Rack & Pinion',
+    curbWeight: 4500,
+    grossWeight: 5600,
+    overallHeight: 70.3,
+    overallLength: 206.8,
+    overallWidth: 77.8,
+    standardSeating: 5,
+    optionalSeating: null,
+    invoicePrice: 28000,
+    deliveryCharges: 900,
+    msrp: 30000,
+    engine: '3.5L V6 F SOHC 24V',
+    transmission: '5-Speed Automatic',
+    fuel: 'Gasoline',
+    image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRb-T2U-Sh7Mqdp061FObVrT2Uy30gsFppXoQ&s',
+    accidentHistory: 'Four accidents reported: 1) 10/15/2010 - Severe rear-end collision involving front/side impact with another vehicle and stationary object. Functional and disabling damage reported, vehicle towed, multiple airbags deployed. 2) 11/18/2010 - Total loss reported. 3) 10/19/2016 - Minor accident with another motor vehicle (damage to left rear and rear). 4) 01/08/2019 - Very minor damage (damage to left rear). CARFAX recommends inspection by collision repair specialist due to structural damage concerns.',
+    titleRecords: 'Branded titles: Rebuilt and Salvage. Total loss reported on 11/18/2010. Vehicle has undergone salvage and rebuilt title processes multiple times. 4 previous owners reported. Manufacturer warranty likely voided.',
+    odometerReadings: 'Verified readings: 185,358 miles (2024), 150,115 miles (2019), 23,186 miles (2010), 42 miles (2008). No indication of odometer rollback.',
+    serviceHistory: '7 service history records. Regular maintenance including oil changes, tire rotations, and inspections. Key service: left airbag assembly replaced on 12/22/2020 at 162,061 miles. Last service: 11/13/2024 at 185,358 miles for safety and emissions inspection (passed).',
+    theftRecords: 'No theft records reported.',
+    salesRecords: [
+        { date: '2008-09-15', seller: 'First Owner', location: 'Wilmington, Delaware', price: 0, mileage: '42 mi', color: 'Gray' },
+        { date: '2011-03-21', seller: 'Owner 1 to Owner 2', location: 'Marcy, New York', price: 0, mileage: '23,365 mi', color: 'Gray' },
+        { date: '2020-10-19', seller: 'Owner 2 to Owner 3', location: 'Utica, New York', price: 0, mileage: '150,115 mi', color: 'Gray' },
+        { date: '2024-11-19', seller: 'Owner 3 to Owner 4', location: 'Utica, New York', price: 0, mileage: '185,358 mi', color: 'Gray' }
+    ]
+        },
+            '5GTDN136X68212285': {
+    makeModel: 'Hummer H3',
+    year: '2006',
+    color: 'Unknown', // Not specified in report
+    trim: 'Base',
+    shortTrim: 'Base',
+    trimVariations: 'Base',
+    countryOfOrigin: 'United States',
+    cityOfOrigin: 'Unknown',
+    vehicleStyle: '4 Door Wagon/Sport Utility',
+    vehicleType: 'Sport Utility Vehicle',
+    vehicleSize: 'Midsize',
+    vehicleCategory: 'Midsize Sport Utility Vehicle',
+    doors: 4,
+    fuelCapacity: 23.0,
+    cityMileage: 14,
+    highwayMileage: 18,
+    drivenWheels: 'All Wheel Drive',
+    antiBrakeSystem: '4-Wheel ABS',
+    steeringType: 'Rack & Pinion',
+    curbWeight: 4700,
+    grossWeight: 6000,
+    overallHeight: 74.5,
+    overallLength: 186.7,
+    overallWidth: 85.5,
+    standardSeating: 5,
+    optionalSeating: null,
+    invoicePrice: 30000,
+    deliveryCharges: 900,
+    msrp: 33000,
+    engine: '3.5L I5 F',
+    transmission: '4-Speed Automatic',
+    fuel: 'Gasoline',
+    image: 'https://platform.cstatic-images.com/in/v2/stock_photos/29b7d090-066c-4039-bdce-7fe560a0669f/bb12ee3c-3100-4d1b-bc9f-c0c3db0b6956.png',
+    accidentHistory: 'Minor damage reported on 11/17/2010 (damage to front). CARFAX recommends having this vehicle inspected by a collision repair specialist. No airbag deployment reported. No total loss reported.',
+    titleRecords: 'Clean title with no salvage, junk, rebuilt, fire, flood, hail or lemon records. 5 previous owners reported. All owners were personal use. CARFAX guarantees the title information.',
+    odometerReadings: 'Verified readings: 129,257 miles (2025), 124,287 miles (2023), 117,206 miles (2021), 10,931 miles (2006). No indication of odometer rollback. Multiple low-mileage owners.',
+    serviceHistory: '9 service history records. Regular maintenance including pre-delivery inspections, oil changes, emissions and safety inspections. Key service: evaporative emissions vent purge valve replaced (09/28/2009), battery and sensor replaced (02/12/2019). Last service: 05/21/2025 at 129,257 miles for safety and emissions inspection (passed).',
+    theftRecords: 'No theft records reported.',
+    salesRecords: [
+        { date: '2006-01-17', seller: 'DePaula Chevrolet', location: 'Albany, New York', price: 0, mileage: '2 mi', color: 'Unknown' },
+        { date: '2012-03-06', seller: 'Owner 1 to Owner 2', location: 'Chenango Forks, New York', price: 0, mileage: '72,473 mi', color: 'Unknown' },
+        { date: '2020-06-01', seller: 'Owner 2 to Owner 3', location: 'Watertown, New York', price: 0, mileage: '110,107 mi', color: 'Unknown' },
+        { date: '2022-06-21', seller: 'Owner 3 to Owner 4', location: 'Adams, New York', price: 0, mileage: '117,206 mi', color: 'Unknown' },
+        { date: '2023-05-12', seller: 'Owner 4 to Owner 5', location: 'Herkimer, New York', price: 0, mileage: '124,287 mi', color: 'Unknown' }
+    ]
+        },
+            '5XYKTDA29BG065272': {
+    makeModel: 'Kia Sorento',
+    year: '2011',
+    color: 'Unknown', // Not specified in report
+    trim: 'LX',
+    shortTrim: 'LX',
+    trimVariations: 'LX',
+    countryOfOrigin: 'United States',
+    cityOfOrigin: 'Unknown',
+    vehicleStyle: '4 Door Wagon/Sport Utility',
+    vehicleType: 'Sport Utility Vehicle',
+    vehicleSize: 'Midsize',
+    vehicleCategory: 'Midsize Sport Utility Vehicle',
+    doors: 4,
+    fuelCapacity: 18.8,
+    cityMileage: 20,
+    highwayMileage: 26,
+    drivenWheels: 'All Wheel Drive',
+    antiBrakeSystem: '4-Wheel ABS',
+    steeringType: 'Rack & Pinion',
+    curbWeight: 3900,
+    grossWeight: 5200,
+    overallHeight: 67.3,
+    overallLength: 183.9,
+    overallWidth: 74.2,
+    standardSeating: 5,
+    optionalSeating: 7,
+    invoicePrice: 22000,
+    deliveryCharges: 900,
+    msrp: 24000,
+    engine: '3.5L V6 F DOHC 24V',
+    transmission: '6-Speed Automatic',
+    fuel: 'Gasoline',
+    image: 'https://images.hgmsites.net/hug/2011-kia-sorento-2wd-4-door-v6-ex-angular-front-exterior-view_100306255_h.jpg',
+    accidentHistory: 'Two minor damage incidents reported: 1) 11/21/2018 - Minor damage (no specific location mentioned). 2) 02/09/2021 - Minor damage to front. CARFAX recommends having this vehicle inspected by a collision repair specialist. No airbag deployment reported. No total loss reported.',
+    titleRecords: 'Clean title with no salvage, junk, rebuilt, fire, flood, hail or lemon records. 3 previous owners reported. First owner was personal lease, subsequent owners were personal use. CARFAX guarantees the title information.',
+    odometerReadings: 'Verified readings: 234,648 miles (2025), 224,891 miles (2023), 55,134 miles (2014), 4 miles (2010). No indication of odometer rollback. High mileage vehicle with extensive use.',
+    serviceHistory: '16 service history records. Extensive maintenance including regular oil changes, tire rotations, inspections, and emissions testing. Recent service: 12/12/2025 at 234,648 miles for tire condition and pressure check. Other recent services: oil changes in October and November 2025.',
+    theftRecords: 'No theft records reported.',
+    recallHistory: 'At least 1 open recall: Recall #SC284XM HECU FUSE (NHTSA #23V652). Additional service campaigns: SC141 (underbody anti-corrosion), CS2304A (anti-theft software), CS2312 (theft deterrent ignition cylinder protector). All remedies available. Contact authorized Kia dealer for recall repairs.',
+    salesRecords: [
+        { date: '2010-06-15', seller: 'Vision Kia', location: 'East, New York', price: 0, mileage: '7 mi', color: 'Unknown' },
+        { date: '2014-12-09', seller: 'Owner 1 to Owner 2', location: 'Canastota, New York', price: 0, mileage: '55,134 mi', color: 'Unknown' },
+        { date: '2025-06-30', seller: 'Owner 2 to Owner 3', location: 'Rome, New York', price: 0, mileage: '224,891 mi', color: 'Unknown' }
+    ]
+            },
+            '2HKRM4H59EH691381': {
+    makeModel: 'Honda CR-V',
+    year: '2014',
+    color: 'Urban Titanium Metallic',
+    trim: 'EX',
+    shortTrim: 'EX',
+    trimVariations: 'EX',
+    countryOfOrigin: 'United States',
+    cityOfOrigin: 'Unknown',
+    vehicleStyle: '4-Door Wagon/Sport Utility',
+    vehicleType: 'Sport Utility Vehicle',
+    vehicleSize: 'Compact',
+    vehicleCategory: 'Compact Sport Utility Vehicle 4WD',
+    doors: 4,
+    fuelCapacity: 15.3,
+    cityMileage: 23,
+    highwayMileage: 31,
+    drivenWheels: 'All Wheel Drive',
+    antiBrakeSystem: '4-Wheel ABS',
+    steeringType: 'Rack & Pinion',
+    curbWeight: 3370,
+    grossWeight: 4450,
+    overallHeight: 66.1,
+    overallLength: 178.3,
+    overallWidth: 70.8,
+    standardSeating: 5,
+    optionalSeating: null,
+    invoicePrice: 24500,
+    deliveryCharges: 850,
+    msrp: 26800,
+    engine: '2.4L I4 F DOHC 16V',
+    transmission: 'Continuously Variable (CVT)',
+    fuel: 'Gasoline',
+    image: 'https://images.hgmsites.net/med/2014-honda-cr-v-2wd-5dr-ex-l-w-navi-angular-front-exterior-view_100441079_m.jpg',
+    accidentHistory: 'No accidents or damage reported to CARFAX.',
+    titleRecords: 'Clean title with no salvage, junk, rebuilt, fire, flood, hail or lemon records. 2 previous owners reported. Both owners were personal use. No structural damage reported.',
+    odometerReadings: 'Last reported: 102,240 miles (2024). Previous readings: 41,580 miles (2018), 1 mile (2014). Note: Mileage inconsistency reported in 2022 (31,849 miles and 33,313 miles) which conflicts with higher mileage reported in 2021 (74,501 miles) and 2022 (86,625 miles). CARFAX indicates inconsistent mileage.',
+    serviceHistory: '22 service history records. Regular maintenance including oil changes, tire rotations, brake services (rear brakes replaced in 2018), battery replacement (2018), and spark plug replacement (2024). Last service: 12/31/2024 at 102,240 miles for emissions/safety inspection and spark plug replacement.',
+    theftRecords: 'No theft records found.',
+    salesRecords: [
+        { date: '2014-07-15', seller: 'Zeigler Honda of Amherst', location: 'Buffalo, New York', price: 0, mileage: '1 mi', color: 'Urban Titanium Metallic' },
+        { date: '2014-07-16', seller: 'Zeigler Honda of Amherst', location: 'Buffalo, New York', price: 0, mileage: '8 mi', color: 'Urban Titanium Metallic' },
+        { date: '2014-09-15', seller: 'Honda City', location: 'Liverpool, New York', price: 0, mileage: '263 mi', color: 'Urban Titanium Metallic' },
+        { date: '2014-09-17', seller: 'Honda City', location: 'Liverpool, New York', price: 0, mileage: 'N/A', color: 'Urban Titanium Metallic' },
+        { date: '2018-11-16', seller: 'Honda Certified Dealer', location: 'Liverpool, New York', price: 0, mileage: '41,272 mi', color: 'Urban Titanium Metallic' },
+        { date: '2018-11-16', seller: 'Great Lakes Honda City', location: 'Liverpool, New York', price: 0, mileage: '41,277 mi', color: 'Urban Titanium Metallic' },
+        { date: '2018-11-23', seller: 'Honda Certified Dealer', location: 'Liverpool, New York', price: 0, mileage: '41,285 mi', color: 'Urban Titanium Metallic' },
+        { date: '2018-12-04', seller: 'Inspection Co.', location: 'Not specified', price: 0, mileage: '41,580 mi', color: 'Urban Titanium Metallic' },
+        { date: '2018-12-26', seller: 'Owner Transfer', location: 'West Monroe, New York', price: 0, mileage: 'N/A', color: 'Urban Titanium Metallic' }
+    ]
+        },
+            '2GNFLFEK8E6272574': {
+    makeModel: 'Chevrolet Equinox',
+    year: '2014',
+    color: 'Unknown', // Color not specified in the report
+    trim: 'LT',
+    shortTrim: 'LT',
+    trimVariations: 'LT',
+    countryOfOrigin: 'United States',
+    cityOfOrigin: 'East Syracuse, New York',
+    vehicleStyle: '4-Door Wagon/Sport Utility',
+    vehicleType: 'Sport Utility Vehicle',
+    vehicleSize: 'Compact',
+    vehicleCategory: 'Compact Sport Utility Vehicle 4WD',
+    doors: 4,
+    fuelCapacity: 16.6, // Estimated for this model
+    cityMileage: 22, // Estimated for 2014 Equinox AWD
+    highwayMileage: 32, // Estimated for 2014 Equinox AWD
+    drivenWheels: 'All Wheel Drive',
+    antiBrakeSystem: '4-Wheel ABS', // Standard for this model
+    steeringType: 'Rack & Pinion',
+    curbWeight: 3780, // Estimated for 2014 Equinox AWD
+    grossWeight: 4950, // Estimated
+    overallHeight: 66.3, // Estimated for 2014 Equinox
+    overallLength: 184.9, // Estimated for 2014 Equinox
+    overallWidth: 72.5, // Estimated for 2014 Equinox
+    standardSeating: 5,
+    optionalSeating: null,
+    invoicePrice: 25000, // Estimated
+    deliveryCharges: 850, // Estimated
+    msrp: 27400, // Estimated for 2014 Equinox LT AWD
+    engine: '2.4L I4 F DOHC 16V',
+    transmission: '6-Speed Automatic',
+    fuel: 'Flex Fuel',
+    image: 'https://file.kelleybluebookimages.com/kbb/base/evox/CP/9238/2014-Chevrolet-Equinox-front_9238_032_1809x853_GBA_cropped.png?downsize=382:*',
+    accidentHistory: 'SERIOUS ISSUES: Total loss reported 10/03/2021 (accident with damage to rear). Earlier damage reported 04/01/2014 (damage to right side) with repairs completed 04/18/2014. Vehicle declared a total loss by insurance company. CARFAX recommends inspection by collision repair specialist.',
+    titleRecords: 'BRANDED TITLES: SALVAGE (10/19/2021) and REBUILT (07/14/2022). 3 previous owners. First owner was commercial. Manufacturer warranty likely voided. This vehicle does not qualify for CARFAX Buyback Guarantee.',
+    odometerReadings: 'Verified readings: 105,017 miles (11/24/2025), 64,066 miles (08/24/2022), 25,618 miles (08/09/2016), 2 miles (02/28/2014). No indication of odometer rollback.',
+    serviceHistory: '24 service history records. Extensive maintenance including oil changes, brake replacements (front and rear), wheel bearing replacement, exhaust repairs, battery replacement, and oil control valve replacement. Last service: 04/11/2025 at 102,142 miles for recommended maintenance.',
+    theftRecords: 'No theft records found.',
+    salesRecords: [
+        { date: '2014-02-28', seller: 'West Herr Chevrolet of East Syracuse', location: 'East Syracuse, New York', price: 0, mileage: '2 mi', color: 'Unknown' },
+        { date: '2014-03-10', seller: 'West Herr Chevrolet of East Syracuse', location: 'East Syracuse, New York', price: 0, mileage: 'N/A', color: 'Unknown' },
+        { date: '2014-04-01', seller: 'Damage Report', location: 'Not specified', price: 0, mileage: 'N/A', color: 'Unknown' },
+        { date: '2014-04-04', seller: 'New York Motor Vehicle Dept.', location: 'Northbrook, IL', price: 0, mileage: 'N/A', color: 'Unknown' },
+        { date: '2014-04-18', seller: 'Damage Report', location: 'Not specified', price: 0, mileage: 'N/A', color: 'Unknown' },
+        { date: '2016-07-11', seller: 'Auto Auction', location: 'Not specified', price: 0, mileage: '25,565 mi', color: 'Unknown' },
+        { date: '2016-07-13', seller: 'Fleet Management Co.', location: 'New York', price: 0, mileage: 'N/A', color: 'Unknown' },
+        { date: '2016-08-09', seller: 'Dealer Inventory', location: 'Not specified', price: 0, mileage: '25,618 mi', color: 'Unknown' },
+        { date: '2016-08-29', seller: 'Owner Transfer', location: 'East, New York', price: 0, mileage: 'N/A', color: 'Unknown' },
+        { date: '2021-10-03', seller: 'Total Loss Report', location: 'Not specified', price: 0, mileage: 'N/A', color: 'Unknown' },
+        { date: '2021-10-19', seller: 'Salvage Title Issued', location: 'Albany, New York', price: 0, mileage: 'N/A', color: 'Unknown' },
+        { date: '2022-07-14', seller: 'Dealer Title Transfer', location: 'Constantia, New York', price: 0, mileage: 'N/A', color: 'Unknown' },
+        { date: '2022-09-06', seller: 'Owner Transfer', location: 'Binghamton, New York', price: 0, mileage: 'N/A', color: 'Unknown' }
+    ]
+                },
+            '1C4RJFBG1GC496680': {
+    makeModel: 'Jeep Grand Cherokee',
+    year: '2016',
+    color: 'Black',
+    trim: 'LIMITED',
+    shortTrim: 'Limited',
+    trimVariations: 'LIMITED',
+    countryOfOrigin: 'United States',
+    cityOfOrigin: 'Torrington, Connecticut',
+    vehicleStyle: '4-Door Wagon/Sport Utility',
+    vehicleType: 'Sport Utility Vehicle',
+    vehicleSize: 'Midsize',
+    vehicleCategory: 'Midsize Sport Utility Vehicle 4WD',
+    doors: 4,
+    fuelCapacity: 24.6,
+    cityMileage: 18,
+    highwayMileage: 25,
+    drivenWheels: 'Rear Wheel Drive with 4x4',
+    antiBrakeSystem: '4-Wheel ABS',
+    steeringType: 'Rack & Pinion',
+    curbWeight: 4723,
+    grossWeight: 6000,
+    overallHeight: 69.3,
+    overallLength: 189.8,
+    overallWidth: 76.5,
+    standardSeating: 5,
+    optionalSeating: null,
+    invoicePrice: 38000,
+    deliveryCharges: 1200,
+    msrp: 41000,
+    engine: '3.6L V6 F DOHC 24V',
+    transmission: '8-Speed Automatic',
+    fuel: 'Gasoline',
+    image: 'https://cdn.jdpower.com/ChromeImageGallery/Expanded/Transparent/640/2016JES050001_640/2016JES050001_640_01.png',
+    accidentHistory: 'Minor to moderate damage reported on 03/16/2020. Damage to right rear and right side. CARFAX recommends inspection by collision repair specialist.',
+    titleRecords: 'Clean title. No salvage, junk, rebuilt, fire, flood, hail or lemon records. 3 previous owners reported. First owner was personal lease.',
+    odometerReadings: 'Verified readings: 217,825 miles (2025), 201,642 miles (2024), 159,469 miles (2022), 2 miles (2016). No indication of odometer rollback.',
+    serviceHistory: '18 service history records. Regular maintenance including oil changes, brake repairs, and significant repairs: engine replaced at 105,589 miles (08/19/2020), steering components replaced at 106,096 miles (08/27/2020), recent emissions system repairs (leak detection pump, purge valve). Last service: 11/24/2025 at 217,825 miles for emissions inspection and tire mounting.',
+    theftRecords: 'No theft records found.',
+    salesRecords: [
+        { date: '2016-07-12', seller: 'Northwest Hills Chrysler Jeep', location: 'Torrington, Connecticut', price: 0, mileage: '2 mi', color: 'Black' },
+        { date: '2016-08-27', seller: 'Northwest Hills Chrysler Jeep', location: 'Torrington, Connecticut', price: 0, mileage: 'N/A', color: 'Black' },
+        { date: '2022-07-18', seller: 'Auto Auction', location: 'Not specified', price: 0, mileage: '156,970 mi', color: 'Black' },
+        { date: '2022-10-20', seller: 'Auto Auction', location: 'Not specified', price: 0, mileage: '159,469 mi', color: 'Black' },
+        { date: '2024-10-22', seller: 'Auto Auction', location: 'Not specified', price: 0, mileage: '201,586 mi', color: 'Black' },
+        { date: '2024-10-25', seller: 'Smart Buy Auto Sales LLC', location: 'Meriden, Connecticut', price: 0, mileage: 'N/A', color: 'Black' },
+        { date: '2024-11-25', seller: 'Owner Transfer', location: 'Oneonta, New York', price: 0, mileage: 'N/A', color: 'Black' }
+    ]
+                },
+            '5FNRL5H2XBB017068': {
+    makeModel: 'Honda Odyssey',
+    year: '2011',
+    color: 'Unknown', // Not specified in the provided report
+    trim: 'LX',
+    shortTrim: 'LX',
+    trimVariations: 'LX',
+    countryOfOrigin: 'United States',
+    cityOfOrigin: 'Jersey City, New Jersey',
+    vehicleStyle: 'Minivan',
+    vehicleType: 'Van',
+    vehicleSize: 'Minivan',
+    vehicleCategory: 'Minivan',
+    doors: 4, // Standard for minivans
+    fuelCapacity: 21.0, // Standard for 2011 Odyssey[citation:2][citation:6]
+    cityMileage: 18, // For LX trim with 5-speed[citation:2][citation:6]
+    highwayMileage: 27, // For LX trim with 5-speed[citation:2][citation:6]
+    drivenWheels: 'Front Wheel Drive',
+    antiBrakeSystem: '4-Wheel ABS', // Standard[citation:1][citation:6]
+    steeringType: 'Variable Power-Assisted Rack-and-Pinion',
+    curbWeight: 4337, // For LX trim[citation:2]
+    grossWeight: 5100, // Estimated based on curb weight
+    overallHeight: 68.4, // For LX trim[citation:2]
+    overallLength: 202.9, // For LX trim[citation:2][citation:6]
+    overallWidth: 79.2, // For LX trim[citation:2][citation:6]
+    standardSeating: 7, // For LX trim[citation:2]
+    optionalSeating: null,
+    invoicePrice: 26500, // Estimated
+    deliveryCharges: 850, // Estimated
+    msrp: 28580, // Base MSRP for 2011 Odyssey LX[citation:7]
+    engine: '3.5L V6 SOHC 24V',
+    transmission: '5-Speed Automatic',
+    fuel: 'Gasoline',
+    image: 'https://cdn.jdpower.com/Models/400x200/2011-Honda-Odyssey-LX.jpg',    
+    accidentHistory: '⚠️ SERIOUS CONCERN: Accident reported on 01/26/2021 with another motor vehicle. CARFAX recommends inspection by collision repair specialist.',
+    titleRecords: 'Clean title with no salvage, junk, rebuilt, fire, flood, hail or lemon records. 3 previous owners reported. First owner was corporate.',
+    odometerReadings: '⚠️ CRITICAL ISSUE: Potential odometer rollback indicated. Last reported mileage: 124,705 miles (08/11/2017). Subsequent records show inconsistent readings: 44,150 miles (05/28/2019) and 49,582 miles (08/05/2019). Mileage inconsistency reported by CARFAX.',
+    serviceHistory: 'Extensive 79 service history records. Well-maintained with regular oil changes, brake services (front and rear replaced), transmission service, alternator replacement, and emissions system repairs (catalytic converter replaced at 99,523 miles).',
+    theftRecords: 'No theft records found.',
+    salesRecords: [
+        { date: '2010-11-02', seller: 'Metro Honda', location: 'Jersey City, New Jersey', price: 0, mileage: '20 mi', color: 'Unknown' },
+        { date: '2011-04-11', seller: 'Tarrytown Honda', location: 'Tarrytown, New York', price: 0, mileage: '48 mi', color: 'Unknown' },
+        { date: '2017-05-24', seller: 'Dealer Inventory', location: 'Not specified', price: 0, mileage: 'N/A', color: 'Unknown' },
+        { date: '2017-06-27', seller: 'Tarrytown Honda', location: 'Tarrytown, New York', price: 0, mileage: 'N/A', color: 'Unknown' },
+        { date: '2017-07-21', seller: 'Tarrytown Honda', location: 'Tarrytown, New York', price: 0, mileage: '123,729 mi', color: 'Unknown' },
+        { date: '2017-08-15', seller: 'Owner Transfer', location: 'Washingtonville, New York', price: 0, mileage: 'N/A', color: 'Unknown' },
+        { date: '2025-08-18', seller: 'Owner Transfer', location: 'Woodridge, New York', price: 0, mileage: 'N/A', color: 'Unknown' }
+    ]
+    }
+        };
+
+        // DOM Elements
+        const successMessage = document.getElementById('successMessage');
+        const errorMessage = document.getElementById('errorMessage');
+        const reportContainer = document.getElementById('reportContainer');
+        const vehicleTitle = document.getElementById('vehicle-title');
+        const reportVin = document.getElementById('report-vin');
+        const reportPlan = document.getElementById('report-plan');
+        const reportBody = document.getElementById('reportBody');
+        const downloadReportBtn = document.getElementById('download-report-btn');
+        const loadingBtn = document.getElementById('loading-btn');
+
+        // State variables
+        let currentVin = '';
+        let currentPlan = '';
+        let currentPrice = 0;
+        let currentVehicle = null;
+
+        // Format currency
+        function formatCurrency(amount) {
+            if (amount === 0 || amount === '0') return 'N/A';
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(amount);
+        }
+
+        // Format number with units
+        function formatNumber(value, unit = '') {
+            if (value === null || value === undefined || value === 'N/A') return 'N/A';
+            return `${value.toLocaleString()}${unit ? ' ' + unit : ''}`;
+        }
+
+        // Format date
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric' 
+            });
+        }
+
+        // Show loading button and hide download button
+        function showLoadingButton() {
+            downloadReportBtn.style.display = 'none';
+            loadingBtn.style.display = 'block';
+        }
+
+        // Hide loading button and show download button
+        function hideLoadingButton() {
+            loadingBtn.style.display = 'none';
+            downloadReportBtn.style.display = 'block';
+        }
+
+        // Check for payment and load report
+        function checkAndLoadReport() {
+            console.log('Checking for payment and loading report...');
+            
+            // Check URL parameters for payment completion
+            const paymentStatus = getUrlParameter('st');
+            console.log('Payment status from URL:', paymentStatus);
+            
+            // Check sessionStorage for VIN and plan
+            const storedVin = sessionStorage.getItem('carUsed_vin');
+            const storedPlan = sessionStorage.getItem('carUsed_plan');
+            
+            console.log('sessionStorage data:', {
+                vin: storedVin,
+                plan: storedPlan
+            });
+            
+            // Check if we have COMPLETED in URL OR if we have VIN and plan in sessionStorage
+            if ((paymentStatus && paymentStatus.toUpperCase() === 'COMPLETED') &&  (storedVin )) {
+                console.log('Payment completed or data found in sessionStorage');
+                
+                if (storedVin ) {
+                    currentVin = storedVin.toUpperCase();
+                    currentPlan = storedPlan;
+                    
+                    // Set price based on plan
+                    currentPrice = currentPlan === 'regular' ? 25 : 100;
+                    
+                    // Store payment completion in sessionStorage for future reference
+                    sessionStorage.setItem('carUsed_payment_completed', 'true');
+                    
+                    // Load and display the report
+                    loadVehicleReport();
+                    
+                    // Clean URL parameters to avoid issues on refresh
+                    if (paymentStatus) {
+                        setTimeout(() => {
+                            window.history.replaceState({}, document.title, window.location.pathname);
+                        }, 100);
+                    }
+                    
+                    return;
+                } else {
+                    console.error('Missing VIN or plan in sessionStorage');
+                    showErrorMessage();
+                    return;
+                }
+            } else {
+                // Check if we have payment completion stored in sessionStorage
+                const paymentCompleted = sessionStorage.getItem('carUsed_payment_completed');
+                
+                console.log('Checking sessionStorage for previous payment:', {
+                    paymentCompleted: paymentCompleted,
+                    vin: storedVin,
+                    plan: storedPlan
+                });
+                
+                if (paymentCompleted === 'true' && storedVin && (paymentStatus && paymentStatus.toUpperCase() === 'COMPLETED')) {
+                    console.log('Previous payment found in sessionStorage');
+                    currentVin = storedVin.toUpperCase();
+                    currentPlan = storedPlan;
+                    currentPrice = currentPlan === 'regular' ? 25 : 100;
+                    loadVehicleReport();
+                    return;
+                } else {
+                    console.error('No valid payment found');
+                    showErrorMessage();
+                    return;
+                }
+            }
+        }
+
+        // Show error message
+        function showErrorMessage() {
+            successMessage.style.display = 'none';
+            reportContainer.style.display = 'none';
+            errorMessage.style.display = 'block';
+        }
+
+        // Load and display vehicle report
+        function loadVehicleReport() {
+            const vehicle = vehicleDatabase[currentVin];
+            
+            if (!vehicle) {
+                console.error('Vehicle not found in database for VIN:', currentVin);
+                showErrorMessage();
+                return;
+            }
+
+            currentVehicle = vehicle;
+            
+            // Update header
+            vehicleTitle.textContent = `${vehicle.year} ${vehicle.makeModel}`;
+            reportVin.textContent = `VIN: ${currentVin}`;
+            //reportPlan.textContent = `Report Type: ${currentPlan.charAt(0).toUpperCase() + currentPlan.slice(1)} Report | Price: ${formatCurrency(currentPrice)}`;
+            
+            // Generate report based on plan
+            let reportHTML = '';
+            
+            if (currentPlan === 'regular') {
+                reportHTML = generateRegularReport(vehicle);
+            } else {
+                reportHTML = generatePremiumReport(vehicle);
+            }
+            
+            reportBody.innerHTML = reportHTML;
+            
+            // Show success message and report
+            successMessage.style.display = 'block';
+            reportContainer.style.display = 'block';
+            errorMessage.style.display = 'none';
+            
+            console.log('Report loaded successfully for VIN:', currentVin, 'Plan:', currentPlan);
+        }
+
+        // Generate regular report HTML
+        function generateRegularReport(vehicle) {
+            return `
+                <!-- Vehicle Overview -->
+                <div class="vehicle-overview">
+                    <div class="vehicle-image-container">
+                        <img src="${vehicle.image}" alt="Vehicle Image" class="vehicle-image">
+                    </div>
+                    
+                    <div class="vehicle-basic-info">
+                        <div class="basic-info-grid">
+                            <div class="info-card">
+                                <h5>Vehicle Identification</h5>
+                                <p><span class="label">Make & Model:</span> <span class="value">${vehicle.makeModel}</span></p>
+                                <p><span class="label">Year:</span> <span class="value">${vehicle.year}</span></p>
+                                <p><span class="label">Color:</span> <span class="value">${vehicle.color}</span></p>
+                                <p><span class="label">VIN:</span> <span class="value">${currentVin}</span></p>
+                            </div>
+                            <div class="info-card">
+                                <h5>Trim & Origin</h5>
+                                <p><span class="label">Trim Level:</span> <span class="value">${vehicle.trim}</span></p>
+                                <p><span class="label">Short Trim:</span> <span class="value">${vehicle.shortTrim}</span></p>
+                                <p><span class="label">Country:</span> <span class="value">${vehicle.countryOfOrigin}</span></p>
+                                <p><span class="label">City:</span> <span class="value">${vehicle.cityOfOrigin}</span></p>
+                            </div>
+                            <div class="info-card">
+                                <h5>Engine & Performance</h5>
+                                <p><span class="label">Engine:</span> <span class="value">${vehicle.engine}</span></p>
+                                <p><span class="label">Transmission:</span> <span class="value">${vehicle.transmission}</span></p>
+                                <p><span class="label">Fuel Type:</span> <span class="value">${vehicle.fuel}</span></p>
+                                <p><span class="label">Fuel Economy:</span> <span class="value">${vehicle.cityMileage}/${vehicle.highwayMileage} MPG</span></p>
+                            </div>
+                            <div class="info-card">
+                                <h5>Key Specifications</h5>
+                                <p><span class="label">Vehicle Type:</span> <span class="value">${vehicle.vehicleType}</span></p>
+                                <p><span class="label">Drivetrain:</span> <span class="value">${vehicle.drivenWheels}</span></p>
+                                <p><span class="label">Doors:</span> <span class="value">${vehicle.doors}</span></p>
+                                <p><span class="label">Seating:</span> <span class="value">${vehicle.standardSeating}${vehicle.optionalSeating ? '+' + vehicle.optionalSeating : ''}</span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vehicle Specifications -->
+                <div class="data-section">
+                    <h4><i class="fas fa-car"></i> Vehicle Specifications</h4>
+                    <div class="data-grid">
+                        <div class="data-card">
+                            <h5><i class="fas fa-cogs"></i> Technical Specs</h5>
+                            <div class="data-item"><span class="label">Engine Type:</span> <span class="value">${vehicle.engine}</span></div>
+                            <div class="data-item"><span class="label">Transmission:</span> <span class="value">${vehicle.transmission}</span></div>
+                            <div class="data-item"><span class="label">Drivetrain:</span> <span class="value">${vehicle.drivenWheels}</span></div>
+                            <div class="data-item"><span class="label">Braking System:</span> <span class="value">${vehicle.antiBrakeSystem}</span></div>
+                            <div class="data-item"><span class="label">Steering Type:</span> <span class="value">${vehicle.steeringType}</span></div>
+                        </div>
+                        <div class="data-card">
+                            <h5><i class="fas fa-gas-pump"></i> Fuel & Efficiency</h5>
+                            <div class="data-item"><span class="label">Fuel Type:</span> <span class="value">${vehicle.fuel}</span></div>
+                            <div class="data-item"><span class="label">Fuel Capacity:</span> <span class="value">${vehicle.fuelCapacity} gallons</span></div>
+                            <div class="data-item"><span class="label">City MPG:</span> <span class="value">${vehicle.cityMileage}</span></div>
+                            <div class="data-item"><span class="label">Highway MPG:</span> <span class="value">${vehicle.highwayMileage}</span></div>
+                            <div class="data-item"><span class="label">Vehicle Category:</span> <span class="value">${vehicle.vehicleCategory}</span></div>
+                        </div>
+                        <div class="data-card">
+                            <h5><i class="fas fa-info-circle"></i> Vehicle Details</h5>
+                            <div class="data-item"><span class="label">Vehicle Style:</span> <span class="value">${vehicle.vehicleStyle}</span></div>
+                            <div class="data-item"><span class="label">Vehicle Size:</span> <span class="value">${vehicle.vehicleSize}</span></div>
+                            <div class="data-item"><span class="label">Vehicle Type:</span> <span class="value">${vehicle.vehicleType}</span></div>
+                            <div class="data-item"><span class="label">Trim Variations:</span> <span class="value">${vehicle.trimVariations}</span></div>
+                            <div class="data-item"><span class="label">Country of Origin:</span> <span class="value">${vehicle.countryOfOrigin}</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dimensions & Weights -->
+                <div class="data-section">
+                    <h4><i class="fas fa-ruler-combined"></i> Dimensions & Weights</h4>
+                    <div class="data-grid">
+                        <div class="data-card">
+                            <h5><i class="fas fa-weight-hanging"></i> Weights</h5>
+                            <div class="data-item"><span class="label">Curb Weight:</span> <span class="value">${formatNumber(vehicle.curbWeight, 'lbs')}</span></div>
+                            <div class="data-item"><span class="label">Gross Weight:</span> <span class="value">${formatNumber(vehicle.grossWeight, 'lbs')}</span></div>
+                        </div>
+                        <div class="data-card">
+                            <h5><i class="fas fa-ruler-vertical"></i> Exterior Dimensions</h5>
+                            <div class="data-item"><span class="label">Length:</span> <span class="value">${vehicle.overallLength} in</span></div>
+                            <div class="data-item"><span class="label">Width:</span> <span class="value">${vehicle.overallWidth} in</span></div>
+                            <div class="data-item"><span class="label">Height:</span> <span class="value">${vehicle.overallHeight} in</span></div>
+                        </div>
+                        <div class="data-card">
+                            <h5><i class="fas fa-users"></i> Interior & Capacity</h5>
+                            <div class="data-item"><span class="label">Standard Seating:</span> <span class="value">${vehicle.standardSeating}</span></div>
+                            <div class="data-item"><span class="label">Optional Seating:</span> <span class="value">${vehicle.optionalSeating || 'N/A'}</span></div>
+                            <div class="data-item"><span class="label">Doors:</span> <span class="value">${vehicle.doors}</span></div>
+                            <div class="data-item"><span class="label">Fuel Capacity:</span> <span class="value">${vehicle.fuelCapacity} gal</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pricing Information -->
+                <div class="data-section">
+                    <h4><i class="fas fa-dollar-sign"></i> Pricing Information</h4>
+                    <div class="data-grid">
+                        <div class="data-card">
+                            <h5><i class="fas fa-tag"></i> Manufacturer Pricing</h5>
+                            <div class="data-item"><span class="label">MSRP:</span> <span class="value">${formatCurrency(vehicle.msrp)}</span></div>
+                            <div class="data-item"><span class="label">Invoice Price:</span> <span class="value">${formatCurrency(vehicle.invoicePrice)}</span></div>
+                            <div class="data-item"><span class="label">Delivery Charges:</span> <span class="value">${formatCurrency(vehicle.deliveryCharges)}</span></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="alert alert-info mt-4">
+                    <i class="fas fa-info-circle"></i> 
+                    <strong>Upgrade to Premium Report for $100 to get:</strong> Complete accident history, detailed sales records, theft & title records, service history, and odometer verification.
+                </div>
+            `;
+        }
+
+        // Generate premium report HTML
+        function generatePremiumReport(vehicle) {
+            return `
+                <!-- Vehicle Overview -->
+                <div class="vehicle-overview">
+                    <div class="vehicle-image-container">
+                        <img src="${vehicle.image}" alt="Vehicle Image" class="vehicle-image">
+                    </div>
+                    
+                    <div class="vehicle-basic-info">
+                        <div class="basic-info-grid">
+                            <div class="info-card">
+                                <h5>Vehicle Identification</h5>
+                                <p><span class="label">Make & Model:</span> <span class="value">${vehicle.makeModel}</span></p>
+                                <p><span class="label">Year:</span> <span class="value">${vehicle.year}</span></p>
+                                <p><span class="label">Color:</span> <span class="value">${vehicle.color}</span></p>
+                                <p><span class="label">VIN:</span> <span class="value">${currentVin}</span></p>
+                            </div>
+                            <div class="info-card">
+                                <h5>Trim & Origin</h5>
+                                <p><span class="label">Trim Level:</span> <span class="value">${vehicle.trim}</span></p>
+                                <p><span class="label">Short Trim:</span> <span class="value">${vehicle.shortTrim}</span></p>
+                                <p><span class="label">Country:</span> <span class="value">${vehicle.countryOfOrigin}</span></p>
+                                <p><span class="label">City:</span> <span class="value">${vehicle.cityOfOrigin}</span></p>
+                            </div>
+                            <div class="info-card">
+                                <h5>Engine & Performance</h5>
+                                <p><span class="label">Engine:</span> <span class="value">${vehicle.engine}</span></p>
+                                <p><span class="label">Transmission:</span> <span class="value">${vehicle.transmission}</span></p>
+                                <p><span class="label">Fuel Type:</span> <span class="value">${vehicle.fuel}</span></p>
+                                <p><span class="label">Fuel Economy:</span> <span class="value">${vehicle.cityMileage}/${vehicle.highwayMileage} MPG</span></p>
+                            </div>
+                            <div class="info-card">
+                                <h5>Key Specifications</h5>
+                                <p><span class="label">Vehicle Type:</span> <span class="value">${vehicle.vehicleType}</span></p>
+                                <p><span class="label">Drivetrain:</span> <span class="value">${vehicle.drivenWheels}</span></p>
+                                <p><span class="label">Doors:</span> <span class="value">${vehicle.doors}</span></p>
+                                <p><span class="label">Seating:</span> <span class="value">${vehicle.standardSeating}${vehicle.optionalSeating ? '+' + vehicle.optionalSeating : ''}</span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vehicle Specifications -->
+                <div class="data-section">
+                    <h4><i class="fas fa-car"></i> Vehicle Specifications</h4>
+                    <div class="data-grid">
+                        <div class="data-card">
+                            <h5><i class="fas fa-cogs"></i> Technical Specs</h5>
+                            <div class="data-item"><span class="label">Engine Type:</span> <span class="value">${vehicle.engine}</span></div>
+                            <div class="data-item"><span class="label">Transmission:</span> <span class="value">${vehicle.transmission}</span></div>
+                            <div class="data-item"><span class="label">Drivetrain:</span> <span class="value">${vehicle.drivenWheels}</span></div>
+                            <div class="data-item"><span class="label">Braking System:</span> <span class="value">${vehicle.antiBrakeSystem}</span></div>
+                            <div class="data-item"><span class="label">Steering Type:</span> <span class="value">${vehicle.steeringType}</span></div>
+                        </div>
+                        <div class="data-card">
+                            <h5><i class="fas fa-gas-pump"></i> Fuel & Efficiency</h5>
+                            <div class="data-item"><span class="label">Fuel Type:</span> <span class="value">${vehicle.fuel}</span></div>
+                            <div class="data-item"><span class="label">Fuel Capacity:</span> <span class="value">${vehicle.fuelCapacity} gallons</span></div>
+                            <div class="data-item"><span class="label">City MPG:</span> <span class="value">${vehicle.cityMileage}</span></div>
+                            <div class="data-item"><span class="label">Highway MPG:</span> <span class="value">${vehicle.highwayMileage}</span></div>
+                            <div class="data-item"><span class="label">Vehicle Category:</span> <span class="value">${vehicle.vehicleCategory}</span></div>
+                        </div>
+                        <div class="data-card">
+                            <h5><i class="fas fa-info-circle"></i> Vehicle Details</h5>
+                            <div class="data-item"><span class="label">Vehicle Style:</span> <span class="value">${vehicle.vehicleStyle}</span></div>
+                            <div class="data-item"><span class="label">Vehicle Size:</span> <span class="value">${vehicle.vehicleSize}</span></div>
+                            <div class="data-item"><span class="label">Vehicle Type:</span> <span class="value">${vehicle.vehicleType}</span></div>
+                            <div class="data-item"><span class="label">Trim Variations:</span> <span class="value">${vehicle.trimVariations}</span></div>
+                            <div class="data-item"><span class="label">Country of Origin:</span> <span class="value">${vehicle.countryOfOrigin}</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dimensions & Weights -->
+                <div class="data-section">
+                    <h4><i class="fas fa-ruler-combined"></i> Dimensions & Weights</h4>
+                    <div class="data-grid">
+                        <div class="data-card">
+                            <h5><i class="fas fa-weight-hanging"></i> Weights</h5>
+                            <div class="data-item"><span class="label">Curb Weight:</span> <span class="value">${formatNumber(vehicle.curbWeight, 'lbs')}</span></div>
+                            <div class="data-item"><span class="label">Gross Weight:</span> <span class="value">${formatNumber(vehicle.grossWeight, 'lbs')}</span></div>
+                        </div>
+                        <div class="data-card">
+                            <h5><i class="fas fa-ruler-vertical"></i> Exterior Dimensions</h5>
+                            <div class="data-item"><span class="label">Length:</span> <span class="value">${vehicle.overallLength} in</span></div>
+                            <div class="data-item"><span class="label">Width:</span> <span class="value">${vehicle.overallWidth} in</span></div>
+                            <div class="data-item"><span class="label">Height:</span> <span class="value">${vehicle.overallHeight} in</span></div>
+                        </div>
+                        <div class="data-card">
+                            <h5><i class="fas fa-users"></i> Interior & Capacity</h5>
+                            <div class="data-item"><span class="label">Standard Seating:</span> <span class="value">${vehicle.standardSeating}</span></div>
+                            <div class="data-item"><span class="label">Optional Seating:</span> <span class="value">${vehicle.optionalSeating || 'N/A'}</span></div>
+                            <div class="data-item"><span class="label">Doors:</span> <span class="value">${vehicle.doors}</span></div>
+                            <div class="data-item"><span class="label">Fuel Capacity:</span> <span class="value">${vehicle.fuelCapacity} gal</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pricing Information -->
+                <div class="data-section">
+                    <h4><i class="fas fa-dollar-sign"></i> Pricing Information</h4>
+                    <div class="data-grid">
+                        <div class="data-card">
+                            <h5><i class="fas fa-tag"></i> Manufacturer Pricing</h5>
+                            <div class="data-item"><span class="label">MSRP:</span> <span class="value">${formatCurrency(vehicle.msrp)}</span></div>
+                            <div class="data-item"><span class="label">Invoice Price:</span> <span class="value">${formatCurrency(vehicle.invoicePrice)}</span></div>
+                            <div class="data-item"><span class="label">Delivery Charges:</span> <span class="value">${formatCurrency(vehicle.deliveryCharges)}</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vehicle History -->
+                <div class="data-section">
+                    <h4><i class="fas fa-history"></i> Vehicle History</h4>
+                    <div class="history-cards">
+                        <div class="history-card">
+                            <h5><i class="fas fa-car-crash"></i> Accident History</h5>
+                            <p>${vehicle.accidentHistory}</p>
+                        </div>
+                        <div class="history-card">
+                            <h5><i class="fas fa-file-contract"></i> Title Records</h5>
+                            <p>${vehicle.titleRecords}</p>
+                        </div>
+                        <div class="history-card">
+                            <h5><i class="fas fa-tachometer-alt"></i> Odometer Readings</h5>
+                            <p>${vehicle.odometerReadings}</p>
+                        </div>
+                        <div class="history-card">
+                            <h5><i class="fas fa-wrench"></i> Service History</h5>
+                            <p>${vehicle.serviceHistory}</p>
+                        </div>
+                        <div class="history-card">
+                            <h5><i class="fas fa-shield-alt"></i> Theft Records</h5>
+                            <p>${vehicle.theftRecords}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sales Records -->
+                <div class="data-section">
+                    <h4><i class="fas fa-chart-line"></i> Sales Records</h4>
+                    <div class="sales-table-container">
+                        <table class="sales-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Seller & Location</th>
+                                    <th>Listing Price</th>
+                                    <th>Details</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${vehicle.salesRecords.map(record => `
+                                    <tr>
+                                        <td class="sales-date">${formatDate(record.date)}</td>
+                                        <td>
+                                            <div class="sales-seller">${record.seller}</div>
+                                            <div class="sales-location">${record.location}</div>
+                                        </td>
+                                        <td class="sales-price">${formatCurrency(record.price)}</td>
+                                        <td>
+                                            <div class="sales-mileage">Mileage: ${record.mileage}</div>
+                                            <div class="sales-color">Color: ${record.color}</div>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Generate and download PDF report
+        async function downloadPDFReport() {
+            // Show loading button
+            showLoadingButton();
+            
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('p', 'pt', 'a4');
+            
+            // Add report content to PDF
+            const element = document.getElementById('reportContainer');
+            
+            // Simulate a delay for loading effect (optional, but makes it feel more realistic)
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            html2canvas(element, {
+                scale: 2,
+                useCORS: true,
+                logging: false,
+                backgroundColor: '#ffffff'
+            }).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const imgWidth = 595.28; // A4 width in points
+                const pageHeight = 841.89; // A4 height in points
+                const imgHeight = canvas.height * imgWidth / canvas.width;
+                
+                let heightLeft = imgHeight;
+                let position = 0;
+                
+                // Add first page
+                doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                heightLeft -= pageHeight;
+                
+                // Add additional pages if needed
+                while (heightLeft >= 0) {
+                    position = heightLeft - imgHeight;
+                    doc.addPage();
+                    doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                    heightLeft -= pageHeight;
+                }
+                
+                // Save the PDF
+                doc.save(`Vehicle_Report_${currentVin}_${currentPlan}.pdf`);
+                
+                // Hide loading button and show download button again
+                hideLoadingButton();
+                
+                // Optional: Show a success message
+                const originalText = downloadReportBtn.innerHTML;
+                downloadReportBtn.innerHTML = '<i class="fas fa-check"></i> PDF Downloaded!';
+                downloadReportBtn.classList.add('btn-success');
+                downloadReportBtn.classList.remove('btn-primary');
+                
+                // Revert to original after 3 seconds
+                setTimeout(() => {
+                    downloadReportBtn.innerHTML = originalText;
+                    downloadReportBtn.classList.remove('btn-success');
+                    downloadReportBtn.classList.add('btn-primary');
+                }, 3000);
+            }).catch(error => {
+                console.error('Error generating PDF:', error);
+                hideLoadingButton();
+                
+                // Show error message
+                const originalText = downloadReportBtn.innerHTML;
+                downloadReportBtn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Error! Try Again';
+                downloadReportBtn.classList.add('btn-danger');
+                downloadReportBtn.classList.remove('btn-primary');
+                
+                // Revert to original after 3 seconds
+                setTimeout(() => {
+                    downloadReportBtn.innerHTML = originalText;
+                    downloadReportBtn.classList.remove('btn-danger');
+                    downloadReportBtn.classList.add('btn-primary');
+                }, 3000);
+            });
+        }
+
+        // Event Listeners
+        downloadReportBtn.addEventListener('click', downloadPDFReport);
+
+        // Initialize
+        window.onload = () => {
+            console.log('Report page loaded');
+            console.log('Current URL:', window.location.href);
+            
+            // Check for payment and load report
+            checkAndLoadReport();
+        };
+        
+        // Clear sessionStorage when user goes back to home page from report page
+        document.querySelector('a[href="index.html"]').addEventListener('click', function() {
+            // Clear all CarUsed related sessionStorage items
+            sessionStorage.removeItem('carUsed_vin');
+            sessionStorage.removeItem('carUsed_plan');
+            sessionStorage.removeItem('carUsed_payment_completed');
+            sessionStorage.removeItem('carUsed_transaction_id');
+            console.log('Cleared sessionStorage before going back to home page');
+        });
+    </script>
+</body>
+    </html>
