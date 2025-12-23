@@ -1305,6 +1305,57 @@
         bootstrapScript.src = 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js';
         document.head.appendChild(bootstrapScript);
 
+        // Browser storage detection and fallback - SAME AS IN REPORT.HTML
+        const BrowserStorage = {
+            isAvailable: function(type) {
+                try {
+                    const testKey = '__storage_test__';
+                    const storage = type === 'local' ? window.localStorage : window.sessionStorage;
+                    storage.setItem(testKey, testKey);
+                    storage.removeItem(testKey);
+                    return true;
+                } catch (e) {
+                    return false;
+                }
+            },
+            
+            getItem: function(key) {
+                // Try localStorage first, then sessionStorage, then fallback to in-memory
+                try {
+                    return window.localStorage.getItem(key) || 
+                           window.sessionStorage.getItem(key);
+                } catch (e) {
+                    console.warn('Storage access failed:', e);
+                    return null;
+                }
+            },
+            
+            setItem: function(key, value) {
+                // Try to set in both localStorage and sessionStorage
+                try {
+                    window.localStorage.setItem(key, value);
+                } catch (e) {
+                    console.warn('localStorage.setItem failed:', e);
+                }
+                
+                try {
+                    window.sessionStorage.setItem(key, value);
+                } catch (e) {
+                    console.warn('sessionStorage.setItem failed:', e);
+                }
+            },
+            
+            removeItem: function(key) {
+                // Remove from both
+                try {
+                    window.localStorage.removeItem(key);
+                    window.sessionStorage.removeItem(key);
+                } catch (e) {
+                    console.warn('Storage remove failed:', e);
+                }
+            }
+        };
+
         // DOM Elements
         const vinInput = document.getElementById('vinInput');
         const searchVinBtn = document.getElementById('searchVinBtn');
@@ -1448,8 +1499,8 @@
                     paymentVin.textContent = currentVin;
                     paymentSection.style.display = 'block';
                     
-                    // Store VIN in sessionStorage for later use
-                    sessionStorage.setItem('carUsed_vin', currentVin);
+                    // Store VIN in BrowserStorage for later use
+                    BrowserStorage.setItem('carUsed_vin', currentVin);
                     
                     // Show success message
                     showValidationMessage(vinCheck.message, 'valid');
@@ -1621,7 +1672,9 @@
 
         // Initialize
         window.onload = () => {
-            // Clear VIN input - don't auto-fill from sessionStorage
+            console.log('CarUsed homepage loaded');
+            
+            // Clear VIN input - don't auto-fill from BrowserStorage
             vinInput.value = '';
             
             // Hide payment section initially
@@ -1629,14 +1682,27 @@
             
             // Hide validation message initially
             hideValidationMessage();
+            
+            // Clear any old storage data when page loads (fresh start)
+            BrowserStorage.removeItem('carUsed_payment_completed');
+            
+            console.log('Browser storage check:');
+            console.log('- localStorage available:', BrowserStorage.isAvailable('local'));
+            console.log('- sessionStorage available:', BrowserStorage.isAvailable('session'));
         };
         
-        // Clear sessionStorage when user goes back to home page intentionally
+        // Clear storage when page is shown (back/forward navigation)
         window.addEventListener('pageshow', function(event) {
             // If the page is being shown from cache (back/forward navigation)
-            // Clear the VIN input field
-            vinInput.value = '';
-            hideValidationMessage();
+            if (event.persisted) {
+                console.log('Page shown from cache, clearing VIN input');
+                // Clear the VIN input field
+                vinInput.value = '';
+                hideValidationMessage();
+                
+                // Clear payment section
+                paymentSection.style.display = 'none';
+            }
         });
 
         // Set up Stripe button click handlers
@@ -1651,12 +1717,15 @@
                     const regularContainer = document.getElementById('stripe-button-container-regular');
                     if (regularContainer) {
                         regularContainer.addEventListener('click', function() {
-                            // Store the plan in sessionStorage when regular Stripe button is clicked
-                            const vin = sessionStorage.getItem('carUsed_vin') || currentVin;
+                            // Store the plan in BrowserStorage when regular Stripe button is clicked
+                            const vin = BrowserStorage.getItem('carUsed_vin') || currentVin;
                             if (vin) {
-                                sessionStorage.setItem('carUsed_plan', 'regular');
-                                sessionStorage.setItem('carUsed_vin', vin);
+                                BrowserStorage.setItem('carUsed_plan', 'regular');
+                                BrowserStorage.setItem('carUsed_vin', vin);
                                 console.log('Stripe button clicked for regular report, VIN:', vin);
+                                
+                                // Also store that payment is in progress
+                                BrowserStorage.setItem('carUsed_payment_in_progress', 'true');
                             }
                         });
                     }
@@ -1665,12 +1734,15 @@
                     const premiumContainer = document.getElementById('stripe-button-container-premium');
                     if (premiumContainer) {
                         premiumContainer.addEventListener('click', function() {
-                            // Store the plan in sessionStorage when premium Stripe button is clicked
-                            const vin = sessionStorage.getItem('carUsed_vin') || currentVin;
+                            // Store the plan in BrowserStorage when premium Stripe button is clicked
+                            const vin = BrowserStorage.getItem('carUsed_vin') || currentVin;
                             if (vin) {
-                                sessionStorage.setItem('carUsed_plan', 'premium');
-                                sessionStorage.setItem('carUsed_vin', vin);
+                                BrowserStorage.setItem('carUsed_plan', 'premium');
+                                BrowserStorage.setItem('carUsed_vin', vin);
                                 console.log('Stripe button clicked for premium report, VIN:', vin);
+                                
+                                // Also store that payment is in progress
+                                BrowserStorage.setItem('carUsed_payment_in_progress', 'true');
                             }
                         });
                     }
@@ -1679,12 +1751,15 @@
                     const premiumPricingContainer = document.getElementById('stripe-button-container-premium-pricing');
                     if (premiumPricingContainer) {
                         premiumPricingContainer.addEventListener('click', function() {
-                            // Store the plan in sessionStorage when premium pricing Stripe button is clicked
-                            const vin = sessionStorage.getItem('carUsed_vin') || currentVin;
+                            // Store the plan in BrowserStorage when premium pricing Stripe button is clicked
+                            const vin = BrowserStorage.getItem('carUsed_vin') || currentVin;
                             if (vin) {
-                                sessionStorage.setItem('carUsed_plan', 'premium');
-                                sessionStorage.setItem('carUsed_vin', vin);
+                                BrowserStorage.setItem('carUsed_plan', 'premium');
+                                BrowserStorage.setItem('carUsed_vin', vin);
                                 console.log('Stripe button clicked for premium report (pricing section), VIN:', vin);
+                                
+                                // Also store that payment is in progress
+                                BrowserStorage.setItem('carUsed_payment_in_progress', 'true');
                             }
                         });
                     }
@@ -1763,7 +1838,7 @@
                 }
             });
             
-            // Load any previous messages from localStorage
+            // Load any previous messages from BrowserStorage
             loadChatHistory();
         }
 
@@ -1898,7 +1973,7 @@
         // Save message to chat history
         function saveToChatHistory(userMessage, botResponse) {
             try {
-                let chatHistory = JSON.parse(localStorage.getItem('carUsedChatHistory') || '[]');
+                let chatHistory = JSON.parse(BrowserStorage.getItem('carUsedChatHistory') || '[]');
                 chatHistory.push({
                     user: userMessage,
                     bot: botResponse,
@@ -1910,16 +1985,16 @@
                     chatHistory = chatHistory.slice(-50);
                 }
                 
-                localStorage.setItem('carUsedChatHistory', JSON.stringify(chatHistory));
+                BrowserStorage.setItem('carUsedChatHistory', JSON.stringify(chatHistory));
             } catch (e) {
                 console.error('Error saving chat history:', e);
             }
         }
 
-        // Load chat history from localStorage
+        // Load chat history from BrowserStorage
         function loadChatHistory() {
             try {
-                const chatHistory = JSON.parse(localStorage.getItem('carUsedChatHistory') || '[]');
+                const chatHistory = JSON.parse(BrowserStorage.getItem('carUsedChatHistory') || '[]');
                 // We're not loading old messages by default, but the function is here if needed
             } catch (e) {
                 console.error('Error loading chat history:', e);
