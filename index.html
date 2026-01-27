@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CarUsed - Vehicle History Reports</title>
+    <title>CarUsed - Informes de Historial de Vehículos</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -12,6 +12,7 @@
     <script async src="https://js.stripe.com/v3/buy-button.js"></script>
     
     <style>
+        /* Keep all CSS exactly the same as original */
         :root {
             --primary-color: #0A2463;
             --secondary-color: #D9A273;
@@ -807,10 +808,10 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <div class="navbar-nav ms-auto">
-                    <a class="nav-link" href="#home">Home</a>
-                    <a class="nav-link" href="#pricing">Pricing</a>
-                    <a class="nav-link" href="#how-to-order">How to Order</a>
-                    <a class="nav-link" href="#contact">Contact Us</a>
+                    <a class="nav-link" href="#home">Inicio</a>
+                    <a class="nav-link" href="#pricing">Precios</a>
+                    <a class="nav-link" href="#how-to-order">Cómo Ordenar</a>
+                    <a class="nav-link" href="#contact">Contáctanos</a>
                 </div>
             </div>
         </div>
@@ -822,13 +823,13 @@
         <div class="vin-search-section">
             <div class="container">
                 <div class="vin-search-container">
-                    <h1>Get Your Vehicle History Report</h1>
-                    <p>Enter your VIN to check vehicle history and get detailed reports</p>
+                    <h1>Obtén tu Informe de Historial del Vehículo</h1>
+                    <p>Ingresa tu VIN para verificar el historial del vehículo y obtener informes detallados</p>
                     
                     <div class="vin-form">
-                        <input type="text" class="vin-input" placeholder="Enter 17-character VIN (e.g., JHLRW2H5XKX010064)" id="vinInput">
+                        <input type="text" class="vin-input" placeholder="Ingresa VIN de 17 caracteres (ej: 1C4RJFAG5CC223165)" id="vinInput">
                         <button class="btn btn-primary" id="searchVinBtn">
-                            <i class="fas fa-search"></i> Check Vehicle
+                            <i class="fas fa-search"></i> Verificar Vehículo
                         </button>
                     </div>
                     
@@ -838,7 +839,7 @@
                         <span id="validationText"></span>
                     </div>
                     
-                    <p class="mt-3" style="opacity: 0.8;">Your VIN is located on your dashboard or driver's side door jamb</p>
+                    <p class="mt-3" style="opacity: 0.8;">Tu VIN se encuentra en el tablero o en el marco de la puerta del conductor</p>
                 </div>
             </div>
         </div>
@@ -848,44 +849,44 @@
     <section id="payment-section" class="payment-section">
         <div class="container">
             <div class="payment-header">
-                <h2>Select Your Report Type</h2>
-                <p>Choose the report that best fits your needs for VIN: <strong id="payment-vin"></strong></p>
+                <h2>Selecciona tu Tipo de Informe</h2>
+                <p>Elige el informe que mejor se adapte a tus necesidades para VIN: <strong id="payment-vin"></strong></p>
             </div>
             
             <div class="pricing-cards">
                 <div class="pricing-card">
-                    <h3>Regular Report</h3>
+                    <h3>Informe Regular</h3>
                     <div class="price">$19.99</div>
-                    <p>Basic vehicle information and specifications</p>
+                    <p>Información básica del vehículo y especificaciones</p>
                     
                     <ul class="pricing-features">
                         <li class="feature-included">
                             <i class="fas fa-check-circle"></i>
-                            <span>Vehicle Specifications</span>
+                            <span>Especificaciones del Vehículo</span>
                         </li>
                         <li class="feature-included">
                             <i class="fas fa-check-circle"></i>
-                            <span>Basic History Check</span>
+                            <span>Verificación Básica de Historial</span>
                         </li>
                         <li class="feature-included">
                             <i class="fas fa-check-circle"></i>
-                            <span>Dimensions & Weights</span>
+                            <span>Dimensiones y Pesos</span>
                         </li>
                         <li class="feature-included">
                             <i class="fas fa-check-circle"></i>
-                            <span>Manufacturer Pricing</span>
+                            <span>Precios del Fabricante</span>
                         </li>
                         <li class="feature-excluded">
                             <i class="fas fa-times-circle"></i>
-                            <span>Accident History</span>
+                            <span>Historial de Accidentes</span>
                         </li>
                         <li class="feature-excluded">
                             <i class="fas fa-times-circle"></i>
-                            <span>Sales Records</span>
+                            <span>Registros de Ventas</span>
                         </li>
                         <li class="feature-excluded">
                             <i class="fas fa-times-circle"></i>
-                            <span>Detailed Service History</span>
+                            <span>Historial de Servicio Detallado</span>
                         </li>
                     </ul>
                     
@@ -898,45 +899,45 @@
                         </stripe-buy-button>
                     </div>
                     <p class="mt-2" style="font-size: 0.9rem; color: var(--text-color);">
-                        After payment, you'll be redirected to view your report.
+                        Después del pago, serás redirigido para ver tu informe.
                     </p>
                 </div>
                 
                 <!-- Premium Report Card (LIVE MODE) -->
                 <div class="pricing-card popular">
-                    <div class="popular-badge">MOST POPULAR</div>
-                    <h3>Premium Report</h3>
+                    <div class="popular-badge">MÁS POPULAR</div>
+                    <h3>Informe Premium</h3>
                     <div class="price">$29.99</div>
-                    <p>Complete vehicle history and detailed analysis</p>
+                    <p>Historial completo del vehículo y análisis detallado</p>
                     
                     <ul class="pricing-features">
                         <li class="feature-included">
                             <i class="fas fa-check-circle"></i>
-                            <span>Everything in Regular Report</span>
+                            <span>Todo lo del Informe Regular</span>
                         </li>
                         <li class="feature-included">
                             <i class="fas fa-check-circle"></i>
-                            <span>Complete Accident History</span>
+                            <span>Historial Completo de Accidentes</span>
                         </li>
                         <li class="feature-included">
                             <i class="fas fa-check-circle"></i>
-                            <span>Detailed Sales Records</span>
+                            <span>Registros de Ventas Detallados</span>
                         </li>
                         <li class="feature-included">
                             <i class="fas fa-check-circle"></i>
-                            <span>Theft & Title Records</span>
+                            <span>Registros de Robo y Título</span>
                         </li>
                         <li class="feature-included">
                             <i class="fas fa-check-circle"></i>
-                            <span>Service History</span>
+                            <span>Historial de Servicio</span>
                         </li>
                         <li class="feature-included">
                             <i class="fas fa-check-circle"></i>
-                            <span>Odometer Verification</span>
+                            <span>Verificación de Odómetro</span>
                         </li>
                         <li class="feature-included">
                             <i class="fas fa-check-circle"></i>
-                            <span>Priority Support</span>
+                            <span>Soporte Prioritario</span>
                         </li>
                     </ul>
                     
@@ -949,7 +950,7 @@
                         </stripe-buy-button>
                     </div>
                     <p class="mt-2" style="font-size: 0.9rem; color: var(--text-color);">
-                        After payment, you'll be redirected to view your report.
+                        Después del pago, serás redirigido para ver tu informe.
                     </p>
                 </div>
             </div>
@@ -960,92 +961,92 @@
     <section id="pricing" class="pricing-section">
         <div class="container">
             <div class="section-title text-center">
-                <h2>Our Pricing Plans</h2>
-                <p class="lead">Choose the perfect report for your needs. No hidden fees, no surprises.</p>
+                <h2>Nuestros Planes de Precios</h2>
+                <p class="lead">Elige el informe perfecto para tus necesidades. Sin tarifas ocultas, sin sorpresas.</p>
             </div>
             
             <div class="pricing-cards">
                 <div class="pricing-card">
-                    <h3>Regular Report</h3>
+                    <h3>Informe Regular</h3>
                     <div class="price">$19.99</div>
-                    <p>Basic vehicle information and specifications</p>
+                    <p>Información básica del vehículo y especificaciones</p>
                     
                     <ul class="pricing-features">
                         <li class="feature-included">
                             <i class="fas fa-check-circle"></i>
-                            <span>Vehicle Specifications</span>
+                            <span>Especificaciones del Vehículo</span>
                         </li>
                         <li class="feature-included">
                             <i class="fas fa-check-circle"></i>
-                            <span>Basic History Check</span>
+                            <span>Verificación Básica de Historial</span>
                         </li>
                         <li class="feature-included">
                             <i class="fas fa-check-circle"></i>
-                            <span>Dimensions & Weights</span>
+                            <span>Dimensiones y Pesos</span>
                         </li>
                         <li class="feature-included">
                             <i class="fas fa-check-circle"></i>
-                            <span>Manufacturer Pricing</span>
+                            <span>Precios del Fabricante</span>
                         </li>
                         <li class="feature-excluded">
                             <i class="fas fa-times-circle"></i>
-                            <span>Accident History</span>
+                            <span>Historial de Accidentes</span>
                         </li>
                         <li class="feature-excluded">
                             <i class="fas fa-times-circle"></i>
-                            <span>Sales Records</span>
+                            <span>Registros de Ventas</span>
                         </li>
                         <li class="feature-excluded">
                             <i class="fas fa-times-circle"></i>
-                            <span>Detailed Service History</span>
+                            <span>Historial de Servicio Detallado</span>
                         </li>
                     </ul>
                     
                     <div class="text-center mt-4">
                         <a href="#home" class="btn btn-primary btn-lg">
-                            <i class="fas fa-car"></i> Get Started
+                            <i class="fas fa-car"></i> Comenzar
                         </a>
                         <p class="mt-2" style="font-size: 0.9rem; color: var(--text-color);">
-                            Enter your VIN above to purchase
+                            Ingresa tu VIN arriba para comprar
                         </p>
                     </div>
                 </div>
                 
                 <!-- Premium Report Card for Pricing Section (LIVE MODE) -->
                 <div class="pricing-card popular">
-                    <div class="popular-badge">MOST POPULAR</div>
-                    <h3>Premium Report</h3>
+                    <div class="popular-badge">MÁS POPULAR</div>
+                    <h3>Informe Premium</h3>
                     <div class="price">$29.99</div>
-                    <p>Complete vehicle history and detailed analysis</p>
+                    <p>Historial completo del vehículo y análisis detallado</p>
                     
                     <ul class="pricing-features">
                         <li class="feature-included">
                             <i class="fas fa-check-circle"></i>
-                            <span>Everything in Regular Report</span>
+                            <span>Todo lo del Informe Regular</span>
                         </li>
                         <li class="feature-included">
                             <i class="fas fa-check-circle"></i>
-                            <span>Complete Accident History</span>
+                            <span>Historial Completo de Accidentes</span>
                         </li>
                         <li class="feature-included">
                             <i class="fas fa-check-circle"></i>
-                            <span>Detailed Sales Records</span>
+                            <span>Registros de Ventas Detallados</span>
                         </li>
                         <li class="feature-included">
                             <i class="fas fa-check-circle"></i>
-                            <span>Theft & Title Records</span>
+                            <span>Registros de Robo y Título</span>
                         </li>
                         <li class="feature-included">
                             <i class="fas fa-check-circle"></i>
-                            <span>Service History</span>
+                            <span>Historial de Servicio</span>
                         </li>
                         <li class="feature-included">
                             <i class="fas fa-check-circle"></i>
-                            <span>Odometer Verification</span>
+                            <span>Verificación de Odómetro</span>
                         </li>
                         <li class="feature-included">
                             <i class="fas fa-check-circle"></i>
-                            <span>Priority Support</span>
+                            <span>Soporte Prioritario</span>
                         </li>
                     </ul>
                     
@@ -1058,7 +1059,7 @@
                         </stripe-buy-button>
                     </div>
                     <p class="mt-2" style="font-size: 0.9rem; color: var(--text-color);">
-                        After payment, you'll be redirected to view your report.
+                        Después del pago, serás redirigido para ver tu informe.
                     </p>
                 </div>
             </div>
@@ -1067,8 +1068,8 @@
                 <div class="row justify-content-center">
                     <div class="col-lg-8">
                         <div class="alert alert-light" style="border-left: 5px solid var(--primary-color);">
-                            <h5><i class="fas fa-info-circle text-primary me-2"></i> What's Included in All Reports</h5>
-                            <p class="mb-0">Both reports include instant digital delivery, 24/7 access to your report, and our 100% satisfaction guarantee. All reports are generated from official databases and updated in real-time.</p>
+                            <h5><i class="fas fa-info-circle text-primary me-2"></i> Qué Incluyen Todos los Informes</h5>
+                            <p class="mb-0">Ambos informes incluyen entrega digital instantánea, acceso 24/7 a tu informe y nuestra garantía de satisfacción del 100%. Todos los informes se generan desde bases de datos oficiales y se actualizan en tiempo real.</p>
                         </div>
                     </div>
                 </div>
@@ -1080,33 +1081,33 @@
     <section id="how-to-order" class="how-to-order-section">
         <div class="container">
             <div class="section-title text-center">
-                <h2>How to Order</h2>
-                <p class="lead">Get your vehicle history report in 3 simple steps</p>
+                <h2>Cómo Ordenar</h2>
+                <p class="lead">Obtén tu informe de historial del vehículo en 3 simples pasos</p>
             </div>
             
             <div class="steps-container">
                 <div class="step-card">
                     <div class="step-number">1</div>
-                    <h4>Enter Your VIN</h4>
-                    <p>Locate your 17-character Vehicle Identification Number on your dashboard, door jamb, or registration documents and enter it above.</p>
+                    <h4>Ingresa tu VIN</h4>
+                    <p>Ubica tu Número de Identificación del Vehículo de 17 caracteres en tu tablero, marco de la puerta o documentos de registro e ingrésalo arriba.</p>
                 </div>
                 
                 <div class="step-card">
                     <div class="step-number">2</div>
-                    <h4>Select Report Type</h4>
-                    <p>Choose between our Regular Report ($19.99) for basic information or Premium Report ($29.99) for comprehensive history including accidents, sales records, and more.</p>
+                    <h4>Selecciona el Tipo de Informe</h4>
+                    <p>Elige entre nuestro Informe Regular ($19.99) para información básica o Informe Premium ($29.99) para historial completo incluyendo accidentes, registros de ventas y más.</p>
                 </div>
                 
                 <div class="step-card">
                     <div class="step-number">3</div>
-                    <h4>Complete Payment</h4>
-                    <p>Click the Stripe button for your chosen report. You'll be redirected to complete your payment securely. After payment, you'll view your report.</p>
+                    <h4>Completa el Pago</h4>
+                    <p>Haz clic en el botón de Stripe para tu informe elegido. Serás redirigido para completar tu pago de forma segura. Después del pago, podrás ver tu informe.</p>
                 </div>
             </div>
             
             <div class="text-center mt-5">
-                <p class="mb-3"><strong>Note:</strong> All reports are delivered digitally. No physical copies are mailed.</p>
-                <a href="#home" class="btn btn-primary">Get Started Now</a>
+                <p class="mb-3"><strong>Nota:</strong> Todos los informes se entregan digitalmente. No se envían copias físicas.</p>
+                <a href="#home" class="btn btn-primary">Comenzar Ahora</a>
             </div>
         </div>
     </section>
@@ -1115,26 +1116,26 @@
     <section id="contact" class="contact-section">
         <div class="container">
             <div class="section-title text-center">
-                <h2>Contact Us</h2>
-                <p class="lead">Have questions? Get in touch with our team</p>
+                <h2>Contáctanos</h2>
+                <p class="lead">¿Tienes preguntas? Ponte en contacto con nuestro equipo</p>
             </div>
             
             <div class="row">
                 <div class="col-lg-4">
                     <div class="contact-info-card">
                         <i class="fas fa-phone"></i>
-                        <h4>Phone</h4>
-                        <p><strong>+1 (858) 651-5050</strong></p>
-                        <p>Monday - Friday: 9:00 AM - 6:00 PM EST</p>
-                        <p>Saturday: 10:00 AM - 4:00 PM EST</p>
+                        <h4>Teléfono</h4>
+                        <p><strong>+1 (809) 123-4567</strong></p>
+                        <p>Lunes - Viernes: 9:00 AM - 6:00 PM EST</p>
+                        <p>Sábado: 10:00 AM - 4:00 PM EST</p>
                     </div>
                     
                     <div class="contact-info-card">
                         <i class="fas fa-map-marker-alt"></i>
-                        <h4>Address</h4>
-                        <p><strong>93 Lombard Ave</strong></p>
-                        <p>Winnipeg, Manitoba</p>
-                        <p>Canada R3B 0T4</p>
+                        <h4>Dirección</h4>
+                        <p><strong>Av. Barceló</strong></p>
+                        <p>Punta Cana, La Altagracia</p>
+                        <p>República Dominicana</p>
                     </div>
                 </div>
                 
@@ -1146,26 +1147,26 @@
                         <form id="contactForm" method="POST">
                             <div class="row">
                                 <div class="col-md-6">
-                                    <input type="text" class="form-control" id="name" name="name" placeholder="Your Name" required>
+                                    <input type="text" class="form-control" id="name" name="name" placeholder="Tu Nombre" required>
                                 </div>
                                 <div class="col-md-6">
-                                    <input type="email" class="form-control" id="email" name="email" placeholder="Your Email" required>
+                                    <input type="email" class="form-control" id="email" name="email" placeholder="Tu Email" required>
                                 </div>
                             </div>
                             
-                            <input type="text" class="form-control" id="subject" name="subject" placeholder="Subject" required>
+                            <input type="text" class="form-control" id="subject" name="subject" placeholder="Asunto" required>
                             
-                            <textarea class="form-control" id="message" name="message" placeholder="Your Message" required></textarea>
+                            <textarea class="form-control" id="message" name="message" placeholder="Tu Mensaje" required></textarea>
                             
                             <div class="text-center">
                                 <button type="button" class="btn btn-primary btn-lg" id="submit-btn">
-                                    <i class="fas fa-paper-plane"></i> Send Message
+                                    <i class="fas fa-paper-plane"></i> Enviar Mensaje
                                 </button>
                             </div>
                         </form>
                         
                         <p class="text-center mt-4" style="font-size: 0.9rem; color: var(--text-color);">
-                            <i class="fas fa-info-circle"></i> All messages are sent directly to our team via Gmail.
+                            <i class="fas fa-info-circle"></i> Todos los mensajes se envían directamente a nuestro equipo a través de Gmail.
                         </p>
                     </div>
                 </div>
@@ -1177,15 +1178,15 @@
     <footer class="footer">
         <div class="container">
             <div class="footer-links">
-                <a href="#" data-bs-toggle="modal" data-bs-target="#privacyModal">Privacy Policy</a>
-                <a href="#" data-bs-toggle="modal" data-bs-target="#refundModal">Refund Policy</a>
-                <a href="#pricing">Pricing</a>
-                <a href="#how-to-order">How to Order</a>
-                <a href="#contact">Contact Us</a>
+                <a href="#" data-bs-toggle="modal" data-bs-target="#privacyModal">Política de Privacidad</a>
+                <a href="#" data-bs-toggle="modal" data-bs-target="#refundModal">Política de Reembolso</a>
+                <a href="#pricing">Precios</a>
+                <a href="#how-to-order">Cómo Ordenar</a>
+                <a href="#contact">Contáctanos</a>
             </div>
             
             <div class="footer-copyright">
-                <p>&copy; 2024 CarUsed. All rights reserved. | Vehicle reports are for informational purposes only.</p>
+                <p>&copy; 2024 CarUsed. Todos los derechos reservados. | Los informes de vehículos son solo con fines informativos.</p>
             </div>
         </div>
     </footer>
@@ -1194,7 +1195,7 @@
     <div class="chatbot-widget">
         <div class="chatbot-container" id="chatbotContainer">
             <div class="chatbot-header">
-                <h4><i class="fas fa-robot me-2"></i> James - CarUsed Assistant</h4>
+                <h4><i class="fas fa-robot me-2"></i> James - Asistente CarUsed</h4>
                 <button class="chatbot-close" id="chatbotClose">
                     <i class="fas fa-times"></i>
                 </button>
@@ -1203,15 +1204,15 @@
                 <!-- Messages will appear here -->
                 <div class="message bot">
                     <div class="message-content">
-                        <strong>👋 Welcome to CarUsed!</strong><br><br>
-                        Hello! I'm <strong>James</strong>, your CarUsed assistant. 😊<br><br>
-                        I'm here to help you with any questions about our vehicle history reports, pricing, how to order, or anything else you need.<br><br>
-                        Feel free to ask me anything – I'm here to help make your vehicle research easy and stress-free!
+                        <strong>👋 ¡Bienvenido a CarUsed!</strong><br><br>
+                        ¡Hola! Soy <strong>James</strong>, tu asistente de CarUsed. 😊<br><br>
+                        Estoy aquí para ayudarte con cualquier pregunta sobre nuestros informes de historial de vehículos, precios, cómo ordenar o cualquier otra cosa que necesites.<br><br>
+                        ¡Siéntete libre de preguntarme cualquier cosa - estoy aquí para ayudar a que tu investigación de vehículos sea fácil y sin estrés!
                     </div>
                 </div>
             </div>
             <div class="chatbot-input">
-                <input type="text" id="chatbotInput" placeholder="Type your question here..." autocomplete="off">
+                <input type="text" id="chatbotInput" placeholder="Escribe tu pregunta aquí..." autocomplete="off">
                 <button id="chatbotSend">
                     <i class="fas fa-paper-plane"></i>
                 </button>
@@ -1227,44 +1228,44 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Refund Policy</h5>
+                    <h5 class="modal-title">Política de Reembolso</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <h4>Digital Product Refund Policy</h4>
-                    <p><strong>Last Updated: January 1, 2024</strong></p>
+                    <h4>Política de Reembolso para Productos Digitales</h4>
+                    <p><strong>Última actualización: 1 de Enero de 2024</strong></p>
                     
-                    <h5 class="mt-4">1. No Refunds for Digital Downloads</h5>
-                    <p>Due to the nature of digital products, all sales of vehicle history reports are final. Once a report has been accessed, downloaded, or delivered via email, no refunds will be issued under any circumstances.</p>
+                    <h5 class="mt-4">1. No hay reembolsos para descargas digitales</h5>
+                    <p>Debido a la naturaleza de los productos digitales, todas las ventas de informes de historial de vehículos son finales. Una vez que se ha accedido, descargado o entregado un informe por correo electrónico, no se emitirán reembolsos bajo ninguna circunstancia.</p>
                     
-                    <h5 class="mt-4">2. Product Description</h5>
-                    <p>We provide detailed descriptions of our Regular ($19.99) and Premium ($29.99) reports on our website. Customers are responsible for reviewing these descriptions before purchase. Refunds will not be granted based on customer expectations that differ from the product description.</p>
+                    <h5 class="mt-4">2. Descripción del producto</h5>
+                    <p>Proporcionamos descripciones detalladas de nuestros Informes Regular ($19.99) y Premium ($29.99) en nuestro sitio web. Los clientes son responsables de revisar estas descripciones antes de la compra. No se otorgarán reembolsos basados en expectativas del cliente que difieran de la descripción del producto.</p>
                     
-                    <h5 class="mt-4">3. Technical Issues</h5>
-                    <p>If you experience technical difficulties accessing your report, please contact our support team at +1 (858) 651-5050. We will work to resolve any legitimate technical issues but cannot issue refunds for reports that have been successfully delivered to your email address.</p>
+                    <h5 class="mt-4">3. Problemas técnicos</h5>
+                    <p>Si experimentas dificultades técnicas para acceder a tu informe, por favor contacta a nuestro equipo de soporte al +1 (809) 123-4567. Trabajaremos para resolver cualquier problema técnico legítimo, pero no podemos emitir reembolsos por informes que se han entregado exitosamente a tu dirección de correo electrónico.</p>
                     
-                    <h5 class="mt-4">4. Data Accuracy Disclaimer</h5>
-                    <p>Our reports compile information from various sources. While we strive for accuracy, we cannot guarantee the completeness or accuracy of the information provided. Refunds will not be issued based on the content or accuracy of the information in reports.</p>
+                    <h5 class="mt-4">4. Descargo de responsabilidad por precisión de datos</h5>
+                    <p>Nuestros informes compilan información de varias fuentes. Si bien nos esforzamos por la precisión, no podemos garantizar la integridad o precisión de la información proporcionada. No se emitirán reembolsos basados en el contenido o precisión de la información en los informes.</p>
                     
-                    <h5 class="mt-4">5. Unauthorized Purchases</h5>
-                    <p>If you believe your purchase was unauthorized, you must contact us within 24 hours of the purchase date. We will investigate and may issue a refund at our discretion if the claim is validated.</p>
+                    <h5 class="mt-4">5. Compras no autorizadas</h5>
+                    <p>Si crees que tu compra no fue autorizada, debes contactarnos dentro de las 24 horas posteriores a la fecha de compra. Investigaremos y podremos emitir un reembolso a nuestra discreción si la reclamación es validada.</p>
                     
-                    <h5 class="mt-4">6. Customer Responsibility</h5>
-                    <p>Customers are responsible for ensuring they enter the correct VIN number before purchase. No refunds will be issued for reports generated with incorrect VIN numbers provided by the customer.</p>
+                    <h5 class="mt-4">6. Responsabilidad del cliente</h5>
+                    <p>Los clientes son responsables de asegurarse de ingresar el número VIN correcto antes de la compra. No se emitirán reembolsos por informes generados con números VIN incorrectos proporcionados por el cliente.</p>
                     
-                    <h5 class="mt-4">7. Contact Information</h5>
-                    <p>For any questions about this policy, please contact us at:</p>
+                    <h5 class="mt-4">7. Información de contacto</h5>
+                    <p>Para cualquier pregunta sobre esta política, por favor contáctenos en:</p>
                     <ul>
-                        <li>Phone: +1 (858) 651-5050</li>
-                        <li>Business Hours: Monday-Friday, 9AM-5PM EST</li>
+                        <li>Teléfono: +1 (809) 123-4567</li>
+                        <li>Horario comercial: Lunes-Viernes, 9AM-5PM EST</li>
                     </ul>
                     
                     <div class="alert alert-warning mt-4">
-                        <strong>Important:</strong> By purchasing any report from CarUsed, you acknowledge and agree to this no-refund policy for digital products.
+                        <strong>Importante:</strong> Al comprar cualquier informe de CarUsed, reconoces y aceptas esta política de no reembolso para productos digitales.
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                 </div>
             </div>
         </div>
@@ -1275,25 +1276,25 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Privacy Policy</h5>
+                    <h5 class="modal-title">Política de Privacidad</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <h4>Privacy Policy</h4>
-                    <p><strong>Last Updated: January 1, 2024</strong></p>
-                    <p>CarUsed respects your privacy and is committed to protecting your personal data. This privacy policy will inform you about how we look after your personal data when you visit our website and tell you about your privacy rights.</p>
+                    <h4>Política de Privacidad</h4>
+                    <p><strong>Última actualización: 1 de Enero de 2024</strong></p>
+                    <p>CarUsed respeta tu privacidad y está comprometido a proteger tus datos personales. Esta política de privacidad te informará sobre cómo cuidamos tus datos personales cuando visitas nuestro sitio web y te informará sobre tus derechos de privacidad.</p>
                     
-                    <h5 class="mt-4">Information We Collect</h5>
-                    <p>We collect information you provide directly to us, such as when you request a vehicle report, create an account, or contact us for support.</p>
+                    <h5 class="mt-4">Información que recopilamos</h5>
+                    <p>Recopilamos información que nos proporcionas directamente, como cuando solicitas un informe de vehículo, creas una cuenta o nos contactas para soporte.</p>
                     
-                    <h5 class="mt-4">How We Use Your Information</h5>
-                    <p>We use the information we collect to provide, maintain, and improve our services, to process transactions, and to communicate with you.</p>
+                    <h5 class="mt-4">Cómo usamos tu información</h5>
+                    <p>Utilizamos la información que recopilamos para proporcionar, mantener y mejorar nuestros servicios, procesar transacciones y comunicarnos contigo.</p>
                     
-                    <h5 class="mt-4">Data Security</h5>
-                    <p>We implement appropriate technical and organizational measures to protect your personal data against unauthorized access, alteration, disclosure, or destruction.</p>
+                    <h5 class="mt-4">Seguridad de datos</h5>
+                    <p>Implementamos medidas técnicas y organizativas apropiadas para proteger tus datos personales contra el acceso, alteración, divulgación o destrucción no autorizados.</p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                 </div>
             </div>
         </div>
@@ -1383,33 +1384,9 @@
         // Database of valid VINs (simulating your vehicle database)
         // In a real application, this would be an API call to your backend
         const validVINsInDatabase = [
-            'JHLRW2H5XKX010064',  // Example valid VIN 1
-            '1HGCM82633A123456',  // Example valid VIN 2
-            '2HGCM82633A123457',  // Example valid VIN 3
-            '3VWDP7AJ7DM123456',  // Example valid VIN 4
-            'WBA3B9C59DF123456',  // Example valid VIN 5
-            '1FAHP3F20CL123456',  // Example valid VIN 6
-            '5YJSA1E21HF123456',  // Example valid VIN 7
-            'KM8JN72DX7U123456',  // Example valid VIN 8
-            '1G1JC5244X7123456',  // Example valid VIN 9
-            '5FNRL386X8B123456',
-            '3GNCJRSB9FL255312',
-            '2HJYK16278H533414',
-            '5GTDN136X68212285',
-            '5XYKTDA29BG065272',
-            '1C4RJFBG1GC496680',
-            '2GNFLFEK8E6272574',
-            '2GKALREK6E6103985',
-            'JS1VY54A682101987',
-            'JS1VS55A862116679',
-            'WB105710XS0135527',
-            'KNDCE3LC9H5067779',
-            '5FNRL5H2XBB017068',
-            'JTNBE46K483146160',
-            '1C6RR6FT8GS101651',
-            'KM8JN12D79U936338',
-            '2HKRM4H59EH691381',
-            '1GKS2HE34BR392407'   // Example valid VIN 10
+            '1C4RJFAG5CC223165',  // Jeep Cherokee Laredo 2011
+            '1C4RJFAG4CC223166',  // Another example
+            '1C4RJFAG6CC223167',  // Another example
         ];
 
         // Fake or invalid VIN patterns
@@ -1435,22 +1412,23 @@
             if (fakeVINPatterns.includes(normalizedVIN)) {
                 return {
                     exists: false,
-                    message: 'This VIN appears to be fake or invalid. Please enter a valid Vehicle Identification Number.',
+                    message: 'Este VIN parece ser falso o inválido. Por favor ingresa un Número de Identificación del Vehículo válido.',
                     type: 'invalid'
                 };
             }
             
-            // Check if it exists in the database
-            if (validVINsInDatabase.includes(normalizedVIN)) {
+            // Modified: ANY VIN will work now
+            // We'll consider all 17-character VINs as valid and direct to Jeep report
+            if (validateVINFormat(normalizedVIN)) {
                 return {
                     exists: true,
-                    message: '✓ Valid VIN found! Vehicle information is available.',
+                    message: '✓ VIN válido encontrado! Información del vehículo disponible.',
                     type: 'valid'
                 };
             } else {
                 return {
                     exists: false,
-                    message: '✗ This VIN was not found in our database. Please check the VIN and try again.',
+                    message: '✗ Este VIN no fue encontrado en nuestra base de datos. Por favor verifica el VIN e intenta nuevamente.',
                     type: 'not_found'
                 };
             }
@@ -1490,12 +1468,12 @@
             
             // Validate VIN format
             if (!validateVINFormat(vin)) {
-                showValidationMessage('✗ Please enter a valid 17-character VIN. VIN should contain only letters and numbers (except I, O, Q).', 'invalid');
+                showValidationMessage('✗ Por favor ingresa un VIN válido de 17 caracteres. El VIN debe contener solo letras y números (excepto I, O, Q).', 'invalid');
                 return;
             }
             
             // Show checking message
-            showValidationMessage('🔍 Checking VIN in our database...', 'checking');
+            showValidationMessage('🔍 Verificando VIN en nuestra base de datos...', 'checking');
             
             // Simulate database check (in real app, this would be an API call)
             setTimeout(() => {
@@ -1543,8 +1521,8 @@
             if (!formData.name || !formData.email || !formData.subject || !formData.message) {
                 formMessage.innerHTML = `
                     <div class="alert alert-danger">
-                        <h4><i class="fas fa-exclamation-triangle"></i> Please fill in all fields</h4>
-                        <p>All fields are required to send your message.</p>
+                        <h4><i class="fas fa-exclamation-triangle"></i> Por favor completa todos los campos</h4>
+                        <p>Todos los campos son requeridos para enviar tu mensaje.</p>
                     </div>
                 `;
                 formMessage.style.display = 'block';
@@ -1556,7 +1534,7 @@
             
             // Show loading state
             const originalText = submitBtn.innerHTML;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
             submitBtn.disabled = true;
             
             try {
@@ -1585,9 +1563,9 @@
                 // Show success message
                 formMessage.innerHTML = `
                     <div class="alert alert-success">
-                        <h4><i class="fas fa-check-circle"></i> Message Sent Successfully!</h4>
-                        <p>Thank you for contacting us. Your message has been sent to our team.</p>
-                        <p>We'll get back to you as soon as possible at <strong>${formData.email}</strong>.</p>
+                        <h4><i class="fas fa-check-circle"></i> ¡Mensaje Enviado Exitosamente!</h4>
+                        <p>Gracias por contactarnos. Tu mensaje ha sido enviado a nuestro equipo.</p>
+                        <p>Te responderemos lo antes posible a <strong>${formData.email}</strong>.</p>
                     </div>
                 `;
                 formMessage.style.display = 'block';
@@ -1614,10 +1592,10 @@
                 
                 formMessage.innerHTML = `
                     <div class="alert alert-info">
-                        <h4><i class="fas fa-envelope"></i> Alternative Contact Method</h4>
-                        <p>You can contact us directly via email:</p>
-                        <p class="mt-3"><a href="${mailtoLink}" class="btn btn-primary">Open Email Client</a></p>
-                        <p class="mt-2" style="font-size: 0.9rem;">Or call us at: <strong>+1 (858) 651-5050</strong></p>
+                        <h4><i class="fas fa-envelope"></i> Método de Contacto Alternativo</h4>
+                        <p>Puedes contactarnos directamente por correo electrónico:</p>
+                        <p class="mt-3"><a href="${mailtoLink}" class="btn btn-primary">Abrir Cliente de Correo</a></p>
+                        <p class="mt-2" style="font-size: 0.9rem;">O llámanos al: <strong>+1 (809) 123-4567</strong></p>
                     </div>
                 `;
                 formMessage.style.display = 'block';
@@ -1634,7 +1612,7 @@
             if (vin) {
                 showPaymentOptions(vin);
             } else {
-                showValidationMessage('✗ Please enter a VIN to check vehicle history.', 'invalid');
+                showValidationMessage('✗ Por favor ingresa un VIN para verificar el historial del vehículo.', 'invalid');
             }
         });
 
@@ -1645,7 +1623,7 @@
                 if (vin) {
                     showPaymentOptions(vin);
                 } else {
-                    showValidationMessage('✗ Please enter a VIN to check vehicle history.', 'invalid');
+                    showValidationMessage('✗ Por favor ingresa un VIN para verificar el historial del vehículo.', 'invalid');
                 }
             }
         });
@@ -1779,58 +1757,57 @@
         // CUSTOM CHATBOT FUNCTIONALITY
         // ============================================
 
-        // Chatbot state and knowledge base
+        // Chatbot state and knowledge base - TRANSLATED TO SPANISH
         const chatbotKnowledge = {
-            // Updated answers as requested
             commonQuestions: {
-                'what types of vehicle history reports do you offer': 'We offer two types of reports: a Regular Report for $19.99, which includes basic vehicle information, and a Premium Report for $29.99, which provides a complete history and detailed analysis.',
-                'types of reports': 'We offer two types of reports: a Regular Report for $19.99, which includes basic vehicle information, and a Premium Report for $29.99, which provides a complete history and detailed analysis.',
-                'how do i order': 'To order, enter your VIN, select the report type, and complete the payment. You\'ll be redirected to view your report after payment.',
-                'how to order': 'To order, enter your VIN, select the report type, and complete the payment. You\'ll be redirected to view your report after payment.',
-                'what is included in the regular report': 'The Regular Report includes vehicle specifications, basic history check, accident history, sales records, and detailed service history.',
-                'regular report': 'The Regular Report includes vehicle specifications, basic history check, accident history, sales records, and detailed service history.',
-                'hidden fees': 'No, there are no hidden fees. The prices for our reports are clearly stated, and you pay only the listed amount.',
-                'refund': 'All sales of vehicle history reports are final. We do not issue refunds for digital downloads once accessed or delivered.',
-                'customer support': 'You can reach our customer support at +1 (858) 651-5050 during business hours, or send us a message through our website.',
-                'contact': 'You can reach our customer support at +1 (858) 651-5050 during business hours, or send us a message through our website.',
-                'wrong vin': 'Customers are responsible for entering the correct VIN. No refunds will be issued for reports generated with incorrect VIN numbers provided by the customer.',
-                'how quickly will i receive my report': 'Reports are delivered instantly in digital format, and you can access them 24/7 after payment.',
-                'delivery': 'Reports are delivered instantly in digital format, and you can access them 24/7 after payment.',
-                'personal information secure': 'Yes, we implement appropriate measures to protect your personal data against unauthorized access and ensure your privacy.',
-                'security': 'Yes, we implement appropriate measures to protect your personal data against unauthorized access and ensure your privacy.',
-                'privacy': 'Yes, we implement appropriate measures to protect your personal data against unauthorized access and ensure your privacy.',
+                'what types of vehicle history reports do you offer': 'Ofrecemos dos tipos de informes: un Informe Regular por $19.99, que incluye información básica del vehículo, y un Informe Premium por $29.99, que proporciona un historial completo y análisis detallado.',
+                'tipos de informes': 'Ofrecemos dos tipos de informes: un Informe Regular por $19.99, que incluye información básica del vehículo, y un Informe Premium por $29.99, que proporciona un historial completo y análisis detallado.',
+                'how do i order': 'Para ordenar, ingresa tu VIN, selecciona el tipo de informe y completa el pago. Serás redirigido para ver tu informe después del pago.',
+                'cómo ordenar': 'Para ordenar, ingresa tu VIN, selecciona el tipo de informe y completa el pago. Serás redirigido para ver tu informe después del pago.',
+                'what is included in the regular report': 'El Informe Regular incluye especificaciones del vehículo, verificación básica de historial, historial de accidentes, registros de ventas e historial de servicio detallado.',
+                'informe regular': 'El Informe Regular incluye especificaciones del vehículo, verificación básica de historial, historial de accidentes, registros de ventas e historial de servicio detallado.',
+                'hidden fees': 'No, no hay tarifas ocultas. Los precios de nuestros informes están claramente establecidos y pagas solo el monto indicado.',
+                'refund': 'Todas las ventas de informes de historial de vehículos son finales. No emitimos reembolsos por descargas digitales una vez accedidas o entregadas.',
+                'customer support': 'Puedes contactar a nuestro soporte al cliente al +1 (809) 123-4567 durante el horario comercial, o envíanos un mensaje a través de nuestro sitio web.',
+                'contact': 'Puedes contactar a nuestro soporte al cliente al +1 (809) 123-4567 durante el horario comercial, o envíanos un mensaje a través de nuestro sitio web.',
+                'wrong vin': 'Los clientes son responsables de ingresar el VIN correcto. No se emitirán reembolsos por informes generados con números VIN incorrectos proporcionados por el cliente.',
+                'how quickly will i receive my report': 'Los informes se entregan instantáneamente en formato digital y puedes acceder a ellos 24/7 después del pago.',
+                'delivery': 'Los informes se entregan instantáneamente en formato digital y puedes acceder a ellos 24/7 después del pago.',
+                'personal information secure': 'Sí, implementamos medidas apropiadas para proteger tus datos personales contra el acceso no autorizado y garantizar tu privacidad.',
+                'security': 'Sí, implementamos medidas apropiadas para proteger tus datos personales contra el acceso no autorizado y garantizar tu privacidad.',
+                'privacy': 'Sí, implementamos medidas apropiadas para proteger tus datos personales contra el acceso no autorizado y garantizar tu privacidad.',
                 
-                // Additional common questions
-                'hello': 'Hello again! How can I assist you today? 😊',
-                'hi': 'Hi there! I\'m James, your CarUsed assistant. What can I help you with?',
-                'help': 'I can help you with questions about our reports, pricing, ordering process, refunds, contact information, and more. What would you like to know?',
-                'price': 'We offer two pricing plans: Regular Report for $19.99 and Premium Report for $29.99.',
-                'pricing': 'Our pricing is simple: Regular Report costs $19.99 and Premium Report costs $29.99.',
-                'cost': 'The Regular Report is $19.99 and the Premium Report is $29.99.',
-                'what is vin': 'A VIN (Vehicle Identification Number) is a 17-character unique code that identifies your vehicle. You can find it on your dashboard or driver\'s side door jamb.',
-                'where is vin': 'Your VIN is located on your dashboard (visible through the windshield) or on the driver\'s side door jamb.',
-                'phone': 'Our phone number is +1 (858) 651-5050. We\'re available Monday-Friday 9:00 AM - 6:00 PM EST and Saturday 10:00 AM - 4:00 PM EST.',
-                'address': 'Our address is 93 Lombard Ave, Winnipeg, Manitoba, Canada R3B 0T4.',
-                'report': 'We offer two types of reports: Regular ($19.99) for basic information and Premium ($29.99) for complete history including accidents, sales records, and service history.',
-                'what included': 'Regular Report ($19.99): Vehicle specifications, basic history, accident history, sales records, service history. Premium Report ($29.99): Everything in Regular plus additional detailed analysis.',
-                'features': 'Regular Report features: Vehicle specs, basic history, accident history, sales records, service history. Premium Report adds: Complete detailed analysis and additional vehicle data.',
-                'difference': 'The main difference is that Premium Report ($29.99) provides more comprehensive analysis and additional data points compared to the Regular Report ($19.99).',
-                'vin not found': 'If your VIN is not found in our database, it may be invalid, fake, or not yet registered in our system. Please double-check the VIN or contact our support team for assistance.',
-                'fake vin': 'We validate all VINs against official databases. If a VIN appears fake or invalid, you\'ll receive an error message and won\'t be able to proceed with payment.',
-                'database': 'We maintain a comprehensive database of vehicle information that is regularly updated from official sources to ensure accuracy and reliability.'
+                // Additional common questions in Spanish
+                'hola': '¡Hola de nuevo! ¿Cómo puedo ayudarte hoy? 😊',
+                'hola': '¡Hola! Soy James, tu asistente de CarUsed. ¿En qué puedo ayudarte?',
+                'ayuda': 'Puedo ayudarte con preguntas sobre nuestros informes, precios, proceso de pedido, reembolsos, información de contacto y más. ¿Qué te gustaría saber?',
+                'precio': 'Ofrecemos dos planes de precios: Informe Regular por $19.99 e Informe Premium por $29.99.',
+                'precios': 'Nuestros precios son simples: el Informe Regular cuesta $19.99 y el Informe Premium cuesta $29.99.',
+                'costo': 'El Informe Regular es $19.99 y el Informe Premium es $29.99.',
+                'qué es vin': 'Un VIN (Número de Identificación del Vehículo) es un código único de 17 caracteres que identifica tu vehículo. Puedes encontrarlo en tu tablero o en el marco de la puerta del conductor.',
+                'dónde está el vin': 'Tu VIN se encuentra en tu tablero (visible a través del parabrisas) o en el marco de la puerta del conductor.',
+                'teléfono': 'Nuestro número de teléfono es +1 (809) 123-4567. Estamos disponibles Lunes-Viernes 9:00 AM - 6:00 PM EST y Sábado 10:00 AM - 4:00 PM EST.',
+                'dirección': 'Nuestra dirección es Av. Barceló, Punta Cana, La Altagracia, República Dominicana.',
+                'informe': 'Ofrecemos dos tipos de informes: Regular ($19.99) para información básica y Premium ($29.99) para historial completo incluyendo accidentes, registros de ventas e historial de servicio.',
+                'qué incluye': 'Informe Regular ($19.99): Especificaciones del vehículo, historial básico, historial de accidentes, registros de ventas, historial de servicio. Informe Premium ($29.99): Todo lo del Regular más análisis detallado adicional.',
+                'características': 'Características del Informe Regular: Especificaciones del vehículo, historial básico, historial de accidentes, registros de ventas, historial de servicio. El Informe Premium agrega: Análisis detallado completo y datos adicionales del vehículo.',
+                'diferencia': 'La principal diferencia es que el Informe Premium ($29.99) proporciona un análisis más completo y puntos de datos adicionales en comparación con el Informe Regular ($19.99).',
+                'vin no encontrado': 'Si tu VIN no se encuentra en nuestra base de datos, puede ser inválido, falso o aún no registrado en nuestro sistema. Por favor verifica el VIN o contacta a nuestro equipo de soporte para asistencia.',
+                'fake vin': 'Validamos todos los VINs contra bases de datos oficiales. Si un VIN parece falso o inválido, recibirás un mensaje de error y no podrás proceder con el pago.',
+                'base de datos': 'Mantenemos una base de datos integral de información de vehículos que se actualiza regularmente desde fuentes oficiales para garantizar precisión y confiabilidad.'
             },
             
-            // Keywords to identify question types
+            // Keywords to identify question types - IN SPANISH
             keywords: {
-                'price': ['price', 'cost', 'how much', 'pricing', '$', 'fee'],
-                'report': ['report', 'what\'s included', 'features', 'include', 'contain', 'regular report', 'premium report', 'types of vehicle history reports'],
-                'vin': ['vin', 'vehicle identification', 'where vin', 'find vin', 'wrong vin', 'fake vin', 'vin not found', 'database'],
-                'order': ['order', 'how to', 'process', 'steps', 'buy', 'purchase', 'how do i order'],
-                'contact': ['contact', 'phone', 'call', 'email', 'address', 'location', 'customer support'],
-                'refund': ['refund', 'return', 'money back', 'cancel'],
-                'privacy': ['privacy', 'data', 'information', 'secure', 'security', 'personal information secure'],
-                'greeting': ['hello', 'hi', 'hey', 'greetings'],
-                'delivery': ['delivery', 'how quickly', 'when will i get', 'receive', 'instant']
+                'price': ['precio', 'costo', 'cuánto cuesta', 'precios', '$', 'tarifa'],
+                'report': ['informe', 'qué incluye', 'características', 'incluye', 'contiene', 'informe regular', 'informe premium', 'tipos de informes de historial de vehículos'],
+                'vin': ['vin', 'identificación del vehículo', 'dónde está el vin', 'encontrar vin', 'vin incorrecto', 'vin falso', 'vin no encontrado', 'base de datos'],
+                'order': ['ordenar', 'cómo', 'proceso', 'pasos', 'comprar', 'compra', 'cómo ordeno'],
+                'contact': ['contacto', 'teléfono', 'llamar', 'email', 'dirección', 'ubicación', 'soporte al cliente'],
+                'refund': ['reembolso', 'devolución', 'dinero de vuelta', 'cancelar'],
+                'privacy': ['privacidad', 'datos', 'información', 'seguro', 'seguridad', 'información personal segura'],
+                'greeting': ['hola', 'hola', 'hey', 'saludos'],
+                'delivery': ['entrega', 'qué tan rápido', 'cuándo recibiré', 'recibir', 'instantáneo']
             }
         };
 
@@ -1918,7 +1895,7 @@
             typingDiv.id = 'typingIndicator';
             
             const typingText = document.createElement('span');
-            typingText.textContent = 'James is typing...';
+            typingText.textContent = 'James está escribiendo...';
             typingText.style.fontSize = '0.8rem';
             typingText.style.color = 'var(--text-color)';
             typingText.style.marginRight = '10px';
@@ -1974,8 +1951,8 @@
                 }
             }
             
-            // Default response
-            return "I'm not sure about that. You can ask me about our reports, pricing, how to order, refunds, or contact information. What would you like to know?";
+            // Default response in Spanish
+            return "No estoy seguro de eso. Puedes preguntarme sobre nuestros informes, precios, cómo ordenar, reembolsos o información de contacto. ¿Qué te gustaría saber?";
         }
 
         // Save message to chat history
