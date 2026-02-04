@@ -1,1 +1,220 @@
+.auth-container {
+    max-width: 400px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
 
+.auth-tabs {
+    display: flex;
+    margin-bottom: 2rem;
+    border-bottom: 2px solid var(--light-pink);
+}
+
+.auth-tab {
+    flex: 1;
+    text-align: center;
+    padding: 1rem;
+    cursor: pointer;
+    background: none;
+    border: none;
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--charcoal);
+    transition: all 0.3s;
+}
+
+.auth-tab.active {
+    color: var(--primary-pink);
+    border-bottom: 3px solid var(--primary-pink);
+    margin-bottom: -2px;
+}
+
+.auth-form {
+    display: none;
+}
+
+.auth-form.active {
+    display: block;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--charcoal);
+    font-weight: 500;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 0.8rem;
+    border: 2px solid var(--light-pink);
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.3s;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--primary-pink);
+}
+
+.btn-auth {
+    width: 100%;
+    padding: 1rem;
+    background: linear-gradient(135deg, var(--primary-pink) 0%, var(--lavender) 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.3s;
+}
+
+.btn-auth:hover {
+    transform: translateY(-2px);
+}
+
+.form-footer {
+    text-align: center;
+    margin-top: 1rem;
+    color: var(--charcoal);
+}
+
+.form-footer a {
+    color: var(--primary-pink);
+    text-decoration: none;
+}
+
+.form-footer a:hover {
+    text-decoration: underline;
+}
+
+.error-message {
+    color: #ff3860;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+}
+
+.success-message {
+    color: #23d160;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+}
+
+/* Subscription Plans */
+.subscription-plans {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    margin: 3rem 0;
+}
+
+.plan-card {
+    background: white;
+    border-radius: 15px;
+    padding: 2rem;
+    text-align: center;
+    border: 2px solid var(--light-pink);
+    transition: all 0.3s;
+    cursor: pointer;
+}
+
+.plan-card:hover {
+    border-color: var(--primary-pink);
+    transform: translateY(-5px);
+}
+
+.plan-card.vip {
+    border-color: var(--gold);
+    position: relative;
+    overflow: hidden;
+}
+
+.plan-card.vip::before {
+    content: 'POPULAR';
+    position: absolute;
+    top: 20px;
+    right: -30px;
+    background: var(--gold);
+    color: white;
+    padding: 5px 30px;
+    transform: rotate(45deg);
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.plan-price {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--primary-pink);
+    margin: 1rem 0;
+}
+
+.plan-card.vip .plan-price {
+    color: var(--gold);
+}
+
+.plan-features {
+    list-style: none;
+    margin: 1.5rem 0;
+    text-align: left;
+}
+
+.plan-features li {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--light-pink);
+}
+
+.plan-features li:last-child {
+    border-bottom: none;
+}
+
+.plan-features li i {
+    color: var(--primary-pink);
+    margin-right: 10px;
+}
+
+.plan-card.vip .plan-features li i {
+    color: var(--gold);
+}
+
+.btn-select-plan {
+    width: 100%;
+    padding: 1rem;
+    background: var(--light-pink);
+    color: var(--primary-pink);
+    border: 2px solid var(--primary-pink);
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.plan-card.vip .btn-select-plan {
+    background: var(--light-gold);
+    color: var(--gold);
+    border-color: var(--gold);
+}
+
+.btn-select-plan:hover {
+    background: var(--primary-pink);
+    color: white;
+}
+
+.plan-card.vip .btn-select-plan:hover {
+    background: var(--gold);
+    color: white;
+  }
