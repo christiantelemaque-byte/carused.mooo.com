@@ -1,4 +1,230 @@
 // Authentication and User Management
+const supabaseUrl = 'https://mdjwpndaxksdxbjscgas.supabase.co';
+const supabaseKey = 'process.env.SUPABASE_KEY';
+const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+
+
+
+
+
+
+
+// ====================
+// AUTH MODAL FUNCTIONS
+// ====================
+function openAuthModal() {
+    loadAuthForms();
+    document.getElementById('authModal').style.display = 'block';
+}
+
+function closeAuthModal() {
+    document.getElementById('authModal').style.display = 'none';
+}
+
+function loadAuthForms() {
+    document.getElementById('authForms').innerHTML = `
+        <div class="auth-container">
+            <div class="auth-tabs">
+                <button class="auth-tab active" onclick="switchAuthTab('login')">Login</button>
+                <button class="auth-tab" onclick="switchAuthTab('register')">Register</button>
+            </div>
+            <div id="loginForm" class="auth-form active">
+                <h3>Sign In</h3>
+                <form id="loginFormElement" onsubmit="handleLogin(event)">
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="loginEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="loginPassword" required>
+                    </div>
+                    <button type="submit" class="btn-auth">Login</button>
+                </form>
+                <div id="authMessage" class="auth-message"></div>
+            </div>
+            <div id="registerForm" class="auth-form">
+                <h3>Create Account</h3>
+                <form id="registerFormElement" onsubmit="handleSignup(event)">
+                    <div class="form-group">
+                        <label>Username</label>
+                        <input type="text" id="registerUsername" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="registerEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="registerPassword" required minlength="6">
+                    </div>
+                    <button type="submit" class="btn-auth">Sign Up</button>
+                </form>
+                <div id="authMessage" class="auth-message"></div>
+            </div>
+        </div>
+    `;
+}
+
+function switchAuthTab(tabName) {
+    // Switch tabs in the modal
+    document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+    
+    event.target.classList.add('active');
+    document.getElementById(tabName + 'Form').classList.add('active');
+}
+
+// ====================
+// AUTH HANDLERS
+// ====================
+async function handleSignup(event) {
+    event.preventDefault();
+    const email = document.getElementById('registerEmail').value;
+    const password = document.getElementById('registerPassword').value;
+    const username = document.getElementById('registerUsername').value;
+
+    const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+            data: { username: username }
+        }
+    });
+
+    if (error) {
+        showAuthMessage('Error: ' + error.message, 'error');
+    } else {
+        showAuthMessage('Registration successful! Please check your email to confirm.', 'success');
+        // Create a profile entry
+        await createUserProfile(data.user.id, username);
+        setTimeout(() => {
+            closeAuthModal();
+            updateAuthUI();
+        }, 2000);
+    }
+}
+
+async function handleLogin(event) {
+    event.preventDefault();
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+
+    const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+    });
+
+    if (error) {
+        showAuthMessage('Error: ' + error.message, 'error');
+    } else {
+        showAuthMessage('Login successful!', 'success');
+        setTimeout(() => {
+            closeAuthModal();
+            updateAuthUI();
+            // Redirect to dashboard or refresh listings
+            window.location.href = 'dashboard.html';
+        }, 1000);
+    }
+}
+
+async function handleLogout() {
+    await supabase.auth.signOut();
+    updateAuthUI();
+    window.location.href = 'index.html';
+}
+
+// ====================
+// PROFILE MANAGEMENT
+// ====================
+async function createUserProfile(userId, username) {
+    // Insert a new row into the 'profiles' table
+    const { error } = await supabase
+        .from('profiles')
+        .insert([
+            { 
+                id: userId, 
+                username: username,
+                subscription_type: 'none', // Default subscription
+                subscription_expires_at: null
+            }
+        ]);
+
+    if (error && error.code !== '23505') { // Ignore duplicate key errors
+        console.error('Error creating profile:', error);
+    }
+}
+
+// ====================
+// UI UPDATES
+// ====================
+function updateAuthUI() {
+    supabase.auth.getUser().then(({ data }) => {
+        const user = data.user;
+        const authButtons = document.querySelector('.nav-links');
+        
+        if (user) {
+            // User is logged in
+            authButtons.innerHTML = `
+                <a href="#home">Home</a>
+                <a href="#vip">VIP Escorts</a>
+                <a href="#regular">Regular Listings</a>
+                <a href="dashboard.html" class="btn-login">Dashboard</a>
+                <button onclick="handleLogout()" class="btn-primary">Logout</button>
+            `;
+        } else {
+            // User is logged out
+            authButtons.innerHTML = `
+                <a href="#home">Home</a>
+                <a href="#vip">VIP Escorts</a>
+                <a href="#regular">Regular Listings</a>
+                <a href="#how-it-works">How It Works</a>
+                <button onclick="openAuthModal()" class="btn-login">Login</button>
+                <button onclick="openAuthModal()" class="btn-primary">Become a Companion</button>
+            `;
+        }
+    });
+}
+
+function showAuthMessage(message, type) {
+    const messageDiv = document.getElementById('authMessage');
+    messageDiv.textContent = message;
+    messageDiv.className = 'auth-message ' + type;
+    messageDiv.style.display = 'block';
+}
+
+// ====================
+// INITIALIZE
+// ====================
+document.addEventListener('DOMContentLoaded', function() {
+    // Set up modal close button
+    document.querySelector('.close').addEventListener('click', closeAuthModal);
+    
+    // Close modal when clicking outside
+    window.addEventListener('click', function(event) {
+        const modal = document.getElementById('authModal');
+        if (event.target === modal) {
+            closeAuthModal();
+        }
+    });
+    
+    // Update UI based on auth state
+    updateAuthUI();
+    
+    // Listen for auth state changes
+    supabase.auth.onAuthStateChange((event, session) => {
+        updateAuthUI();
+    });
+});
+
+
+
+
+
+
+
+
 
 class AuthSystem {
     constructor() {
