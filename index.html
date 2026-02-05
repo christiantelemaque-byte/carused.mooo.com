@@ -23,9 +23,9 @@
                 <a href="#vip">VIP Escorts</a>
                 <a href="#regular">Regular Listings</a>
                 <a href="#how-it-works">How It Works</a>
-                <!-- This will be updated by JavaScript -->
-                <button onclick="openAuthModal()" class="btn-login" id="loginBtn">Login</button>
-                <button onclick="openAuthModal()" class="btn-primary" id="signupBtn">Become a Companion</button>
+                <!-- Login/Logout buttons will be updated by auth.js -->
+                <a href="#" id="navLoginBtn" class="btn-login">Login</a>
+                <a href="#" id="navSignupBtn" class="btn-primary">Become a Companion</a>
             </div>
         </div>
     </nav>
@@ -36,7 +36,7 @@
             <h1>Elegant Connections for Discerning Individuals</h1>
             <p>Join our exclusive community of sophisticated companions</p>
             <div class="hero-buttons">
-                <button onclick="openAuthModal()" class="btn-hero-primary">Become a Companion</button>
+                <a href="#" id="heroSignupBtn" class="btn-hero-primary">Become a Companion</a>
                 <a href="#vip" class="btn-hero-secondary">View VIP Companions</a>
             </div>
         </div>
@@ -123,7 +123,7 @@
     <!-- Auth Modal -->
     <div id="authModal" class="modal" style="display: none;">
         <div class="modal-content">
-            <span class="close" onclick="closeAuthModal()">&times;</span>
+            <span class="close">&times;</span>
             <div id="authForms">
                 <!-- Login/Register forms will be loaded here by auth.js -->
                 <div style="text-align: center; padding: 20px;">
@@ -133,26 +133,64 @@
         </div>
     </div>
 
+    <!-- JavaScript files -->
     <script src="js/app.js"></script>
     <script src="js/auth.js"></script>
     
+    <!-- Button initialization - This runs AFTER auth.js is loaded -->
     <script>
-        // Initialize modal functionality
+        // Wait for the page to fully load
         document.addEventListener('DOMContentLoaded', function() {
-            // Make sure openAuthModal function is globally available
-            window.openAuthModal = openAuthModal || window.openAuthModal;
-            window.closeAuthModal = closeAuthModal || window.closeAuthModal;
+            console.log('DOM fully loaded, attaching button events...');
             
-            // Close modal when clicking outside
-            window.addEventListener('click', function(event) {
-                const modal = document.getElementById('authModal');
-                if (event.target === modal) {
-                    closeAuthModal();
+            // Function to open the auth modal
+            function openAuthModalHandler(event) {
+                event.preventDefault(); // Stop the link from navigating
+                console.log('Auth button clicked');
+                
+                // First try to use the function from auth.js
+                if (typeof window.openAuthModal === 'function') {
+                    console.log('Calling openAuthModal from auth.js');
+                    window.openAuthModal();
+                } else {
+                    // Fallback: directly show the modal
+                    console.log('openAuthModal not found, showing modal directly');
+                    document.getElementById('authModal').style.display = 'block';
+                }
+            }
+            
+            // Attach click handlers to all signup/login buttons
+            const signupButtons = [
+                document.getElementById('heroSignupBtn'),
+                document.getElementById('navSignupBtn'),
+                document.getElementById('navLoginBtn')
+            ];
+            
+            signupButtons.forEach(button => {
+                if (button) {
+                    button.addEventListener('click', openAuthModalHandler);
+                    console.log('Added click handler to button:', button.id || button.className);
                 }
             });
             
-            console.log('Modal functions initialized');
+            // Close modal when clicking the X
+            const closeBtn = document.querySelector('.close');
+            if (closeBtn) {
+                closeBtn.addEventListener('click', function() {
+                    document.getElementById('authModal').style.display = 'none';
+                });
+            }
+            
+            // Close modal when clicking outside of it
+            window.addEventListener('click', function(event) {
+                const modal = document.getElementById('authModal');
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+            
+            console.log('Button initialization complete');
         });
     </script>
 </body>
-                    </html>
+            </html>
