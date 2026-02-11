@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Profile - LuxeCompanions</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script>
+        window.toggleMobileMenu = function() {
+            var navbar = document.getElementById('navbar');
+            if (navbar) navbar.classList.toggle('active');
+            return false;
+        };
+    </script>
+</head>
+<body>
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <i class="fas fa-gem"></i>
+                <span>LuxeCompanions</span>
+            </div>
+            <div class="menu-toggle" id="mobileMenu" onclick="toggleMobileMenu(); event.stopPropagation();">
+                <i class="fas fa-bars"></i>
+            </div>
+            <div class="nav-links" id="navLinks"></div>
+        </div>
+    </nav>
+
+    <main style="padding: 2rem 1.5rem; max-width: 600px; margin: 0 auto;">
+        <div style="background: white; border-radius: 15px; padding: 2rem; box-shadow: 0 5px 15px rgba(0,0,0,0.05);">
+            <h1 style="font-size: 2rem; margin-bottom: 1.5rem; color: var(--dark-pink);">
+                <i class="fas fa-user-edit" style="color: var(--primary-pink);"></i> My Profile
+            </h1>
+
+            <form id="profileForm">
+                <div class="form-group">
+                    <label for="username">Username *</label>
+                    <input type="text" id="username" required placeholder="Your display name">
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email (cannot be changed here)</label>
+                    <input type="email" id="email" disabled style="background: var(--light-gray);">
+                </div>
+
+                <div class="form-group">
+                    <label for="memberSince">Member since</label>
+                    <input type="text" id="memberSince" disabled style="background: var(--light-gray);">
+                </div>
+
+                <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-save"></i> Update Profile
+                    </button>
+                    <a href="dashboard.html" class="btn-secondary">Cancel</a>
+                </div>
+            </form>
+            <div id="profileMessage" class="auth-message" style="margin-top: 1.5rem;"></div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>LuxeCompanions</h3>
+                <p>An exclusive platform for sophisticated companionship connections.</p>
+            </div>
+            <div class="footer-section">
+                <h4>Important</h4>
+                <ul>
+                    <li><a href="#terms">Terms of Service</a></li>
+                    <li><a href="#privacy">Privacy Policy</a></li>
+                    <li><a href="#age">Age Verification</a></li>
+                    <li><a href="#safety">Safety Guidelines</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Contact</h4>
+                <p><i class="fas fa-envelope"></i> support@luxecompanions.com</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2024 LuxeCompanions. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="js/auth.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+            if (!window.supabase) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            const { data: { user }, error } = await window.supabase.auth.getUser();
+            if (error || !user) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // Load profile from 'profiles' table
+            const { data: profile, error: profileError } = await window.supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', user.id)
+                .single();
+
+            if (profileError) {
+                console.error('Error loading profile:', profileError);
+                return;
+            }
+
+            // Fill form
+            document.getElementById('username').value = profile.username || '';
+            document.getElementById('email').value = user.email;
+            const created = new Date(user.created_at);
+            document.getElementById('memberSince').value = created.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+            // Handle update
+            document.getElementById('profileForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const newUsername = document.getElementById('username').value.trim();
+
+                if (!newUsername) {
+                    showMessage('Username cannot be empty', 'error');
+                    return;
+                }
+
+                try {
+                    // Update 'profiles' table
+                    const { error: updateError } = await window.supabase
+                        .from('profiles')
+                        .update({ username: newUsername })
+                        .eq('id', user.id);
+
+                    if (updateError) throw updateError;
+
+                    // Also update user metadata (optional)
+                    await window.supabase.auth.updateUser({
+                        data: { username: newUsername }
+                    });
+
+                    showMessage('✅ Profile updated successfully!', 'success');
+                } catch (err) {
+                    showMessage('Error: ' + err.message, 'error');
+                }
+            });
+        });
+
+        function showMessage(msg, type) {
+            const msgDiv = document.getElementById('profileMessage');
+            msgDiv.textContent = msg;
+            msgDiv.className = 'auth-message ' + type;
+            msgDiv.style.display = 'block';
+            setTimeout(() => msgDiv.style.display = 'none', 5000);
+        }
+    </script>
+
+    <!-- Mobile menu close handler (same as before) -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var navbar = document.getElementById('navbar');
+            document.addEventListener('click', function(e) {
+                if (navbar.classList.contains('active') && !navbar.contains(e.target)) navbar.classList.remove('active');
+            });
+            var navLinks = document.getElementById('navLinks');
+            if (navLinks) {
+                navLinks.addEventListener('click', function(e) {
+                    if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON') navbar.classList.remove('active');
+                });
+            }
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768) navbar.classList.remove('active');
+            });
+        });
+    </script>
+</body>
+                                                                                  </html>
