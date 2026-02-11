@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subscription - LuxeCompanions</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="https://js.stripe.com/v3/"></script>
+    <script>
+        window.toggleMobileMenu = function() {
+            var navbar = document.getElementById('navbar');
+            if (navbar) navbar.classList.toggle('active');
+            return false;
+        };
+    </script>
+</head>
+<body>
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <i class="fas fa-gem"></i>
+                <span>LuxeCompanions</span>
+            </div>
+            <div class="menu-toggle" id="mobileMenu" onclick="toggleMobileMenu(); event.stopPropagation();">
+                <i class="fas fa-bars"></i>
+            </div>
+            <div class="nav-links" id="navLinks"></div>
+        </div>
+    </nav>
+
+    <main style="padding: 2rem 1.5rem; max-width: 1000px; margin: 0 auto;">
+        <h1 style="text-align: center; margin-bottom: 2rem; color: var(--dark-pink);">
+            <i class="fas fa-crown" style="color: var(--gold);"></i> Choose Your Plan
+        </h1>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; margin-bottom: 2rem;">
+            <!-- Regular Plan -->
+            <div class="dashboard-card" style="text-align: center; padding: 2rem;">
+                <i class="fas fa-star" style="font-size: 3rem; color: var(--primary-pink); margin-bottom: 1rem;"></i>
+                <h2 style="margin-bottom: 0.5rem;">Regular</h2>
+                <div style="font-size: 2.5rem; font-weight: 700; color: var(--primary-pink); margin-bottom: 0.5rem;">$10</div>
+                <div style="color: #666; margin-bottom: 1.5rem;">per month</div>
+                <ul style="list-style: none; margin-bottom: 2rem; text-align: left; padding-left: 1.5rem;">
+                    <li style="margin-bottom: 0.75rem;"><i class="fas fa-check" style="color: #28a745; margin-right: 0.5rem;"></i> Unlimited posts</li>
+                    <li style="margin-bottom: 0.75rem;"><i class="fas fa-check" style="color: #28a745; margin-right: 0.5rem;"></i> Standard placement</li>
+                    <li style="margin-bottom: 0.75rem;"><i class="fas fa-check" style="color: #28a745; margin-right: 0.5rem;"></i> Profile views</li>
+                </ul>
+                <button id="subscribeRegular" class="btn-primary" style="width: 100%;">Subscribe $10</button>
+            </div>
+
+            <!-- VIP Plan -->
+            <div class="dashboard-card" style="text-align: center; padding: 2rem; border: 3px solid var(--gold); position: relative;">
+                <div style="position: absolute; top: 15px; right: 15px; background: var(--gold); color: white; padding: 0.25rem 1rem; border-radius: 30px; font-weight: 600;">POPULAR</div>
+                <i class="fas fa-crown" style="font-size: 3rem; color: var(--gold); margin-bottom: 1rem;"></i>
+                <h2 style="margin-bottom: 0.5rem;">VIP</h2>
+                <div style="font-size: 2.5rem; font-weight: 700; color: var(--gold); margin-bottom: 0.5rem;">$20</div>
+                <div style="color: #666; margin-bottom: 1.5rem;">per month</div>
+                <ul style="list-style: none; margin-bottom: 2rem; text-align: left; padding-left: 1.5rem;">
+                    <li style="margin-bottom: 0.75rem;"><i class="fas fa-check" style="color: #28a745; margin-right: 0.5rem;"></i> Unlimited posts</li>
+                    <li style="margin-bottom: 0.75rem;"><i class="fas fa-crown" style="color: var(--gold); margin-right: 0.5rem;"></i> VIP featured placement</li>
+                    <li style="margin-bottom: 0.75rem;"><i class="fas fa-check" style="color: #28a745; margin-right: 0.5rem;"></i> Priority support</li>
+                    <li style="margin-bottom: 0.75rem;"><i class="fas fa-check" style="color: #28a745; margin-right: 0.5rem;"></i> Badge on profile</li>
+                </ul>
+                <button id="subscribeVIP" class="btn-primary" style="width: 100%; background: linear-gradient(135deg, var(--gold), #ffd700);">Subscribe $20</button>
+            </div>
+        </div>
+
+        <div id="subscriptionMessage" class="auth-message" style="display: none;"></div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>LuxeCompanions</h3>
+                <p>An exclusive platform for sophisticated companionship connections.</p>
+            </div>
+            <div class="footer-section">
+                <h4>Important</h4>
+                <ul>
+                    <li><a href="#terms">Terms of Service</a></li>
+                    <li><a href="#privacy">Privacy Policy</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2024 LuxeCompanions</p>
+        </div>
+    </footer>
+
+    <script src="js/auth.js"></script>
+    <script>
+        // Stripe publishable key - REPLACE WITH YOUR ACTUAL KEY
+        const STRIPE_PUBLISHABLE_KEY = 'pk_test_...'; // Get from Stripe Dashboard
+        const stripe = Stripe(STRIPE_PUBLISHABLE_KEY);
+
+        // Your Supabase Edge Function URL (after deployment)
+        const EDGE_FUNCTION_URL = 'https://mdjwpndaxksdxbjscgas.supabase.co/functions/v1/create-checkout-session';
+
+        // Price IDs from Stripe Dashboard
+        const PRICE_IDS = {
+            regular: 'price_1RegularTest...', // REPLACE with your Stripe price ID
+            vip: 'price_1VipTest...'          // REPLACE with your Stripe price ID
+        };
+
+        document.addEventListener('DOMContentLoaded', async function() {
+            if (!window.supabase) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            const { data: { user }, error } = await window.supabase.auth.getUser();
+            if (error || !user) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // Attach handlers
+            document.getElementById('subscribeRegular').addEventListener('click', () => handleSubscribe('regular'));
+            document.getElementById('subscribeVIP').addEventListener('click', () => handleSubscribe('vip'));
+        });
+
+        async function handleSubscribe(plan) {
+            const btn = plan === 'regular' ? document.getElementById('subscribeRegular') : document.getElementById('subscribeVIP');
+            btn.disabled = true;
+            btn.textContent = 'Redirecting...';
+
+            try {
+                const { data: { session } } = await supabase.auth.getSession();
+                const response = await fetch(EDGE_FUNCTION_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${session.access_token}`
+                    },
+                    body: JSON.stringify({
+                        priceId: PRICE_IDS[plan],
+                        planType: plan
+                    })
+                });
+
+                const { sessionId, url, error } = await response.json();
+                if (error) throw new Error(error);
+
+                // Redirect to Stripe Checkout
+                window.location.href = url;
+            } catch (err) {
+                showMessage('Error: ' + err.message, 'error');
+                btn.disabled = false;
+                btn.textContent = plan === 'regular' ? 'Subscribe $10' : 'Subscribe $20';
+            }
+        }
+
+        function showMessage(msg, type) {
+            const msgDiv = document.getElementById('subscriptionMessage');
+            msgDiv.textContent = msg;
+            msgDiv.className = 'auth-message ' + type;
+            msgDiv.style.display = 'block';
+            setTimeout(() => msgDiv.style.display = 'none', 5000);
+        }
+    </script>
+
+    <!-- Mobile menu close handler -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var navbar = document.getElementById('navbar');
+            document.addEventListener('click', function(e) {
+                if (navbar.classList.contains('active') && !navbar.contains(e.target)) navbar.classList.remove('active');
+            });
+            var navLinks = document.getElementById('navLinks');
+            if (navLinks) {
+                navLinks.addEventListener('click', function(e) {
+                    if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON') navbar.classList.remove('active');
+                });
+            }
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768) navbar.classList.remove('active');
+            });
+        });
+    </script>
+</body>
+</html>
