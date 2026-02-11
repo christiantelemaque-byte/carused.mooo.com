@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Success - LuxeCompanions</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <div style="display: flex; justify-content: center; align-items: center; height: 100vh; text-align: center; padding: 2rem;">
+        <div>
+            <i class="fas fa-check-circle" style="font-size: 5rem; color: #28a745; margin-bottom: 1rem;"></i>
+            <h1 style="color: var(--dark-pink); margin-bottom: 1rem;">Payment Successful!</h1>
+            <p style="margin-bottom: 2rem;">Your subscription has been activated.</p>
+            <a href="dashboard.html" class="btn-primary">Go to Dashboard</a>
+        </div>
+    </div>
+    <script>
+        // Optionally verify session with Supabase Edge Function
+        (async function() {
+            const params = new URLSearchParams(window.location.search);
+            const sessionId = params.get('session_id');
+            if (sessionId && window.supabase) {
+                // You can call an edge function to confirm and update subscription
+                console.log('Session ID:', sessionId);
+            }
+        })();
+    </script>
+</body>
+</html>
