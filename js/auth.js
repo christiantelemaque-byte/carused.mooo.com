@@ -12,7 +12,7 @@ console.log('✅ auth.js loading...');
 
 // Your Supabase credentials - MAKE SURE TO REPLACE THESE!
     const supabaseUrl = 'https://mdjwpndaxksdxbjscgas.supabase.co'; // REPLACE WITH YOUR URL
-    const supabaseKey = 'process.env.SUPABASE_KEY';
+    const supabaseKey = 'sb_publishable__JgPVoaGArNDKXB2lF--mw_X4XsBUwH';
 
 console.log('Supabase URL:', supabaseUrl ? 'Set' : 'MISSING');
 console.log('Supabase Key:', supabaseAnonKey ? 'Set' : 'MISSING');
