@@ -133,51 +133,70 @@
     <script src="js/app.js"></script>
     <script src="js/auth.js"></script>
     
-    <!-- Mobile Menu Toggle Script -->
+    <!-- MOBILE MENU FIX - Simple, reliable, works everywhere -->
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Mobile menu toggle
-            const mobileMenu = document.getElementById('mobileMenu');
-            const navLinks = document.getElementById('navLinks');
-            const navbar = document.getElementById('navbar');
+        // Wait for everything to be ready
+        (function() {
+            'use strict';
+            
+            // Helper to run after DOM is ready
+            function ready(fn) {
+                if (document.readyState !== 'loading') {
+                    fn();
+                } else {
+                    document.addEventListener('DOMContentLoaded', fn);
+                }
+            }
 
-            if (mobileMenu && navLinks) {
+            ready(function() {
+                // Get elements
+                const mobileMenu = document.getElementById('mobileMenu');
+                const navLinks = document.getElementById('navLinks');
+                const navbar = document.getElementById('navbar');
+
+                // Exit if elements don't exist
+                if (!mobileMenu || !navLinks || !navbar) return;
+
+                console.log('✅ Mobile menu initialized');
+
+                // Toggle menu on hamburger click
                 mobileMenu.addEventListener('click', function(e) {
+                    e.preventDefault();
                     e.stopPropagation();
                     navbar.classList.toggle('active');
+                    console.log('Menu toggled, active:', navbar.classList.contains('active'));
                 });
 
                 // Close menu when clicking outside
-                document.addEventListener('click', function(event) {
-                    if (!navbar.contains(event.target) && navbar.classList.contains('active')) {
+                document.addEventListener('click', function(e) {
+                    if (navbar.classList.contains('active') && 
+                        !navbar.contains(e.target)) {
                         navbar.classList.remove('active');
                     }
                 });
 
-                // Close menu when a link is clicked (for smooth UX)
+                // Close menu when any link inside navLinks is clicked
                 navLinks.addEventListener('click', function(e) {
                     if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON') {
                         navbar.classList.remove('active');
                     }
                 });
-            }
 
-            // Button initialization for auth modal
-            function openAuthModalHandler(event) {
-                event.preventDefault();
-                if (typeof window.openAuthModal === 'function') {
-                    window.openAuthModal();
-                } else {
-                    document.getElementById('authModal').style.display = 'block';
-                }
-            }
+                // Prevent clicks inside navbar from closing menu (except on links)
+                navbar.addEventListener('click', function(e) {
+                    if (e.target.tagName !== 'A' && e.target.tagName !== 'BUTTON') {
+                        e.stopPropagation();
+                    }
+                });
 
-            // Attach click handlers to signup buttons
-            const heroBtn = document.getElementById('heroSignupBtn');
-            if (heroBtn) {
-                heroBtn.addEventListener('click', openAuthModalHandler);
-            }
-        });
+                // Also close menu when window is resized above mobile breakpoint
+                window.addEventListener('resize', function() {
+                    if (window.innerWidth > 768) {
+                        navbar.classList.remove('active');
+                    }
+                });
+            });
+        })();
     </script>
 </body>
     </html>
