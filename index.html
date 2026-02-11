@@ -9,6 +9,18 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <!-- MOBILE MENU FIX - Loads FIRST, guaranteed to work -->
+    <script>
+        // This runs immediately and defines a global function for toggling the menu
+        window.toggleMobileMenu = function() {
+            var navbar = document.getElementById('navbar');
+            if (navbar) {
+                navbar.classList.toggle('active');
+                console.log('Menu toggled. Active:', navbar.classList.contains('active'));
+            }
+            return false; // Prevent default
+        };
+    </script>
 </head>
 <body>
     <!-- Navigation -->
@@ -18,8 +30,8 @@
                 <i class="fas fa-gem"></i>
                 <span>LuxeCompanions</span>
             </div>
-            <!-- Hamburger Menu Toggle -->
-            <div class="menu-toggle" id="mobileMenu">
+            <!-- Hamburger Menu Toggle - USES INLINE ONCLICK (guaranteed to work) -->
+            <div class="menu-toggle" id="mobileMenu" onclick="toggleMobileMenu(); event.stopPropagation();">
                 <i class="fas fa-bars"></i>
             </div>
             <!-- Navigation Links – will be populated by auth.js -->
@@ -129,74 +141,39 @@
         </div>
     </div>
 
-    <!-- JavaScript files -->
+    <!-- JavaScript files - Load AFTER the inline menu fix -->
     <script src="js/app.js"></script>
     <script src="js/auth.js"></script>
     
-    <!-- MOBILE MENU FIX - Simple, reliable, works everywhere -->
+    <!-- Additional menu enhancement (optional) -->
     <script>
-        // Wait for everything to be ready
-        (function() {
-            'use strict';
-            
-            // Helper to run after DOM is ready
-            function ready(fn) {
-                if (document.readyState !== 'loading') {
-                    fn();
-                } else {
-                    document.addEventListener('DOMContentLoaded', fn);
+        // This is just a backup - the inline onclick already works
+        document.addEventListener('DOMContentLoaded', function() {
+            // Close menu when clicking outside
+            var navbar = document.getElementById('navbar');
+            document.addEventListener('click', function(e) {
+                if (navbar && navbar.classList.contains('active') && !navbar.contains(e.target)) {
+                    navbar.classList.remove('active');
                 }
-            }
-
-            ready(function() {
-                // Get elements
-                const mobileMenu = document.getElementById('mobileMenu');
-                const navLinks = document.getElementById('navLinks');
-                const navbar = document.getElementById('navbar');
-
-                // Exit if elements don't exist
-                if (!mobileMenu || !navLinks || !navbar) return;
-
-                console.log('✅ Mobile menu initialized');
-
-                // Toggle menu on hamburger click
-                mobileMenu.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    navbar.classList.toggle('active');
-                    console.log('Menu toggled, active:', navbar.classList.contains('active'));
-                });
-
-                // Close menu when clicking outside
-                document.addEventListener('click', function(e) {
-                    if (navbar.classList.contains('active') && 
-                        !navbar.contains(e.target)) {
-                        navbar.classList.remove('active');
-                    }
-                });
-
-                // Close menu when any link inside navLinks is clicked
+            });
+            
+            // Close menu when a link is clicked
+            var navLinks = document.getElementById('navLinks');
+            if (navLinks) {
                 navLinks.addEventListener('click', function(e) {
                     if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON') {
                         navbar.classList.remove('active');
                     }
                 });
-
-                // Prevent clicks inside navbar from closing menu (except on links)
-                navbar.addEventListener('click', function(e) {
-                    if (e.target.tagName !== 'A' && e.target.tagName !== 'BUTTON') {
-                        e.stopPropagation();
-                    }
-                });
-
-                // Also close menu when window is resized above mobile breakpoint
-                window.addEventListener('resize', function() {
-                    if (window.innerWidth > 768) {
-                        navbar.classList.remove('active');
-                    }
-                });
+            }
+            
+            // Close menu on resize above mobile
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768 && navbar) {
+                    navbar.classList.remove('active');
+                }
             });
-        })();
+        });
     </script>
 </body>
-    </html>
+                </html>
