@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Post Ad - LuxeCompanions</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <!-- Mobile menu toggle (same as index) -->
+    <script>
+        window.toggleMobileMenu = function() {
+            var navbar = document.getElementById('navbar');
+            if (navbar) navbar.classList.toggle('active');
+            return false;
+        };
+    </script>
+</head>
+<body>
+    <!-- Navigation (same as index, will be populated by auth.js) -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <i class="fas fa-gem"></i>
+                <span>LuxeCompanions</span>
+            </div>
+            <div class="menu-toggle" id="mobileMenu" onclick="toggleMobileMenu(); event.stopPropagation();">
+                <i class="fas fa-bars"></i>
+            </div>
+            <div class="nav-links" id="navLinks"></div>
+        </div>
+    </nav>
+
+    <main style="padding: 2rem 1.5rem; max-width: 800px; margin: 0 auto;">
+        <div style="background: white; border-radius: 15px; padding: 2rem; box-shadow: 0 5px 15px rgba(0,0,0,0.05);">
+            <h1 style="font-size: 2rem; margin-bottom: 1.5rem; color: var(--dark-pink);">
+                <i class="fas fa-plus-circle" style="color: var(--primary-pink);"></i> Create New Listing
+            </h1>
+            
+            <div id="subscriptionWarning" style="background: #fff3cd; border: 1px solid #ffeeba; border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem; display: none;">
+                <i class="fas fa-exclamation-triangle" style="color: #856404;"></i>
+                <span id="warningMessage">You need an active subscription to post ads.</span>
+                <a href="subscription.html" style="display: inline-block; margin-left: 1rem; color: var(--primary-pink); font-weight: 600;">Subscribe Now →</a>
+            </div>
+
+            <form id="postForm">
+                <div class="form-group">
+                    <label for="title">Title *</label>
+                    <input type="text" id="title" required placeholder="e.g. Elegant companion for dinner & events">
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Description *</label>
+                    <textarea id="description" rows="6" required placeholder="Describe yourself, services, availability..." style="width: 100%; padding: 12px 15px; border: 2px solid var(--light-pink); border-radius: 8px; font-size: 1rem;"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="images">Photo URL (optional)</label>
+                    <input type="url" id="images" placeholder="https://example.com/photo.jpg">
+                    <small style="display: block; margin-top: 5px; color: #666;">For now, paste one image URL. Multiple images coming soon.</small>
+                </div>
+
+                <div class="form-group">
+                    <label>Your subscription status</label>
+                    <div id="subscriptionStatus" style="padding: 12px; background: var(--light-gray); border-radius: 8px;">
+                        Loading...
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                    <button type="submit" id="submitBtn" class="btn-primary" style="font-size: 1.1rem; padding: 1rem 2rem;">
+                        <i class="fas fa-paper-plane"></i> Publish Listing
+                    </button>
+                    <a href="dashboard.html" class="btn-secondary" style="display: flex; align-items: center;">Cancel</a>
+                </div>
+            </form>
+            <div id="postMessage" class="auth-message" style="margin-top: 1.5rem;"></div>
+        </div>
+    </main>
+
+    <!-- Footer (same as index) -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>LuxeCompanions</h3>
+                <p>An exclusive platform for sophisticated companionship connections.</p>
+            </div>
+            <div class="footer-section">
+                <h4>Important</h4>
+                <ul>
+                    <li><a href="#terms">Terms of Service</a></li>
+                    <li><a href="#privacy">Privacy Policy</a></li>
+                    <li><a href="#age">Age Verification</a></li>
+                    <li><a href="#safety">Safety Guidelines</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Contact</h4>
+                <p><i class="fas fa-envelope"></i> support@luxecompanions.com</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2024 LuxeCompanions. Must be 21+ to access. All rights reserved.</p>
+            <p class="disclaimer">This website is for legal companionship services only. Users must comply with all applicable laws.</p>
+        </div>
+    </footer>
+
+    <script src="js/auth.js"></script>
+    <script>
+        // -------------------------------
+        // POST AD CONTROLLER
+        // -------------------------------
+        document.addEventListener('DOMContentLoaded', async function() {
+            // 1. Check if user is logged in
+            if (!window.supabase) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            const { data: { user }, error } = await window.supabase.auth.getUser();
+            if (error || !user) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // 2. Load user profile to check subscription
+            const { data: profile, error: profileError } = await window.supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', user.id)
+                .single();
+
+            if (profileError || !profile) {
+                console.error('Profile error:', profileError);
+                return;
+            }
+
+            // 3. Check if user has active subscription
+            const now = new Date();
+            const expiresAt = profile.subscription_expires_at ? new Date(profile.subscription_expires_at) : null;
+            const hasValidSub = profile.subscription_type !== 'none' && expiresAt && expiresAt > now;
+
+            const warningDiv = document.getElementById('subscriptionWarning');
+            const warningMsg = document.getElementById('warningMessage');
+            const statusDiv = document.getElementById('subscriptionStatus');
+            const submitBtn = document.getElementById('submitBtn');
+
+            if (hasValidSub) {
+                warningDiv.style.display = 'none';
+                statusDiv.innerHTML = `
+                    <span style="color: #28a745; font-weight: 600;">
+                        <i class="fas fa-check-circle"></i> Active ${profile.subscription_type.toUpperCase()} subscription
+                    </span>
+                    <span style="margin-left: 1rem;">Expires: ${expiresAt.toLocaleDateString()}</span>
+                `;
+                submitBtn.disabled = false;
+            } else {
+                warningDiv.style.display = 'block';
+                statusDiv.innerHTML = `
+                    <span style="color: #dc3545; font-weight: 600;">
+                        <i class="fas fa-times-circle"></i> No active subscription
+                    </span>
+                `;
+                submitBtn.disabled = true;
+                submitBtn.style.opacity = '0.5';
+            }
+
+            // 4. Handle form submission
+            document.getElementById('postForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+
+                const title = document.getElementById('title').value.trim();
+                const description = document.getElementById('description').value.trim();
+                const imageUrl = document.getElementById('images').value.trim();
+
+                if (!title || !description) {
+                    showMessage('Please fill all required fields', 'error');
+                    return;
+                }
+
+                // Prepare post data
+                const postData = {
+                    user_id: user.id,
+                    title,
+                    description,
+                    images: imageUrl ? [imageUrl] : [],
+                    is_vip: profile.subscription_type === 'vip', // VIP users get VIP flag
+                    status: 'active',
+                    created_at: new Date().toISOString(),
+                    updated_at: new Date().toISOString()
+                };
+
+                try {
+                    const { data, error } = await window.supabase
+                        .from('posts')
+                        .insert([postData]);
+
+                    if (error) throw error;
+
+                    showMessage('✅ Your listing has been published!', 'success');
+                    document.getElementById('postForm').reset();
+
+                    // Redirect to dashboard after 2 seconds
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 2000);
+                } catch (err) {
+                    console.error('Insert error:', err);
+                    showMessage('Error: ' + err.message, 'error');
+                }
+            });
+        });
+
+        function showMessage(msg, type) {
+            const msgDiv = document.getElementById('postMessage');
+            msgDiv.textContent = msg;
+            msgDiv.className = 'auth-message ' + type;
+            msgDiv.style.display = 'block';
+            setTimeout(() => msgDiv.style.display = 'none', 5000);
+        }
+    </script>
+
+    <!-- Mobile menu close handler (same as index) -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var navbar = document.getElementById('navbar');
+            document.addEventListener('click', function(e) {
+                if (navbar.classList.contains('active') && !navbar.contains(e.target)) {
+                    navbar.classList.remove('active');
+                }
+            });
+            var navLinks = document.getElementById('navLinks');
+            if (navLinks) {
+                navLinks.addEventListener('click', function(e) {
+                    if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON') {
+                        navbar.classList.remove('active');
+                    }
+                });
+            }
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768) navbar.classList.remove('active');
+            });
+        });
+    </script>
+</body>
+</html>
