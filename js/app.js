@@ -1,19 +1,25 @@
-// Main Application JavaScript
+// js/app.js - Updated for current auth system
+console.log('✅ app.js loaded');
 
 class EscortDirectory {
     constructor() {
-        this.auth = new AuthSystem();
+        // Don't create AuthSystem here - use the supabase client from auth.js
         this.posts = JSON.parse(localStorage.getItem('luxePosts')) || [];
-        this.init();
+        
+        // Wait for page to load, then initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            this.init();
+        });
     }
 
     init() {
+        console.log('Initializing EscortDirectory...');
         this.loadListings();
         this.setupEventListeners();
-        this.checkUserSubscription();
     }
 
-    loadListings() {
+    async loadListings() {
+        console.log('Loading listings...');
         const vipListings = document.getElementById('vip-listings');
         const regularListings = document.getElementById('regular-listings');
         
@@ -23,56 +29,107 @@ class EscortDirectory {
         if (vipListings) vipListings.innerHTML = '';
         if (regularListings) regularListings.innerHTML = '';
         
-        // Get VIP posts
-        const vipPosts = this.posts.filter(post => post.subscriptionType === 'vip' && post.status === 'active');
-        const regularPosts = this.posts.filter(post => post.subscriptionType === 'regular' && post.status === 'active');
-        
-        // Sort by date (newest first)
-        vipPosts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-        regularPosts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-        
-        // Display VIP posts
-        if (vipListings) {
-            vipPosts.slice(0, 6).forEach(post => {
-                vipListings.appendChild(this.createPostCard(post));
-            });
+        try {
+            // Try to fetch from Supabase if available
+            if (typeof supabase !== 'undefined') {
+                const { data: posts, error } = await supabase
+                    .from('posts')
+                    .select('*')
+                    .eq('status', 'active')
+                    .order('created_at', { ascending: false });
+                
+                if (!error && posts) {
+                    this.displayPosts(posts, vipListings, regularListings);
+                    return;
+                }
+            }
             
-            if (vipPosts.length === 0) {
-                vipListings.innerHTML = '<div class="no-listings">No VIP listings available</div>';
+            // Fallback to local storage if Supabase fails or isn't available
+            this.displayLocalPosts(vipListings, regularListings);
+            
+        } catch (error) {
+            console.error('Error loading listings:', error);
+            this.displayLocalPosts(vipListings, regularListings);
+        }
+    }
+
+    displayPosts(posts, vipContainer, regularContainer) {
+        // Separate VIP and regular posts
+        const vipPosts = posts.filter(post => post.is_vip === true);
+        const regularPosts = posts.filter(post => post.is_vip !== true);
+        
+        // Display VIP posts (limit to 6)
+        if (vipContainer) {
+            if (vipPosts.length > 0) {
+                vipPosts.slice(0, 6).forEach(post => {
+                    vipContainer.appendChild(this.createPostCard(post));
+                });
+            } else {
+                vipContainer.innerHTML = '<div class="no-listings">No VIP listings available</div>';
             }
         }
         
-        // Display regular posts
-        if (regularListings) {
-            regularPosts.slice(0, 12).forEach(post => {
-                regularListings.appendChild(this.createPostCard(post));
-            });
-            
-            if (regularPosts.length === 0) {
-                regularListings.innerHTML = '<div class="no-listings">No listings available</div>';
+        // Display regular posts (limit to 12)
+        if (regularContainer) {
+            if (regularPosts.length > 0) {
+                regularPosts.slice(0, 12).forEach(post => {
+                    regularContainer.appendChild(this.createPostCard(post));
+                });
+            } else {
+                regularContainer.innerHTML = '<div class="no-listings">No listings available</div>';
+            }
+        }
+    }
+
+    displayLocalPosts(vipContainer, regularContainer) {
+        // Use local storage posts as fallback
+        const vipPosts = this.posts.filter(post => 
+            post.subscriptionType === 'vip' && post.status === 'active'
+        );
+        const regularPosts = this.posts.filter(post => 
+            post.subscriptionType === 'regular' && post.status === 'active'
+        );
+        
+        vipPosts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        regularPosts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        
+        if (vipContainer) {
+            if (vipPosts.length > 0) {
+                vipPosts.slice(0, 6).forEach(post => {
+                    vipContainer.appendChild(this.createPostCard(post));
+                });
+            } else {
+                vipContainer.innerHTML = '<div class="no-listings">No VIP listings available</div>';
+            }
+        }
+        
+        if (regularContainer) {
+            if (regularPosts.length > 0) {
+                regularPosts.slice(0, 12).forEach(post => {
+                    regularContainer.appendChild(this.createPostCard(post));
+                });
+            } else {
+                regularContainer.innerHTML = '<div class="no-listings">No listings available</div>';
             }
         }
     }
 
     createPostCard(post) {
         const card = document.createElement('div');
-        card.className = `listing-card ${post.subscriptionType === 'vip' ? 'vip-card' : ''}`;
-        
-        const user = this.auth.users.find(u => u.id === post.userId);
-        const username = user ? user.username : 'Anonymous';
+        card.className = `listing-card ${post.is_vip ? 'vip-card' : ''}`;
         
         card.innerHTML = `
-            ${post.subscriptionType === 'vip' ? '<div class="vip-badge"><i class="fas fa-crown"></i> VIP</div>' : ''}
-            <img src="${post.images[0] || 'images/default-avatar.jpg'}" alt="${post.title}" class="listing-image">
+            ${post.is_vip ? '<div class="vip-badge"><i class="fas fa-crown"></i> VIP</div>' : ''}
+            <img src="${post.images && post.images[0] ? post.images[0] : 'images/default-avatar.jpg'}" 
+                 alt="${post.title || 'Listing'}" 
+                 class="listing-image"
+                 onerror="this.src='images/default-avatar.jpg'">
             <div class="listing-content">
-                <h3>${this.escapeHtml(post.title)}</h3>
-                <p class="listing-description">${this.escapeHtml(post.description.substring(0, 100))}...</p>
+                <h3>${this.escapeHtml(post.title || 'Untitled Listing')}</h3>
+                <p class="listing-description">${this.escapeHtml((post.description || '').substring(0, 100))}...</p>
                 <div class="listing-meta">
-                    <span><i class="fas fa-user"></i> ${this.escapeHtml(username)}</span>
-                    <span><i class="fas fa-clock"></i> ${this.formatDate(post.createdAt)}</span>
-                </div>
-                <div class="listing-tags">
-                    ${post.tags.map(tag => `<span class="tag">${this.escapeHtml(tag)}</span>`).join('')}
+                    <span><i class="fas fa-user"></i> ${post.username || 'User'}</span>
+                    <span><i class="fas fa-clock"></i> ${this.formatDate(post.created_at || post.createdAt)}</span>
                 </div>
             </div>
         `;
@@ -80,151 +137,13 @@ class EscortDirectory {
         return card;
     }
 
-    createPost(postData) {
-        if (!this.auth.currentUser) {
-            this.showMessage('Please login to create a post', 'error');
-            return false;
-        }
-        
-        if (!this.auth.hasActiveSubscription()) {
-            this.showMessage('Active subscription required to create posts', 'error');
-            window.location.href = 'subscription.html';
-            return false;
-        }
-        
-        const newPost = {
-            id: Date.now(),
-            userId: this.auth.currentUser.id,
-            title: postData.title,
-            description: postData.description,
-            images: postData.images,
-            tags: postData.tags,
-            subscriptionType: this.auth.getSubscriptionType(),
-            status: 'active',
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString()
-        };
-        
-        this.posts.push(newPost);
-        this.savePosts();
-        
-        // Add post to user's posts
-        const userIndex = this.auth.users.findIndex(u => u.id === this.auth.currentUser.id);
-        if (userIndex !== -1) {
-            this.auth.users[userIndex].posts.push(newPost.id);
-            this.auth.saveUsers();
-        }
-        
-        this.showMessage('Post created successfully!', 'success');
-        return true;
-    }
-
-    getUserPosts() {
-        if (!this.auth.currentUser) return [];
-        
-        return this.posts.filter(post => 
-            post.userId === this.auth.currentUser.id && 
-            post.status === 'active'
-        );
-    }
-
-    deletePost(postId) {
-        const postIndex = this.posts.findIndex(p => p.id === postId);
-        if (postIndex === -1) return false;
-        
-        // Mark as deleted instead of removing
-        this.posts[postIndex].status = 'deleted';
-        this.posts[postIndex].updatedAt = new Date().toISOString();
-        
-        this.savePosts();
-        return true;
-    }
-
-    savePosts() {
-        localStorage.setItem('luxePosts', JSON.stringify(this.posts));
-    }
-
-    checkUserSubscription() {
-        if (!this.auth.currentUser) return;
-        
-        const expiry = new Date(this.auth.currentUser.subscriptionExpiry);
-        if (new Date() > expiry && this.auth.currentUser.subscription !== 'none') {
-            // Subscription expired
-            const userIndex = this.auth.users.findIndex(u => u.id === this.auth.currentUser.id);
-            if (userIndex !== -1) {
-                this.auth.users[userIndex].subscription = 'none';
-                this.auth.users[userIndex].subscriptionExpiry = null;
-                this.auth.saveUsers();
-                this.auth.currentUser = this.auth.users[userIndex];
-                localStorage.setItem('currentUser', JSON.stringify(this.auth.currentUser));
-                
-                this.showMessage('Your subscription has expired. Please renew to continue posting.', 'warning');
-            }
-        }
-    }
-
     setupEventListeners() {
-        // Post ad button
-        document.querySelectorAll('.btn-primary, .btn-hero-primary').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                if (e.target.href && e.target.href.includes('#post-ad')) {
-                    e.preventDefault();
-                    if (this.auth.currentUser) {
-                        if (this.auth.hasActiveSubscription()) {
-                            window.location.href = 'post-ad.html';
-                        } else {
-                            window.location.href = 'subscription.html';
-                        }
-                    } else {
-                        const modal = document.getElementById('authModal');
-                        if (modal) {
-                            modal.style.display = 'block';
-                            loadAuthForms();
-                        }
-                    }
-                }
-            });
-        });
-    }
-
-    showMessage(message, type) {
-        // Create message element
-        const messageDiv = document.createElement('div');
-        messageDiv.className = `message message-${type}`;
-        messageDiv.innerHTML = `
-            <span>${message}</span>
-            <button onclick="this.parentElement.remove()">&times;</button>
-        `;
-        
-        // Add styles
-        messageDiv.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 15px 20px;
-            background: ${type === 'error' ? '#ff3860' : type === 'success' ? '#23d160' : '#ffdd57'};
-            color: ${type === 'warning' ? '#333' : 'white'};
-            border-radius: 5px;
-            z-index: 10000;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            min-width: 300px;
-            max-width: 500px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        `;
-        
-        document.body.appendChild(messageDiv);
-        
-        // Auto-remove after 5 seconds
-        setTimeout(() => {
-            if (messageDiv.parentElement) {
-                messageDiv.remove();
-            }
-        }, 5000);
+        console.log('Setting up event listeners...');
+        // Any additional event listeners can go here
     }
 
     formatDate(dateString) {
+        if (!dateString) return 'Recently';
         const date = new Date(dateString);
         return date.toLocaleDateString('en-US', {
             year: 'numeric',
@@ -240,18 +159,5 @@ class EscortDirectory {
     }
 }
 
-// Initialize the application
+// Initialize the app
 const app = new EscortDirectory();
-
-// Utility function for currency formatting
-function formatCurrency(amount) {
-    return new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency: 'USD'
-    }).format(amount);
-}
-
-// Load posts on page load
-document.addEventListener('DOMContentLoaded', () => {
-    app.loadListings();
-});
