@@ -2,32 +2,44 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <meta name="robots" content="noindex">
     <title>Dashboard - LuxeCompanions</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <!-- MOBILE MENU TOGGLE - DEFINED IMMEDIATELY -->
+    <script>
+        window.toggleMobileMenu = function() {
+            var navbar = document.getElementById('navbar');
+            if (navbar) {
+                navbar.classList.toggle('active');
+            }
+            return false;
+        };
+    </script>
 </head>
 <body>
     <!-- Navigation -->
-    <nav class="navbar">
+    <nav class="navbar" id="navbar">
         <div class="nav-container">
             <div class="logo">
                 <i class="fas fa-gem"></i>
                 <span>LuxeCompanions</span>
             </div>
-            <div class="nav-links">
-                <!-- Will be dynamically updated by auth.js -->
+            <!-- Hamburger Menu - INLINE ONCLICK -->
+            <div class="menu-toggle" id="mobileMenu" onclick="toggleMobileMenu(); event.stopPropagation();">
+                <i class="fas fa-bars"></i>
             </div>
+            <!-- Navigation Links - will be populated by auth.js -->
+            <div class="nav-links" id="navLinks"></div>
         </div>
     </nav>
 
     <!-- Dashboard Main Content -->
     <main class="dashboard-main">
         <div class="dashboard-container">
-            <!-- Welcome Header -->
             <div class="dashboard-header">
                 <div class="welcome-section">
                     <h1>Welcome back, <span id="userName">Loading...</span>!</h1>
@@ -50,9 +62,7 @@
                     <div id="subscriptionDetails" class="subscription-details">
                         <div class="loading-spinner"></div>
                     </div>
-                    <div id="subscriptionAction" class="card-action">
-                        <!-- Will be filled by JS -->
-                    </div>
+                    <div id="subscriptionAction" class="card-action"></div>
                 </div>
 
                 <!-- Quick Stats Card -->
@@ -86,11 +96,9 @@
                 </div>
                 
                 <div id="postsContainer" class="posts-grid">
-                    <!-- Posts will be loaded here -->
                     <div class="loading">Loading your posts...</div>
                 </div>
 
-                <!-- Empty State (hidden by default) -->
                 <div id="emptyPostsState" class="empty-state" style="display: none;">
                     <i class="fas fa-camera-retro"></i>
                     <h3>You haven't posted any ads yet</h3>
@@ -131,50 +139,31 @@
     </footer>
 
     <script src="js/auth.js"></script>
-    
+    <script src="js/dashboard.js"></script> <!-- Optional, but we embed JS directly -->
     <script>
-        // ============================================
-        // DASHBOARD CONTROLLER - Requires auth.js
-        // ============================================
+        // DASHBOARD CONTROLLER (full version)
         document.addEventListener('DOMContentLoaded', async function() {
-            console.log('Dashboard initializing...');
-            
-            // 1. Ensure user is logged in
             if (!window.supabase) {
-                console.error('Supabase not available');
                 window.location.href = 'index.html';
                 return;
             }
 
             const { data: { user }, error } = await window.supabase.auth.getUser();
             if (error || !user) {
-                console.log('No authenticated user, redirecting to login');
                 window.location.href = 'index.html';
                 return;
             }
 
-            console.log('Authenticated user:', user.id);
-            
-            // 2. Load user profile and subscription
             await loadUserProfile(user.id);
-            
-            // 3. Load user's posts
             await loadUserPosts(user.id);
             
-            // 4. Set member since date
             const createdDate = new Date(user.created_at);
             document.getElementById('memberSince').textContent = createdDate.toLocaleDateString('en-US', { 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
+                year: 'numeric', month: 'long', day: 'numeric' 
             });
-            
-            // 5. Update UI based on subscription
         });
 
-        // ------------------------------------------------------------------
-        // Load user profile from 'profiles' table
-        // ------------------------------------------------------------------
+        // Profile loader
         async function loadUserProfile(userId) {
             try {
                 const { data: profile, error } = await window.supabase
@@ -188,20 +177,13 @@
                     return;
                 }
 
-                // Set username in header
                 document.getElementById('userName').textContent = profile.username || 'User';
-
-                // Render subscription card
                 renderSubscriptionCard(profile);
-
             } catch (err) {
                 console.error('Profile load error:', err);
             }
         }
 
-        // ------------------------------------------------------------------
-        // Render subscription status and action button
-        // ------------------------------------------------------------------
         function renderSubscriptionCard(profile) {
             const detailsEl = document.getElementById('subscriptionDetails');
             const actionEl = document.getElementById('subscriptionAction');
@@ -210,49 +192,36 @@
             const expiresAt = profile.subscription_expires_at ? new Date(profile.subscription_expires_at) : null;
             const hasValidSub = profile.subscription_type !== 'none' && expiresAt && expiresAt > now;
 
-            let statusHtml = '';
-            let actionHtml = '';
-
             if (hasValidSub) {
-                // Active subscription
                 const daysLeft = Math.ceil((expiresAt - now) / (1000 * 60 * 60 * 24));
-                statusHtml = `
+                detailsEl.innerHTML = `
                     <div class="subscription-active">
                         <span class="badge ${profile.subscription_type}">${profile.subscription_type.toUpperCase()}</span>
                         <p class="expiry">Valid until: ${expiresAt.toLocaleDateString('en-US', { 
-                            year: 'numeric', 
-                            month: 'long', 
-                            day: 'numeric' 
+                            year: 'numeric', month: 'long', day: 'numeric' 
                         })} (${daysLeft} days left)</p>
                     </div>
                 `;
-                actionHtml = `
+                actionEl.innerHTML = `
                     <a href="subscription.html" class="btn-secondary">
                         <i class="fas fa-arrow-up"></i> Upgrade Plan
                     </a>
                 `;
             } else {
-                // No subscription or expired
-                statusHtml = `
+                detailsEl.innerHTML = `
                     <div class="subscription-inactive">
                         <p class="no-subscription">You don't have an active subscription</p>
                         <p class="sub-required">A subscription is required to post ads.</p>
                     </div>
                 `;
-                actionHtml = `
+                actionEl.innerHTML = `
                     <a href="subscription.html" class="btn-primary">
                         <i class="fas fa-crown"></i> Subscribe Now
                     </a>
                 `;
             }
-
-            detailsEl.innerHTML = statusHtml;
-            actionEl.innerHTML = actionHtml;
         }
 
-        // ------------------------------------------------------------------
-        // Load user's posts from 'posts' table
-        // ------------------------------------------------------------------
         async function loadUserPosts(userId) {
             try {
                 const { data: posts, error } = await window.supabase
@@ -262,17 +231,9 @@
                     .eq('status', 'active')
                     .order('created_at', { ascending: false });
 
-                if (error) {
-                    console.error('Error loading posts:', error);
-                    document.getElementById('postsContainer').innerHTML = 
-                        '<div class="error-message">Failed to load posts. Please refresh.</div>';
-                    return;
-                }
+                if (error) throw error;
 
-                // Update post count
                 document.getElementById('postCount').textContent = posts?.length || 0;
-                
-                // For now, views are placeholder (you can add a views column later)
                 document.getElementById('totalViews').textContent = '0';
                 document.getElementById('profileViews').textContent = '0';
 
@@ -280,45 +241,34 @@
                 const emptyState = document.getElementById('emptyPostsState');
 
                 if (!posts || posts.length === 0) {
-                    // Show empty state, hide posts container
                     postsContainer.style.display = 'none';
                     emptyState.style.display = 'block';
                 } else {
-                    // Hide empty state, show and populate posts container
                     emptyState.style.display = 'none';
                     postsContainer.style.display = 'grid';
-                    postsContainer.innerHTML = ''; // Clear loading
+                    postsContainer.innerHTML = '';
 
                     posts.forEach(post => {
                         postsContainer.appendChild(createPostCard(post));
                     });
                 }
-
             } catch (err) {
                 console.error('Posts load error:', err);
             }
         }
 
-        // ------------------------------------------------------------------
-        // Create a post card element (similar to homepage but with edit/delete)
-        // ------------------------------------------------------------------
         function createPostCard(post) {
             const card = document.createElement('div');
             card.className = `listing-card ${post.is_vip ? 'vip-card' : ''}`;
             card.dataset.postId = post.id;
             
-            // Format date
             const created = new Date(post.created_at);
-            const dateStr = created.toLocaleDateString('en-US', { 
-                month: 'short', 
-                day: 'numeric', 
-                year: 'numeric' 
-            });
+            const dateStr = created.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
             card.innerHTML = `
                 ${post.is_vip ? '<div class="vip-badge"><i class="fas fa-crown"></i> VIP</div>' : ''}
                 <img src="${post.images && post.images[0] ? post.images[0] : 'images/default-avatar.jpg'}" 
-                     alt="${post.title || 'Listing'}" 
+                     alt="${escapeHtml(post.title || 'Listing')}" 
                      class="listing-image"
                      onerror="this.src='images/default-avatar.jpg'">
                 <div class="listing-content">
@@ -341,61 +291,23 @@
             return card;
         }
 
-        // ------------------------------------------------------------------
-        // Edit post - redirect to edit page (to be implemented)
-        // ------------------------------------------------------------------
         window.editPost = function(postId) {
-            // You can create an edit-post.html later
-            alert(`Edit post ${postId} - Coming soon!`);
-            // window.location.href = `edit-post.html?id=${postId}`;
+            alert('Edit feature coming soon!');
         };
 
-        // ------------------------------------------------------------------
-        // Delete post with confirmation
-        // ------------------------------------------------------------------
         window.deletePost = async function(postId) {
-            if (!confirm('Are you sure you want to delete this post? This action cannot be undone.')) {
-                return;
-            }
-
+            if (!confirm('Are you sure you want to delete this post?')) return;
             try {
-                // Instead of hard delete, we can soft-delete (update status)
                 const { error } = await window.supabase
                     .from('posts')
                     .update({ status: 'deleted' })
                     .eq('id', postId);
-
-                if (error) {
-                    console.error('Delete error:', error);
-                    alert('Failed to delete post. Please try again.');
-                } else {
-                    // Remove the card from UI
-                    const card = document.querySelector(`.listing-card[data-post-id="${postId}"]`);
-                    if (card) card.remove();
-                    
-                    // Update post count
-                    const countEl = document.getElementById('postCount');
-                    const current = parseInt(countEl.textContent) || 0;
-                    countEl.textContent = Math.max(0, current - 1);
-
-                    // Show empty state if no posts left
-                    const postsContainer = document.getElementById('postsContainer');
-                    if (postsContainer.children.length === 0) {
-                        postsContainer.style.display = 'none';
-                        document.getElementById('emptyPostsState').style.display = 'block';
-                    }
-
-                    alert('Post deleted successfully.');
-                }
+                if (!error) location.reload();
             } catch (err) {
-                console.error('Delete error:', err);
-                alert('An unexpected error occurred.');
+                alert('Delete failed');
             }
         };
 
-        // ------------------------------------------------------------------
-        // Utility: Escape HTML to prevent XSS
-        // ------------------------------------------------------------------
         function escapeHtml(text) {
             if (!text) return '';
             const div = document.createElement('div');
@@ -403,246 +315,30 @@
             return div.innerHTML;
         }
     </script>
-
-    <!-- Additional inline styles specific to dashboard (can be moved to CSS) -->
-    <style>
-        .dashboard-main {
-            padding: 2rem 1.5rem;
-            background: var(--soft-pink);
-            min-height: calc(100vh - 200px);
-        }
-
-        .dashboard-container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .dashboard-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-            flex-wrap: wrap;
-        }
-
-        .welcome-section h1 {
-            font-size: 2rem;
-            margin-bottom: 0.25rem;
-            color: var(--dark-pink);
-        }
-
-        .member-since {
-            color: #666;
-            font-size: 0.9rem;
-        }
-
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1.5rem;
-            margin-bottom: 2.5rem;
-        }
-
-        .dashboard-card {
-            background: white;
-            border-radius: 15px;
-            padding: 1.75rem;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-        }
-
-        .card-header {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            margin-bottom: 1.25rem;
-        }
-
-        .card-header i {
-            font-size: 1.5rem;
-            color: var(--primary-pink);
-        }
-
-        .card-header h2 {
-            font-size: 1.25rem;
-            margin: 0;
-        }
-
-        .subscription-details .badge {
-            display: inline-block;
-            padding: 0.4rem 1rem;
-            border-radius: 30px;
-            font-weight: 600;
-            font-size: 0.85rem;
-            letter-spacing: 0.5px;
-            margin-bottom: 0.75rem;
-        }
-
-        .badge.vip {
-            background: linear-gradient(135deg, var(--gold), #ffd700);
-            color: white;
-        }
-
-        .badge.regular {
-            background: linear-gradient(135deg, var(--primary-pink), var(--dark-pink));
-            color: white;
-        }
-
-        .subscription-inactive .no-subscription {
-            font-size: 1rem;
-            font-weight: 600;
-            color: var(--charcoal);
-            margin-bottom: 0.25rem;
-        }
-
-        .subscription-inactive .sub-required {
-            color: #666;
-            font-size: 0.9rem;
-        }
-
-        .expiry {
-            color: #666;
-            font-size: 0.9rem;
-            margin-top: 0.25rem;
-        }
-
-        .card-action {
-            margin-top: 1.25rem;
-        }
-
-        .btn-secondary {
-            background: transparent;
-            color: var(--primary-pink);
-            padding: 0.6rem 1.2rem;
-            border-radius: 30px;
-            text-decoration: none;
-            border: 2px solid var(--primary-pink);
-            font-weight: 600;
-            transition: all 0.3s;
-            display: inline-block;
-        }
-
-        .btn-secondary:hover {
-            background: var(--primary-pink);
-            color: white;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 1rem;
-            text-align: center;
-        }
-
-        .stat-value {
-            display: block;
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: var(--dark-pink);
-            line-height: 1.2;
-        }
-
-        .stat-label {
-            font-size: 0.85rem;
-            color: #666;
-        }
-
-        .user-posts-section {
-            margin-top: 2rem;
-        }
-
-        .posts-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 1.5rem;
-            margin-top: 1.5rem;
-        }
-
-        .post-actions {
-            display: flex;
-            gap: 1rem;
-            margin-top: 1rem;
-            padding-top: 1rem;
-            border-top: 1px solid var(--light-pink);
-        }
-
-        .btn-edit, .btn-delete {
-            background: none;
-            border: none;
-            font-size: 0.9rem;
-            cursor: pointer;
-            padding: 0.25rem 0.5rem;
-            border-radius: 5px;
-            transition: background 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 0.25rem;
-        }
-
-        .btn-edit {
-            color: var(--primary-pink);
-        }
-
-        .btn-edit:hover {
-            background: rgba(255, 107, 139, 0.1);
-        }
-
-        .btn-delete {
-            color: #dc3545;
-        }
-
-        .btn-delete:hover {
-            background: rgba(220, 53, 69, 0.1);
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 3rem;
-            background: white;
-            border-radius: 15px;
-            margin-top: 1.5rem;
-        }
-
-        .empty-state i {
-            font-size: 3rem;
-            color: var(--light-pink);
-            margin-bottom: 1rem;
-        }
-
-        .empty-state h3 {
-            margin-bottom: 0.5rem;
-            color: var(--charcoal);
-        }
-
-        .empty-state p {
-            color: #666;
-            margin-bottom: 1.5rem;
-        }
-
-        .loading-spinner {
-            display: inline-block;
-            width: 30px;
-            height: 30px;
-            border: 3px solid var(--light-pink);
-            border-top-color: var(--primary-pink);
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .dashboard-grid {
-                grid-template-columns: 1fr;
+    
+    <!-- Mobile menu backup (same as index) -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var navbar = document.getElementById('navbar');
+            document.addEventListener('click', function(e) {
+                if (navbar && navbar.classList.contains('active') && !navbar.contains(e.target)) {
+                    navbar.classList.remove('active');
+                }
+            });
+            var navLinks = document.getElementById('navLinks');
+            if (navLinks) {
+                navLinks.addEventListener('click', function(e) {
+                    if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON') {
+                        navbar.classList.remove('active');
+                    }
+                });
             }
-            .dashboard-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 1rem;
-            }
-        }
-    </style>
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768 && navbar) {
+                    navbar.classList.remove('active');
+                }
+            });
+        });
+    </script>
 </body>
-    </html>
+                </html>
