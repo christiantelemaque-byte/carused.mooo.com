@@ -877,17 +877,30 @@ footer {
         border-radius: 30px !important;
     }
 
-    /* Fix for white-on-white buttons */
-    .nav-links .btn-primary {
-        background: linear-gradient(135deg, var(--primary-pink) 0%, var(--lavender) 100%) !important;
+    /* ---------- CRITICAL FIX: ENSURE BUTTONS ARE VISIBLE ---------- */
+    .nav-links .btn-primary,
+    .nav-links button.btn-primary {
+        background: #ff6b8b !important; /* solid pink fallback */
+        background: linear-gradient(135deg, #ff6b8b 0%, #b19cd9 100%) !important;
         color: white !important;
         border: none !important;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.1) !important;
+        box-shadow: 0 4px 10px rgba(255,107,139,0.3) !important;
     }
 
-    .nav-links .btn-login {
-        background: var(--light-pink) !important;
-        color: var(--primary-pink) !important;
-        border: 2px solid var(--primary-pink) !important;
+    .nav-links .btn-login,
+    .nav-links button.btn-login {
+        background: #ffd6e0 !important;
+        color: #ff6b8b !important;
+        border: 2px solid #ff6b8b !important;
+        text-shadow: none !important;
+        box-shadow: none !important;
+    }
+
+    /* Ensure logout button (also btn-primary) has same gradient */
+    .nav-links .btn-primary {
+        background: linear-gradient(135deg, #ff6b8b 0%, #b19cd9 100%) !important;
+        color: white !important;
     }
 
     .btn-login,
