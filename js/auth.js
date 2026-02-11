@@ -5,24 +5,35 @@
 
 
 
-// js/auth.js - Fixed version (no duplicate supabase declaration)
-console.log('✅ auth.js loading...');
-
-// Check if supabase is already defined to avoid redeclaration
-if (typeof supabase === 'undefined') {
-    // Only create supabase client if it doesn't exist
-    const supabaseUrl = 'https://mdjwpndaxksdxbjscgas.supabase.co'; // REPLACE WITH YOUR URL
     const supabaseKey = 'process.env.SUPABASE_KEY';
     
+  // js/auth.js - Corrected version
+console.log('✅ auth.js loading...');
+
+// Your Supabase credentials - MAKE SURE TO REPLACE THESE!
+    const supabaseUrl = 'https://mdjwpndaxksdxbjscgas.supabase.co'; // REPLACE WITH YOUR URL
+    const supabaseKey = 'process.env.SUPABASE_KEY';
+
+console.log('Supabase URL:', supabaseUrl ? 'Set' : 'MISSING');
+console.log('Supabase Key:', supabaseAnonKey ? 'Set' : 'MISSING');
+
+// Create Supabase client - SIMPLIFIED APPROACH
+let supabase;
+try {
     if (supabaseUrl && supabaseAnonKey && 
-        supabaseUrl !== 'https://mdjwpndaxksdxbjscgas.supabase.co' && 
-        supabaseAnonKey !== 'process.env.SUPABASE_KEY') {
+        supabaseUrl !== 'YOUR_SUPABASE_URL_HERE' && 
+        supabaseAnonKey !== 'YOUR_SUPABASE_ANON_KEY_HERE') {
         
-        window.supabase = supabase.createClient(supabaseUrl, supabaseAnonKey);
-        console.log('✅ Supabase client created');
+        supabase = window.supabase.createClient(supabaseUrl, supabaseAnonKey);
+        window.supabase = supabase; // Make it globally available
+        console.log('✅ Supabase client created successfully');
+        console.log('Supabase object:', supabase);
+        console.log('Supabase.auth available:', supabase?.auth ? 'Yes' : 'No');
     } else {
-        console.error('❌ Missing Supabase credentials. Please update auth.js with your URL and Key.');
+        console.error('❌ ERROR: Please replace YOUR_SUPABASE_URL_HERE and YOUR_SUPABASE_ANON_KEY_HERE with your actual credentials!');
     }
+} catch (error) {
+    console.error('❌ Failed to create Supabase client:', error);
 }
 
 // ====================
@@ -43,13 +54,13 @@ function loadAuthForms() {
     document.getElementById('authForms').innerHTML = `
         <div class="auth-container">
             <div class="auth-tabs">
-                <button class="auth-tab active" onclick="switchAuthTab(event, 'login')">Login</button>
-                <button class="auth-tab" onclick="switchAuthTab(event, 'register')">Register</button>
+                <button class="auth-tab active" id="loginTabBtn">Login</button>
+                <button class="auth-tab" id="registerTabBtn">Register</button>
             </div>
             
             <div id="loginForm" class="auth-form active">
                 <h3>Sign In</h3>
-                <form id="loginFormElement" onsubmit="handleLogin(event)">
+                <form id="loginFormElement">
                     <div class="form-group">
                         <label>Email</label>
                         <input type="email" id="loginEmail" required placeholder="your@email.com">
@@ -58,14 +69,14 @@ function loadAuthForms() {
                         <label>Password</label>
                         <input type="password" id="loginPassword" required placeholder="••••••••">
                     </div>
-                    <button type="submit" class="btn-auth">Login</button>
+                    <button type="button" id="loginSubmitBtn" class="btn-auth">Login</button>
                 </form>
                 <div id="loginMessage" class="auth-message"></div>
             </div>
             
             <div id="registerForm" class="auth-form">
                 <h3>Create Account</h3>
-                <form id="registerFormElement" onsubmit="handleSignup(event)">
+                <form id="registerFormElement">
                     <div class="form-group">
                         <label>Username</label>
                         <input type="text" id="registerUsername" required placeholder="Choose a username">
@@ -78,31 +89,63 @@ function loadAuthForms() {
                         <label>Password</label>
                         <input type="password" id="registerPassword" required minlength="6" placeholder="At least 6 characters">
                     </div>
-                    <button type="submit" class="btn-auth">Sign Up</button>
+                    <button type="button" id="registerSubmitBtn" class="btn-auth">Sign Up</button>
                 </form>
                 <div id="registerMessage" class="auth-message"></div>
             </div>
         </div>
     `;
+    
+    // Attach event listeners to the new elements
+    setupAuthEventListeners();
 }
 
-function switchAuthTab(event, tabName) {
-    event.preventDefault();
+function setupAuthEventListeners() {
+    // Tab switching
+    document.getElementById('loginTabBtn').addEventListener('click', () => {
+        switchAuthTab('login');
+    });
     
+    document.getElementById('registerTabBtn').addEventListener('click', () => {
+        switchAuthTab('register');
+    });
+    
+    // Form submission
+    document.getElementById('loginSubmitBtn').addEventListener('click', handleLogin);
+    document.getElementById('registerSubmitBtn').addEventListener('click', handleSignup);
+    
+    // Allow form submission with Enter key
+    document.getElementById('loginFormElement').addEventListener('submit', (e) => {
+        e.preventDefault();
+        handleLogin();
+    });
+    
+    document.getElementById('registerFormElement').addEventListener('submit', (e) => {
+        e.preventDefault();
+        handleSignup();
+    });
+}
+
+function switchAuthTab(tabName) {
     // Switch tabs
     document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
     
-    event.target.classList.add('active');
-    document.getElementById(tabName + 'Form').classList.add('active');
+    if (tabName === 'login') {
+        document.getElementById('loginTabBtn').classList.add('active');
+        document.getElementById('loginForm').classList.add('active');
+    } else {
+        document.getElementById('registerTabBtn').classList.add('active');
+        document.getElementById('registerForm').classList.add('active');
+    }
 }
 
 // ====================
 // AUTH HANDLERS
 // ====================
-async function handleSignup(event) {
-    event.preventDefault();
-    console.log('Handling signup...');
+async function handleSignup() {
+    console.log('handleSignup called');
+    console.log('Supabase available:', supabase ? 'Yes' : 'No');
     
     const email = document.getElementById('registerEmail').value;
     const password = document.getElementById('registerPassword').value;
@@ -115,12 +158,23 @@ async function handleSignup(event) {
         return;
     }
     
-    if (!window.supabase) {
-        showAuthMessage(messageDiv, 'Database connection error. Please refresh.', 'error');
+    // Check if Supabase client exists
+    if (!supabase) {
+        showAuthMessage(messageDiv, 'Database connection error. Please check your Supabase credentials in auth.js file.', 'error');
+        console.error('Supabase client is undefined. Check credentials at top of auth.js');
+        return;
+    }
+    
+    // Check if auth module is available
+    if (!supabase.auth) {
+        showAuthMessage(messageDiv, 'Authentication module not available. Check Supabase client creation.', 'error');
+        console.error('supabase.auth is undefined. Full supabase object:', supabase);
         return;
     }
     
     try {
+        console.log('Attempting to sign up user:', email);
+        
         // 1. Create auth user
         const { data: authData, error: authError } = await supabase.auth.signUp({
             email,
@@ -131,46 +185,54 @@ async function handleSignup(event) {
         });
         
         if (authError) {
+            console.error('SignUp auth error:', authError);
             showAuthMessage(messageDiv, 'Error: ' + authError.message, 'error');
             return;
         }
         
-        // 2. Create profile in profiles table
-        const { error: profileError } = await supabase
-            .from('profiles')
-            .insert([
-                { 
-                    id: authData.user.id, 
-                    username: username,
-                    subscription_type: 'none',
-                    subscription_expires_at: null
-                }
-            ]);
+        console.log('Auth user created:', authData);
         
-        if (profileError) {
-            console.warn('Profile creation note:', profileError.message);
-            // Continue anyway - profile might be created via trigger
+        // 2. Create profile in profiles table
+        if (authData.user) {
+            const { error: profileError } = await supabase
+                .from('profiles')
+                .insert([
+                    { 
+                        id: authData.user.id, 
+                        username: username,
+                        subscription_type: 'none',
+                        subscription_expires_at: null
+                    }
+                ]);
+            
+            if (profileError) {
+                console.warn('Profile creation note (may be okay):', profileError.message);
+                // Continue anyway - profile might be created via trigger
+            }
         }
         
-        showAuthMessage(messageDiv, 'Registration successful! You can now login.', 'success');
+        showAuthMessage(messageDiv, 'Registration successful! Please check your email to confirm your account.', 'success');
+        
+        // Clear form
+        document.getElementById('registerEmail').value = '';
+        document.getElementById('registerPassword').value = '';
+        document.getElementById('registerUsername').value = '';
         
         // Switch to login tab after successful registration
         setTimeout(() => {
-            switchAuthTab({preventDefault: () => {}}, 'login');
+            switchAuthTab('login');
             // Pre-fill the login form
             document.getElementById('loginEmail').value = email;
-            document.getElementById('loginPassword').value = password;
-        }, 1500);
+        }, 2000);
         
     } catch (error) {
-        console.error('Signup error:', error);
+        console.error('Signup unexpected error:', error);
         showAuthMessage(messageDiv, 'Unexpected error: ' + error.message, 'error');
     }
 }
 
-async function handleLogin(event) {
-    event.preventDefault();
-    console.log('Handling login...');
+async function handleLogin() {
+    console.log('handleLogin called');
     
     const email = document.getElementById('loginEmail').value;
     const password = document.getElementById('loginPassword').value;
@@ -182,8 +244,8 @@ async function handleLogin(event) {
         return;
     }
     
-    if (!window.supabase) {
-        showAuthMessage(messageDiv, 'Database connection error. Please refresh.', 'error');
+    if (!supabase || !supabase.auth) {
+        showAuthMessage(messageDiv, 'Authentication service unavailable. Please refresh.', 'error');
         return;
     }
     
@@ -212,7 +274,7 @@ async function handleLogin(event) {
 }
 
 async function handleLogout() {
-    if (window.supabase) {
+    if (supabase && supabase.auth) {
         await supabase.auth.signOut();
     }
     window.location.href = 'index.html';
@@ -222,7 +284,10 @@ async function handleLogout() {
 // UI HELPER FUNCTIONS
 // ====================
 function showAuthMessage(element, message, type) {
-    if (!element) return;
+    if (!element) {
+        console.error('Message element not found');
+        return;
+    }
     
     element.textContent = message;
     element.className = 'auth-message ' + type;
@@ -237,7 +302,11 @@ function showAuthMessage(element, message, type) {
 }
 
 function updateAuthUI() {
-    if (!window.supabase) return;
+    // Check if supabase is available before trying to use it
+    if (!supabase) {
+        console.warn('Supabase not available for updateAuthUI');
+        return;
+    }
     
     supabase.auth.getUser().then(({ data }) => {
         const user = data?.user;
@@ -274,7 +343,8 @@ function updateAuthUI() {
 // INITIALIZATION
 // ====================
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('✅ auth.js initialized');
+    console.log('✅ DOM loaded, initializing auth.js...');
+    console.log('Supabase client status:', supabase ? 'Created' : 'NOT created');
     
     // Set up modal close button
     const closeBtn = document.querySelector('.close');
@@ -294,7 +364,7 @@ document.addEventListener('DOMContentLoaded', function() {
     updateAuthUI();
     
     // Listen for auth state changes if supabase is available
-    if (window.supabase) {
+    if (supabase) {
         supabase.auth.onAuthStateChange((event, session) => {
             console.log('Auth state changed:', event);
             updateAuthUI();
