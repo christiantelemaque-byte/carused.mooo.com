@@ -1,9 +1,9 @@
-// js/auth.js - FINAL WORKING VERSION
+// js/auth.js - FINAL VERSION with Profile link
 console.log('auth.js loading...');
 
-// YOUR SUPABASE CREDENTIALS (REPLACE WITH YOUR ACTUAL KEY)
+// YOUR SUPABASE CREDENTIALS
 const supabaseUrl = 'https://mdjwpndaxksdxbjscgas.supabase.co';
-const supabaseKey = 'sb_publishable__JgPVoaGArNDKXB2lF--mw_X4XsBUwH'; // <-- VERIFY THIS IS CORRECT
+const supabaseKey = 'sb_publishable__JgPVoaGArNDKXB2lF--mw_X4XsBUwH'; // VERIFY THIS IS CORRECT
 
 try {
     window.supabase = supabase.createClient(supabaseUrl, supabaseKey);
@@ -158,7 +158,7 @@ window.handleLogout = async function() {
     window.location.href = 'index.html';
 };
 
-// ========== UI UPDATE ==========
+// ========== UI UPDATE – WITH PROFILE LINK ==========
 function updateAuthUI() {
     if (!window.supabase) return;
     window.supabase.auth.getUser().then(({ data }) => {
@@ -167,14 +167,17 @@ function updateAuthUI() {
         if (!navLinks) return;
         
         if (user) {
+            // Logged-in menu – includes Profile link
             navLinks.innerHTML = `
                 <a href="index.html">Home</a>
                 <a href="#vip">VIP Escorts</a>
                 <a href="#regular">Regular Listings</a>
                 <a href="dashboard.html" class="btn-login">Dashboard</a>
+                <a href="profile.html" class="btn-login">Profile</a>
                 <button onclick="handleLogout()" class="btn-primary">Logout</button>
             `;
         } else {
+            // Logged-out menu
             navLinks.innerHTML = `
                 <a href="index.html">Home</a>
                 <a href="#vip">VIP Escorts</a>
