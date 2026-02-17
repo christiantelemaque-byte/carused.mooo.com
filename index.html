@@ -5,17 +5,78 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <meta name="robots" content="noindex">
     <title>LuxeCompanions - Premium Escort Directory</title>
-    <link rel="stylesheet" href="css/style.css">
+    <!-- Fonts & Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+    <!-- Main Stylesheet (your existing CSS) -->
+    <link rel="stylesheet" href="css/style.css">
+    <!-- GUARANTEED MOBILE MENU CSS – OVERRIDES ANY CONFLICTS -->
+    <style>
+        /* Force mobile menu behavior – these styles will apply even if your style.css is missing them */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none !important;
+                flex-direction: column !important;
+                width: 100% !important;
+                background: white !important;
+                position: absolute !important;
+                top: 100% !important;
+                left: 0 !important;
+                right: 0 !important;
+                padding: 1rem 0 !important;
+                box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+                z-index: 1000 !important;
+            }
+            .navbar.active .nav-links {
+                display: flex !important;
+            }
+            .menu-toggle {
+                display: block !important;
+                cursor: pointer;
+            }
+            .btn-login, .btn-primary {
+                width: 90% !important;
+                margin: 0.5rem auto !important;
+                text-align: center !important;
+            }
+        }
+        /* Desktop override */
+        @media (min-width: 769px) {
+            .menu-toggle {
+                display: none !important;
+            }
+            .nav-links {
+                display: flex !important;
+                position: static !important;
+                box-shadow: none !important;
+            }
+        }
+    </style>
+    <!-- Supabase & Cache -->
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="js/cache.js"></script>
-    <!-- MOBILE MENU TOGGLE - DEFINED IMMEDIATELY -->
+    <!-- MOBILE MENU TOGGLE FUNCTION – DEFINED IMMEDIATELY -->
     <script>
         window.toggleMobileMenu = function() {
+            console.log('toggleMobileMenu called');
             var navbar = document.getElementById('navbar');
-            if (navbar) {
-                navbar.classList.toggle('active');
+            if (!navbar) return false;
+            
+            // Try classList toggle first (relies on CSS)
+            navbar.classList.toggle('active');
+            
+            // Backup: if after toggling, the menu is still not visible (maybe CSS issue), force display style
+            var navLinks = document.getElementById('navLinks');
+            if (navLinks) {
+                var isActive = navbar.classList.contains('active');
+                // Check computed style – if it's not visible when it should be, force it
+                var computedDisplay = window.getComputedStyle(navLinks).display;
+                if (isActive && computedDisplay === 'none') {
+                    console.warn('CSS class not working, forcing inline style');
+                    navLinks.style.display = 'flex';
+                } else if (!isActive && computedDisplay !== 'none') {
+                    navLinks.style.display = 'none';
+                }
             }
             return false;
         };
@@ -29,14 +90,12 @@
                 <i class="fas fa-gem"></i>
                 <span>LuxeCompanions</span>
             </div>
-            <!-- Hamburger Menu Toggle - INLINE ONCLICK -->
+            <!-- Hamburger Menu Toggle – INLINE ONCLICK (GUARANTEED) -->
             <div class="menu-toggle" id="mobileMenu" onclick="toggleMobileMenu(); event.stopPropagation();">
                 <i class="fas fa-bars"></i>
             </div>
-            <!-- STATIC FALLBACK MENU – ALWAYS VISIBLE UNTIL REPLACED BY AUTH.JS -->
+            <!-- STATIC FALLBACK MENU – WILL BE REPLACED BY AUTH.JS -->
             <div class="nav-links" id="navLinks">
-                <!-- These links are visible on desktop and mobile by default.
-                     auth.js will replace them with user-specific ones once loaded. -->
                 <a href="index.html">Home</a>
                 <a href="#vip">VIP Escorts</a>
                 <a href="#regular">Regular Listings</a>
@@ -151,10 +210,9 @@
     <script src="js/app.js"></script>
     <script src="js/auth.js"></script>
     
-    <!-- Fallback function for static menu buttons (if auth.js hasn't loaded yet) -->
+    <!-- Fallback modal opener for static menu -->
     <script>
         window.openAuthModalFallback = function() {
-            // If auth.js is loaded and has openAuthModal, use it; otherwise show modal directly
             if (typeof window.openAuthModal === 'function') {
                 window.openAuthModal();
             } else {
@@ -162,7 +220,7 @@
             }
         };
 
-        // Also attach hero button
+        // Hero button
         document.addEventListener('DOMContentLoaded', function() {
             var heroBtn = document.getElementById('heroSignupBtn');
             if (heroBtn) {
@@ -174,7 +232,7 @@
         });
     </script>
     
-    <!-- MOBILE MENU ENHANCEMENTS (backup) -->
+    <!-- Backup click handler (just in case inline onclick is overridden) -->
     <script>
         (function() {
             function ready(fn) {
@@ -182,43 +240,34 @@
                 else document.addEventListener('DOMContentLoaded', fn);
             }
             ready(function() {
-                var navbar = document.getElementById('navbar');
                 var mobileMenu = document.getElementById('mobileMenu');
-
-                // Backup click handler (in case inline onclick is blocked)
                 if (mobileMenu) {
                     mobileMenu.addEventListener('click', function(e) {
                         e.preventDefault();
                         e.stopPropagation();
-                        navbar.classList.toggle('active');
+                        toggleMobileMenu(); // call the global function
                     });
                 }
-
                 // Close menu when clicking outside
+                var navbar = document.getElementById('navbar');
                 document.addEventListener('click', function(e) {
                     if (navbar && navbar.classList.contains('active') && !navbar.contains(e.target)) {
                         navbar.classList.remove('active');
+                        // Also force inline style removal
+                        var navLinks = document.getElementById('navLinks');
+                        if (navLinks) navLinks.style.display = '';
                     }
                 });
-
-                // Close menu when a link is clicked
-                var navLinks = document.getElementById('navLinks');
-                if (navLinks) {
-                    navLinks.addEventListener('click', function(e) {
-                        if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON') {
-                            navbar.classList.remove('active');
-                        }
-                    });
-                }
-
-                // Close menu on window resize above mobile
+                // Close menu on resize
                 window.addEventListener('resize', function() {
                     if (window.innerWidth > 768 && navbar) {
                         navbar.classList.remove('active');
+                        var navLinks = document.getElementById('navLinks');
+                        if (navLinks) navLinks.style.display = '';
                     }
                 });
             });
         })();
     </script>
 </body>
-            </html>
+                </html>
