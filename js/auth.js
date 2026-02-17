@@ -1,4 +1,4 @@
-// js/auth.js – FINAL VERSION with global loadAuthForms
+// js/auth.js – FINAL VERSION with global loadAuthForms and authLoaded flag
 console.log('auth.js loading...');
 
 // YOUR SUPABASE CREDENTIALS (verify these are correct)
@@ -215,3 +215,7 @@ document.addEventListener('DOMContentLoaded', function() {
         window.supabase.auth.onAuthStateChange(() => updateAuthUI());
     }
 });
+
+// Signal that auth.js is fully loaded
+window.authLoaded = true;
+console.log('auth.js fully loaded');
