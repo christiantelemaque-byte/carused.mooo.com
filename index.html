@@ -5,15 +5,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <meta name="robots" content="noindex">
     <title>LuxeCompanions - Premium Escort Directory</title>
-    <!-- Fonts & Icons -->
+    <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
-    <!-- Main Stylesheet (your existing CSS) -->
-    <link rel="stylesheet" href="css/style.css">
-    <!-- GUARANTEED MOBILE MENU CSS – OVERRIDES ANY CONFLICTS -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="js/cache.js"></script>
+    <!-- GUARANTEED CSS-ONLY MOBILE MENU (no JavaScript needed for toggle) -->
     <style>
-        /* Force mobile menu behavior – these styles will apply even if your style.css is missing them */
+        /* Hide the checkbox */
+        #menu-toggle-checkbox {
+            display: none;
+        }
+
+        /* Hamburger icon - hidden on desktop, visible on mobile */
+        .menu-toggle {
+            display: none;
+            font-size: 1.8rem;
+            color: var(--primary-pink);
+            cursor: pointer;
+            padding: 0.5rem;
+            z-index: 1002;
+        }
+
         @media (max-width: 768px) {
+            .menu-toggle {
+                display: block !important;
+            }
+
             .nav-links {
                 display: none !important;
                 flex-direction: column !important;
@@ -25,62 +43,30 @@
                 right: 0 !important;
                 padding: 1rem 0 !important;
                 box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
-                z-index: 1000 !important;
+                z-index: 1001 !important;
             }
-            .navbar.active .nav-links {
+
+            /* When checkbox is checked, show the menu */
+            #menu-toggle-checkbox:checked ~ .nav-links {
                 display: flex !important;
             }
-            .menu-toggle {
-                display: block !important;
-                cursor: pointer;
-            }
-            .btn-login, .btn-primary {
-                width: 90% !important;
-                margin: 0.5rem auto !important;
-                text-align: center !important;
-            }
         }
+
         /* Desktop override */
         @media (min-width: 769px) {
-            .menu-toggle {
-                display: none !important;
-            }
             .nav-links {
                 display: flex !important;
                 position: static !important;
                 box-shadow: none !important;
             }
         }
+
+        /* Ensure buttons are visible */
+        .btn-login, .btn-primary {
+            display: inline-block;
+            margin: 0.5rem;
+        }
     </style>
-    <!-- Supabase & Cache -->
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-    <script src="js/cache.js"></script>
-    <!-- MOBILE MENU TOGGLE FUNCTION – DEFINED IMMEDIATELY -->
-    <script>
-        window.toggleMobileMenu = function() {
-            console.log('toggleMobileMenu called');
-            var navbar = document.getElementById('navbar');
-            if (!navbar) return false;
-            
-            // Try classList toggle first (relies on CSS)
-            navbar.classList.toggle('active');
-            
-            // Backup: if after toggling, the menu is still not visible (maybe CSS issue), force display style
-            var navLinks = document.getElementById('navLinks');
-            if (navLinks) {
-                var isActive = navbar.classList.contains('active');
-                // Check computed style – if it's not visible when it should be, force it
-                var computedDisplay = window.getComputedStyle(navLinks).display;
-                if (isActive && computedDisplay === 'none') {
-                    console.warn('CSS class not working, forcing inline style');
-                    navLinks.style.display = 'flex';
-                } else if (!isActive && computedDisplay !== 'none') {
-                    navLinks.style.display = 'none';
-                }
-            }
-            return false;
-        };
-    </script>
 </head>
 <body>
     <!-- Navigation -->
@@ -90,11 +76,16 @@
                 <i class="fas fa-gem"></i>
                 <span>LuxeCompanions</span>
             </div>
-            <!-- Hamburger Menu Toggle – INLINE ONCLICK (GUARANTEED) -->
-            <div class="menu-toggle" id="mobileMenu" onclick="toggleMobileMenu(); event.stopPropagation();">
+
+            <!-- Hidden checkbox controls the menu -->
+            <input type="checkbox" id="menu-toggle-checkbox">
+
+            <!-- Hamburger label – clicking this toggles the checkbox -->
+            <label for="menu-toggle-checkbox" class="menu-toggle" id="mobileMenu">
                 <i class="fas fa-bars"></i>
-            </div>
-            <!-- STATIC FALLBACK MENU – WILL BE REPLACED BY AUTH.JS -->
+            </label>
+
+            <!-- STATIC FALLBACK MENU – will be replaced by auth.js once loaded -->
             <div class="nav-links" id="navLinks">
                 <a href="index.html">Home</a>
                 <a href="#vip">VIP Escorts</a>
@@ -209,8 +200,8 @@
     <!-- JavaScript files -->
     <script src="js/app.js"></script>
     <script src="js/auth.js"></script>
-    
-    <!-- Fallback modal opener for static menu -->
+
+    <!-- Fallback modal opener and menu auto‑close when a link is clicked (optional, but nice) -->
     <script>
         window.openAuthModalFallback = function() {
             if (typeof window.openAuthModal === 'function') {
@@ -220,8 +211,20 @@
             }
         };
 
-        // Hero button
+        // When a navigation link is clicked, uncheck the checkbox to close the menu (improves UX)
         document.addEventListener('DOMContentLoaded', function() {
+            var checkbox = document.getElementById('menu-toggle-checkbox');
+            var navLinks = document.getElementById('navLinks');
+            if (navLinks) {
+                navLinks.addEventListener('click', function(e) {
+                    if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON') {
+                        // Uncheck the checkbox to close the menu
+                        if (checkbox) checkbox.checked = false;
+                    }
+                });
+            }
+
+            // Hero button
             var heroBtn = document.getElementById('heroSignupBtn');
             if (heroBtn) {
                 heroBtn.addEventListener('click', function(e) {
@@ -231,43 +234,5 @@
             }
         });
     </script>
-    
-    <!-- Backup click handler (just in case inline onclick is overridden) -->
-    <script>
-        (function() {
-            function ready(fn) {
-                if (document.readyState !== 'loading') fn();
-                else document.addEventListener('DOMContentLoaded', fn);
-            }
-            ready(function() {
-                var mobileMenu = document.getElementById('mobileMenu');
-                if (mobileMenu) {
-                    mobileMenu.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        toggleMobileMenu(); // call the global function
-                    });
-                }
-                // Close menu when clicking outside
-                var navbar = document.getElementById('navbar');
-                document.addEventListener('click', function(e) {
-                    if (navbar && navbar.classList.contains('active') && !navbar.contains(e.target)) {
-                        navbar.classList.remove('active');
-                        // Also force inline style removal
-                        var navLinks = document.getElementById('navLinks');
-                        if (navLinks) navLinks.style.display = '';
-                    }
-                });
-                // Close menu on resize
-                window.addEventListener('resize', function() {
-                    if (window.innerWidth > 768 && navbar) {
-                        navbar.classList.remove('active');
-                        var navLinks = document.getElementById('navLinks');
-                        if (navLinks) navLinks.style.display = '';
-                    }
-                });
-            });
-        })();
-    </script>
 </body>
-                </html>
+    </html>
