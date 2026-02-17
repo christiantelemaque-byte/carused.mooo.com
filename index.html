@@ -9,7 +9,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-    <!-- MOBILE MENU TOGGLE - DEFINED IMMEDIATELY -->
+    <script src="js/cache.js"></script>
+    <!-- MOBILE MENU TOGGLE - DEFINED IMMEDIATELY (works even if other scripts fail) -->
     <script>
         window.toggleMobileMenu = function() {
             var navbar = document.getElementById('navbar');
@@ -29,11 +30,11 @@
                 <i class="fas fa-gem"></i>
                 <span>LuxeCompanions</span>
             </div>
-            <!-- Hamburger Menu - INLINE ONCLICK (GUARANTEED) -->
+            <!-- Hamburger Menu Toggle - INLINE ONCLICK (guaranteed) -->
             <div class="menu-toggle" id="mobileMenu" onclick="toggleMobileMenu(); event.stopPropagation();">
                 <i class="fas fa-bars"></i>
             </div>
-            <!-- Navigation Links - will be populated by auth.js -->
+            <!-- Navigation Links – will be populated by auth.js -->
             <div class="nav-links" id="navLinks"></div>
         </div>
     </nav>
@@ -138,52 +139,70 @@
         </div>
     </div>
 
-    <!-- JavaScript files - LOAD THESE! -->
+    <!-- JavaScript files -->
     <script src="js/app.js"></script>
     <script src="js/auth.js"></script>
     
-    <!-- Mobile menu enhancements (backup) -->
+    <!-- MOBILE MENU ENHANCEMENTS (backup event listeners) -->
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Close menu when clicking outside
-            var navbar = document.getElementById('navbar');
-            document.addEventListener('click', function(e) {
-                if (navbar && navbar.classList.contains('active') && !navbar.contains(e.target)) {
-                    navbar.classList.remove('active');
+        (function() {
+            'use strict';
+            function ready(fn) {
+                if (document.readyState !== 'loading') fn();
+                else document.addEventListener('DOMContentLoaded', fn);
+            }
+            ready(function() {
+                var navbar = document.getElementById('navbar');
+                var mobileMenu = document.getElementById('mobileMenu');
+                var navLinks = document.getElementById('navLinks');
+
+                // If the inline onclick didn't work for some reason, attach event listener as backup
+                if (mobileMenu && typeof mobileMenu.onclick !== 'function') {
+                    mobileMenu.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        navbar.classList.toggle('active');
+                    });
                 }
-            });
-            
-            // Close menu when a link is clicked
-            var navLinks = document.getElementById('navLinks');
-            if (navLinks) {
-                navLinks.addEventListener('click', function(e) {
-                    if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON') {
+
+                // Close menu when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (navbar && navbar.classList.contains('active') && !navbar.contains(e.target)) {
                         navbar.classList.remove('active');
                     }
                 });
-            }
-            
-            // Close menu on window resize above mobile
-            window.addEventListener('resize', function() {
-                if (window.innerWidth > 768 && navbar) {
-                    navbar.classList.remove('active');
+
+                // Close menu when a link is clicked (for smooth UX)
+                if (navLinks) {
+                    navLinks.addEventListener('click', function(e) {
+                        if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON') {
+                            navbar.classList.remove('active');
+                        }
+                    });
                 }
-            });
-            
-            // Attach hero button to openAuthModal (in case auth.js loads later)
-            var heroBtn = document.getElementById('heroSignupBtn');
-            if (heroBtn) {
-                heroBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    if (typeof window.openAuthModal === 'function') {
-                        window.openAuthModal();
-                    } else {
-                        // Fallback - show modal directly
-                        document.getElementById('authModal').style.display = 'block';
+
+                // Close menu on window resize above mobile
+                window.addEventListener('resize', function() {
+                    if (window.innerWidth > 768 && navbar) {
+                        navbar.classList.remove('active');
                     }
                 });
-            }
-        });
+
+                // Attach hero signup button to open modal (if auth.js hasn't already)
+                var heroBtn = document.getElementById('heroSignupBtn');
+                if (heroBtn) {
+                    heroBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        if (typeof window.openAuthModal === 'function') {
+                            window.openAuthModal();
+                        } else {
+                            // fallback
+                            document.getElementById('authModal').style.display = 'block';
+                        }
+                    });
+                }
+            });
+        })();
     </script>
 </body>
         </html>
