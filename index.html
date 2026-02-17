@@ -8,9 +8,10 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+    <!-- Supabase and cache scripts -->
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="js/cache.js"></script>
-    <!-- GUARANTEED CSS-ONLY MOBILE MENU (no JavaScript needed for toggle) -->
+    <!-- GUARANTEED CSS-ONLY MOBILE MENU -->
     <style>
         /* Hide the checkbox */
         #menu-toggle-checkbox {
@@ -91,8 +92,9 @@
                 <a href="#vip">VIP Escorts</a>
                 <a href="#regular">Regular Listings</a>
                 <a href="#how-it-works">How It Works</a>
-                <a href="#" onclick="openAuthModalFallback(); return false;" class="btn-login">Login</a>
-                <a href="#" onclick="openAuthModalFallback(); return false;" class="btn-primary">Become a Companion</a>
+                <!-- Use a common function that works with both static and dynamic auth -->
+                <a href="#" onclick="openAuthModalStatic(); return false;" class="btn-login">Login</a>
+                <a href="#" onclick="openAuthModalStatic(); return false;" class="btn-primary">Become a Companion</a>
             </div>
         </div>
     </nav>
@@ -190,6 +192,7 @@
         <div class="modal-content">
             <span class="close">&times;</span>
             <div id="authForms">
+                <!-- This placeholder will be replaced by loadAuthForms() -->
                 <div style="text-align: center; padding: 20px;">
                     <p>Loading authentication forms...</p>
                 </div>
@@ -197,42 +200,73 @@
         </div>
     </div>
 
-    <!-- JavaScript files -->
+    <!-- Main JavaScript files (order matters) -->
     <script src="js/app.js"></script>
     <script src="js/auth.js"></script>
 
-    <!-- Fallback modal opener and menu auto‑close when a link is clicked (optional, but nice) -->
+    <!-- Unified modal opener and UX enhancements -->
     <script>
-        window.openAuthModalFallback = function() {
+        // This function works with both the static fallback menu and after auth.js loads
+        window.openAuthModalStatic = function() {
             if (typeof window.openAuthModal === 'function') {
+                // If auth.js is loaded and ready, use its function
                 window.openAuthModal();
             } else {
-                document.getElementById('authModal').style.display = 'block';
+                // Fallback: show the modal and attempt to load forms manually
+                var modal = document.getElementById('authModal');
+                if (modal) {
+                    modal.style.display = 'block';
+                    // If auth.js hasn't loaded yet, try to load forms via a simple retry
+                    if (typeof loadAuthForms === 'function') {
+                        loadAuthForms();
+                    } else {
+                        // Wait a bit and try again (in case auth.js is still loading)
+                        setTimeout(function() {
+                            if (typeof loadAuthForms === 'function') {
+                                loadAuthForms();
+                            }
+                        }, 500);
+                    }
+                }
             }
         };
 
-        // When a navigation link is clicked, uncheck the checkbox to close the menu (improves UX)
+        // Hero button uses the same unified opener
         document.addEventListener('DOMContentLoaded', function() {
+            var heroBtn = document.getElementById('heroSignupBtn');
+            if (heroBtn) {
+                heroBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    window.openAuthModalStatic();
+                });
+            }
+
+            // Close modal when clicking the X
+            var closeBtn = document.querySelector('.close');
+            if (closeBtn) {
+                closeBtn.addEventListener('click', function() {
+                    document.getElementById('authModal').style.display = 'none';
+                });
+            }
+
+            // Close modal when clicking outside
+            window.addEventListener('click', function(e) {
+                if (e.target.id === 'authModal') {
+                    document.getElementById('authModal').style.display = 'none';
+                }
+            });
+
+            // When a navigation link is clicked, uncheck the checkbox to close the menu (improves UX)
             var checkbox = document.getElementById('menu-toggle-checkbox');
             var navLinks = document.getElementById('navLinks');
             if (navLinks) {
                 navLinks.addEventListener('click', function(e) {
                     if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON') {
-                        // Uncheck the checkbox to close the menu
                         if (checkbox) checkbox.checked = false;
                     }
-                });
-            }
-
-            // Hero button
-            var heroBtn = document.getElementById('heroSignupBtn');
-            if (heroBtn) {
-                heroBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    openAuthModalFallback();
                 });
             }
         });
     </script>
 </body>
-    </html>
+                </html>
