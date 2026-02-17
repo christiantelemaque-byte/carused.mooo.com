@@ -10,13 +10,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="js/cache.js"></script>
-    <!-- MOBILE MENU TOGGLE - DEFINED IMMEDIATELY (works even if other scripts fail) -->
+    <!-- MOBILE MENU TOGGLE - DEFINED IMMEDIATELY -->
     <script>
         window.toggleMobileMenu = function() {
             var navbar = document.getElementById('navbar');
             if (navbar) {
                 navbar.classList.toggle('active');
-                console.log('Menu toggled, active:', navbar.classList.contains('active'));
             }
             return false;
         };
@@ -30,12 +29,21 @@
                 <i class="fas fa-gem"></i>
                 <span>LuxeCompanions</span>
             </div>
-            <!-- Hamburger Menu Toggle - INLINE ONCLICK (guaranteed) -->
+            <!-- Hamburger Menu Toggle - INLINE ONCLICK -->
             <div class="menu-toggle" id="mobileMenu" onclick="toggleMobileMenu(); event.stopPropagation();">
                 <i class="fas fa-bars"></i>
             </div>
-            <!-- Navigation Links – will be populated by auth.js -->
-            <div class="nav-links" id="navLinks"></div>
+            <!-- STATIC FALLBACK MENU – ALWAYS VISIBLE UNTIL REPLACED BY AUTH.JS -->
+            <div class="nav-links" id="navLinks">
+                <!-- These links are visible on desktop and mobile by default.
+                     auth.js will replace them with user-specific ones once loaded. -->
+                <a href="index.html">Home</a>
+                <a href="#vip">VIP Escorts</a>
+                <a href="#regular">Regular Listings</a>
+                <a href="#how-it-works">How It Works</a>
+                <a href="#" onclick="openAuthModalFallback(); return false;" class="btn-login">Login</a>
+                <a href="#" onclick="openAuthModalFallback(); return false;" class="btn-primary">Become a Companion</a>
+            </div>
         </div>
     </nav>
 
@@ -143,10 +151,32 @@
     <script src="js/app.js"></script>
     <script src="js/auth.js"></script>
     
-    <!-- MOBILE MENU ENHANCEMENTS (backup event listeners) -->
+    <!-- Fallback function for static menu buttons (if auth.js hasn't loaded yet) -->
+    <script>
+        window.openAuthModalFallback = function() {
+            // If auth.js is loaded and has openAuthModal, use it; otherwise show modal directly
+            if (typeof window.openAuthModal === 'function') {
+                window.openAuthModal();
+            } else {
+                document.getElementById('authModal').style.display = 'block';
+            }
+        };
+
+        // Also attach hero button
+        document.addEventListener('DOMContentLoaded', function() {
+            var heroBtn = document.getElementById('heroSignupBtn');
+            if (heroBtn) {
+                heroBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    openAuthModalFallback();
+                });
+            }
+        });
+    </script>
+    
+    <!-- MOBILE MENU ENHANCEMENTS (backup) -->
     <script>
         (function() {
-            'use strict';
             function ready(fn) {
                 if (document.readyState !== 'loading') fn();
                 else document.addEventListener('DOMContentLoaded', fn);
@@ -154,10 +184,9 @@
             ready(function() {
                 var navbar = document.getElementById('navbar');
                 var mobileMenu = document.getElementById('mobileMenu');
-                var navLinks = document.getElementById('navLinks');
 
-                // If the inline onclick didn't work for some reason, attach event listener as backup
-                if (mobileMenu && typeof mobileMenu.onclick !== 'function') {
+                // Backup click handler (in case inline onclick is blocked)
+                if (mobileMenu) {
                     mobileMenu.addEventListener('click', function(e) {
                         e.preventDefault();
                         e.stopPropagation();
@@ -172,7 +201,8 @@
                     }
                 });
 
-                // Close menu when a link is clicked (for smooth UX)
+                // Close menu when a link is clicked
+                var navLinks = document.getElementById('navLinks');
                 if (navLinks) {
                     navLinks.addEventListener('click', function(e) {
                         if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON') {
@@ -187,22 +217,8 @@
                         navbar.classList.remove('active');
                     }
                 });
-
-                // Attach hero signup button to open modal (if auth.js hasn't already)
-                var heroBtn = document.getElementById('heroSignupBtn');
-                if (heroBtn) {
-                    heroBtn.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        if (typeof window.openAuthModal === 'function') {
-                            window.openAuthModal();
-                        } else {
-                            // fallback
-                            document.getElementById('authModal').style.display = 'block';
-                        }
-                    });
-                }
             });
         })();
     </script>
 </body>
-        </html>
+            </html>
