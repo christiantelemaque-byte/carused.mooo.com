@@ -1,9 +1,8 @@
-// js/auth.js - FINAL VERSION with Profile link
+// js/auth.js – With caching
 console.log('auth.js loading...');
 
-// YOUR SUPABASE CREDENTIALS
 const supabaseUrl = 'https://mdjwpndaxksdxbjscgas.supabase.co';
-const supabaseKey = 'sb_publishable__JgPVoaGArNDKXB2lF--mw_X4XsBUwH'; // VERIFY THIS IS CORRECT
+const supabaseKey = 'sb_publishable__JgPVoaGArNDKXB2lF--mw_X4XsBUwH';
 
 try {
     window.supabase = supabase.createClient(supabaseUrl, supabaseKey);
@@ -135,14 +134,22 @@ window.handleLogin = async function() {
     }
     
     try {
-        const { error } = await window.supabase.auth.signInWithPassword({ email, password });
+        const { data, error } = await window.supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         
         msg.textContent = '✅ Login successful! Redirecting...';
         msg.className = 'auth-message success';
         msg.style.display = 'block';
         
-        setTimeout(() => {
+        // After login, immediately fetch and cache user profile
+        setTimeout(async () => {
+            const { data: profile } = await window.supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', data.user.id)
+                .single();
+            if (profile) setUserProfile(profile);
+            
             closeAuthModal();
             window.location.href = 'dashboard.html';
         }, 1000);
@@ -155,10 +162,11 @@ window.handleLogin = async function() {
 
 window.handleLogout = async function() {
     if (window.supabase) await window.supabase.auth.signOut();
+    clearAllCaches(); // Clear all cached data on logout
     window.location.href = 'index.html';
 };
 
-// ========== UI UPDATE – WITH PROFILE LINK ==========
+// ========== UI UPDATE ==========
 function updateAuthUI() {
     if (!window.supabase) return;
     window.supabase.auth.getUser().then(({ data }) => {
@@ -167,7 +175,6 @@ function updateAuthUI() {
         if (!navLinks) return;
         
         if (user) {
-            // Logged-in menu – includes Profile link
             navLinks.innerHTML = `
                 <a href="index.html">Home</a>
                 <a href="#vip">VIP Escorts</a>
@@ -177,7 +184,6 @@ function updateAuthUI() {
                 <button onclick="handleLogout()" class="btn-primary">Logout</button>
             `;
         } else {
-            // Logged-out menu
             navLinks.innerHTML = `
                 <a href="index.html">Home</a>
                 <a href="#vip">VIP Escorts</a>
@@ -192,7 +198,6 @@ function updateAuthUI() {
 
 // ========== INIT ==========
 document.addEventListener('DOMContentLoaded', function() {
-    // Modal close button
     document.querySelector('.close')?.addEventListener('click', closeAuthModal);
     window.addEventListener('click', e => {
         if (e.target.id === 'authModal') closeAuthModal();
