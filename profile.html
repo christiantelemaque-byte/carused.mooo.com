@@ -6,7 +6,10 @@
     <title>Profile - LuxeCompanions</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="js/cache.js"></script>
+    <!-- Mobile menu toggle (same as index) -->
     <script>
         window.toggleMobileMenu = function() {
             var navbar = document.getElementById('navbar');
@@ -16,6 +19,7 @@
     </script>
 </head>
 <body>
+    <!-- Navigation (identical to dashboard) -->
     <nav class="navbar" id="navbar">
         <div class="nav-container">
             <div class="logo">
@@ -29,6 +33,7 @@
         </div>
     </nav>
 
+    <!-- Main Content -->
     <main style="padding: 2rem 1.5rem; max-width: 600px; margin: 0 auto;">
         <div style="background: white; border-radius: 15px; padding: 2rem; box-shadow: 0 5px 15px rgba(0,0,0,0.05);">
             <h1 style="font-size: 2rem; margin-bottom: 1.5rem; color: var(--dark-pink);">
@@ -42,7 +47,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="email">Email (cannot be changed here)</label>
+                    <label for="email">Email (cannot be changed)</label>
                     <input type="email" id="email" disabled style="background: var(--light-gray);">
                 </div>
 
@@ -62,6 +67,7 @@
         </div>
     </main>
 
+    <!-- Footer (same as index) -->
     <footer>
         <div class="footer-content">
             <div class="footer-section">
@@ -83,12 +89,16 @@
             </div>
         </div>
         <div class="footer-bottom">
-            <p>© 2024 LuxeCompanions. All rights reserved.</p>
+            <p>© 2024 LuxeCompanions. Must be 21+ to access. All rights reserved.</p>
+            <p class="disclaimer">This website is for legal companionship services only. Users must comply with all applicable laws.</p>
         </div>
     </footer>
 
     <script src="js/auth.js"></script>
     <script>
+        // ------------------------------------------------------------
+        // PROFILE CONTROLLER WITH CACHING
+        // ------------------------------------------------------------
         document.addEventListener('DOMContentLoaded', async function() {
             if (!window.supabase) {
                 window.location.href = 'index.html';
@@ -101,53 +111,78 @@
                 return;
             }
 
-            // Load profile from 'profiles' table
-            const { data: profile, error: profileError } = await window.supabase
-                .from('profiles')
-                .select('*')
-                .eq('id', user.id)
-                .single();
-
-            if (profileError) {
-                console.error('Error loading profile:', profileError);
-                return;
+            // Try to load from cache first
+            let profile = getUserProfile();
+            if (profile && profile.id === user.id) {
+                fillForm(user, profile);
+                // Refresh in background
+                refreshProfile(user.id);
+            } else {
+                await refreshProfile(user.id);
             }
+        });
 
-            // Fill form
+        async function refreshProfile(userId) {
+            try {
+                const { data: profile, error } = await window.supabase
+                    .from('profiles')
+                    .select('*')
+                    .eq('id', userId)
+                    .single();
+
+                if (error) throw error;
+
+                // Cache the fresh profile
+                setUserProfile(profile);
+                fillForm(user, profile);
+            } catch (err) {
+                console.error('Profile load error:', err);
+                showMessage('Failed to load profile. Please refresh.', 'error');
+            }
+        }
+
+        function fillForm(user, profile) {
             document.getElementById('username').value = profile.username || '';
             document.getElementById('email').value = user.email;
             const created = new Date(user.created_at);
-            document.getElementById('memberSince').value = created.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-
-            // Handle update
-            document.getElementById('profileForm').addEventListener('submit', async function(e) {
-                e.preventDefault();
-                const newUsername = document.getElementById('username').value.trim();
-
-                if (!newUsername) {
-                    showMessage('Username cannot be empty', 'error');
-                    return;
-                }
-
-                try {
-                    // Update 'profiles' table
-                    const { error: updateError } = await window.supabase
-                        .from('profiles')
-                        .update({ username: newUsername })
-                        .eq('id', user.id);
-
-                    if (updateError) throw updateError;
-
-                    // Also update user metadata (optional)
-                    await window.supabase.auth.updateUser({
-                        data: { username: newUsername }
-                    });
-
-                    showMessage('✅ Profile updated successfully!', 'success');
-                } catch (err) {
-                    showMessage('Error: ' + err.message, 'error');
-                }
+            document.getElementById('memberSince').value = created.toLocaleDateString('en-US', { 
+                year: 'numeric', month: 'long', day: 'numeric' 
             });
+        }
+
+        // Handle update
+        document.getElementById('profileForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const newUsername = document.getElementById('username').value.trim();
+
+            if (!newUsername) {
+                showMessage('Username cannot be empty', 'error');
+                return;
+            }
+
+            try {
+                const { data: { user } } = await window.supabase.auth.getUser();
+                
+                // Update 'profiles' table
+                const { error: updateError } = await window.supabase
+                    .from('profiles')
+                    .update({ username: newUsername })
+                    .eq('id', user.id);
+
+                if (updateError) throw updateError;
+
+                // Also update user metadata (optional)
+                await window.supabase.auth.updateUser({
+                    data: { username: newUsername }
+                });
+
+                // Clear profile cache so next load gets fresh data
+                clearCache(CACHE_KEYS.USER_PROFILE);
+
+                showMessage('✅ Profile updated successfully!', 'success');
+            } catch (err) {
+                showMessage('Error: ' + err.message, 'error');
+            }
         });
 
         function showMessage(msg, type) {
@@ -159,7 +194,7 @@
         }
     </script>
 
-    <!-- Mobile menu close handler (same as before) -->
+    <!-- Mobile menu close handler (same as dashboard) -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             var navbar = document.getElementById('navbar');
@@ -178,4 +213,4 @@
         });
     </script>
 </body>
-                                                                                  </html>
+</html>
