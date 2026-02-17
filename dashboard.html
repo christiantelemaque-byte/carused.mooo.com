@@ -3,36 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <meta name="robots" content="noindex">
     <title>Dashboard - LuxeCompanions</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-    <!-- MOBILE MENU TOGGLE - DEFINED IMMEDIATELY -->
+    <script src="js/cache.js"></script>
     <script>
         window.toggleMobileMenu = function() {
             var navbar = document.getElementById('navbar');
-            if (navbar) {
-                navbar.classList.toggle('active');
-            }
+            if (navbar) navbar.classList.toggle('active');
             return false;
         };
     </script>
 </head>
 <body>
-    <!-- Navigation -->
+    <!-- Navigation (same as index) -->
     <nav class="navbar" id="navbar">
         <div class="nav-container">
             <div class="logo">
                 <i class="fas fa-gem"></i>
                 <span>LuxeCompanions</span>
             </div>
-            <!-- Hamburger Menu - INLINE ONCLICK -->
             <div class="menu-toggle" id="mobileMenu" onclick="toggleMobileMenu(); event.stopPropagation();">
                 <i class="fas fa-bars"></i>
             </div>
-            <!-- Navigation Links - will be populated by auth.js -->
             <div class="nav-links" id="navLinks"></div>
         </div>
     </nav>
@@ -112,36 +107,11 @@
     </main>
 
     <!-- Footer -->
-    <footer>
-        <div class="footer-content">
-            <div class="footer-section">
-                <h3>LuxeCompanions</h3>
-                <p>An exclusive platform for sophisticated companionship connections.</p>
-            </div>
-            <div class="footer-section">
-                <h4>Important</h4>
-                <ul>
-                    <li><a href="#terms">Terms of Service</a></li>
-                    <li><a href="#privacy">Privacy Policy</a></li>
-                    <li><a href="#age">Age Verification</a></li>
-                    <li><a href="#safety">Safety Guidelines</a></li>
-                </ul>
-            </div>
-            <div class="footer-section">
-                <h4>Contact</h4>
-                <p><i class="fas fa-envelope"></i> support@luxecompanions.com</p>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <p>© 2024 LuxeCompanions. Must be 21+ to access. All rights reserved.</p>
-            <p class="disclaimer">This website is for legal companionship services only. Users must comply with all applicable laws.</p>
-        </div>
-    </footer>
+    <footer>...</footer>
 
     <script src="js/auth.js"></script>
-    <script src="js/dashboard.js"></script> <!-- Optional, but we embed JS directly -->
     <script>
-        // DASHBOARD CONTROLLER (full version)
+        // DASHBOARD CONTROLLER WITH CACHING
         document.addEventListener('DOMContentLoaded', async function() {
             if (!window.supabase) {
                 window.location.href = 'index.html';
@@ -154,8 +124,11 @@
                 return;
             }
 
-            await loadUserProfile(user.id);
-            await loadUserPosts(user.id);
+            // Load user profile (try cache first)
+            await loadUserProfileWithCache(user.id);
+            
+            // Load user posts (try cache first)
+            await loadUserPostsWithCache(user.id);
             
             const createdDate = new Date(user.created_at);
             document.getElementById('memberSince').textContent = createdDate.toLocaleDateString('en-US', { 
@@ -163,8 +136,21 @@
             });
         });
 
-        // Profile loader
-        async function loadUserProfile(userId) {
+        async function loadUserProfileWithCache(userId) {
+            // Try cache
+            let profile = getUserProfile();
+            if (profile && profile.id === userId) {
+                renderSubscriptionCard(profile);
+                document.getElementById('userName').textContent = profile.username || 'User';
+                // Refresh in background
+                refreshUserProfile(userId);
+            } else {
+                // Load from DB
+                await refreshUserProfile(userId);
+            }
+        }
+
+        async function refreshUserProfile(userId) {
             try {
                 const { data: profile, error } = await window.supabase
                     .from('profiles')
@@ -172,13 +158,11 @@
                     .eq('id', userId)
                     .single();
 
-                if (error) {
-                    console.error('Error loading profile:', error);
-                    return;
-                }
-
-                document.getElementById('userName').textContent = profile.username || 'User';
+                if (error) throw error;
+                
+                setUserProfile(profile);
                 renderSubscriptionCard(profile);
+                document.getElementById('userName').textContent = profile.username || 'User';
             } catch (err) {
                 console.error('Profile load error:', err);
             }
@@ -222,7 +206,18 @@
             }
         }
 
-        async function loadUserPosts(userId) {
+        async function loadUserPostsWithCache(userId) {
+            const cachedPosts = getUserPosts();
+            if (cachedPosts && cachedPosts.length > 0) {
+                displayUserPosts(cachedPosts);
+                // Refresh in background
+                refreshUserPosts(userId);
+            } else {
+                await refreshUserPosts(userId);
+            }
+        }
+
+        async function refreshUserPosts(userId) {
             try {
                 const { data: posts, error } = await window.supabase
                     .from('posts')
@@ -232,28 +227,33 @@
                     .order('created_at', { ascending: false });
 
                 if (error) throw error;
-
-                document.getElementById('postCount').textContent = posts?.length || 0;
-                document.getElementById('totalViews').textContent = '0';
-                document.getElementById('profileViews').textContent = '0';
-
-                const postsContainer = document.getElementById('postsContainer');
-                const emptyState = document.getElementById('emptyPostsState');
-
-                if (!posts || posts.length === 0) {
-                    postsContainer.style.display = 'none';
-                    emptyState.style.display = 'block';
-                } else {
-                    emptyState.style.display = 'none';
-                    postsContainer.style.display = 'grid';
-                    postsContainer.innerHTML = '';
-
-                    posts.forEach(post => {
-                        postsContainer.appendChild(createPostCard(post));
-                    });
-                }
+                
+                setUserPosts(posts);
+                displayUserPosts(posts);
             } catch (err) {
                 console.error('Posts load error:', err);
+            }
+        }
+
+        function displayUserPosts(posts) {
+            document.getElementById('postCount').textContent = posts?.length || 0;
+            document.getElementById('totalViews').textContent = '0'; // placeholder
+            document.getElementById('profileViews').textContent = '0';
+
+            const postsContainer = document.getElementById('postsContainer');
+            const emptyState = document.getElementById('emptyPostsState');
+
+            if (!posts || posts.length === 0) {
+                postsContainer.style.display = 'none';
+                emptyState.style.display = 'block';
+            } else {
+                emptyState.style.display = 'none';
+                postsContainer.style.display = 'grid';
+                postsContainer.innerHTML = '';
+
+                posts.forEach(post => {
+                    postsContainer.appendChild(createPostCard(post));
+                });
             }
         }
 
@@ -292,7 +292,7 @@
         }
 
         window.editPost = function(postId) {
-            alert('Edit feature coming soon!');
+            window.location.href = `edit-post.html?id=${postId}`;
         };
 
         window.deletePost = async function(postId) {
@@ -302,9 +302,32 @@
                     .from('posts')
                     .update({ status: 'deleted' })
                     .eq('id', postId);
-                if (!error) location.reload();
+                if (error) throw error;
+                
+                // Remove from UI and update cache
+                const card = document.querySelector(`.listing-card[data-post-id="${postId}"]`);
+                if (card) card.remove();
+                
+                // Update post count
+                const countEl = document.getElementById('postCount');
+                const current = parseInt(countEl.textContent) || 0;
+                countEl.textContent = Math.max(0, current - 1);
+                
+                // Update cache: remove the post from cached posts
+                const cachedPosts = getUserPosts();
+                if (cachedPosts) {
+                    const updated = cachedPosts.filter(p => p.id !== postId);
+                    setUserPosts(updated);
+                }
+                
+                // If no posts left, show empty state
+                const postsContainer = document.getElementById('postsContainer');
+                if (postsContainer.children.length === 0) {
+                    postsContainer.style.display = 'none';
+                    document.getElementById('emptyPostsState').style.display = 'block';
+                }
             } catch (err) {
-                alert('Delete failed');
+                alert('Delete failed: ' + err.message);
             }
         };
 
@@ -315,30 +338,24 @@
             return div.innerHTML;
         }
     </script>
-    
-    <!-- Mobile menu backup (same as index) -->
+
+    <!-- Mobile menu close handler -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             var navbar = document.getElementById('navbar');
             document.addEventListener('click', function(e) {
-                if (navbar && navbar.classList.contains('active') && !navbar.contains(e.target)) {
-                    navbar.classList.remove('active');
-                }
+                if (navbar.classList.contains('active') && !navbar.contains(e.target)) navbar.classList.remove('active');
             });
             var navLinks = document.getElementById('navLinks');
             if (navLinks) {
                 navLinks.addEventListener('click', function(e) {
-                    if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON') {
-                        navbar.classList.remove('active');
-                    }
+                    if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON') navbar.classList.remove('active');
                 });
             }
             window.addEventListener('resize', function() {
-                if (window.innerWidth > 768 && navbar) {
-                    navbar.classList.remove('active');
-                }
+                if (window.innerWidth > 768) navbar.classList.remove('active');
             });
         });
     </script>
 </body>
-                </html>
+</html>
