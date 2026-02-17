@@ -8,31 +8,15 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
-    <!-- Supabase and cache scripts (deferred to ensure execution order) -->
-    <script src="https://unpkg.com/@supabase/supabase-js@2" defer></script>
-    <script src="js/cache.js" defer></script>
+    <!-- Load scripts immediately (no defer) -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="js/cache.js"></script>
     <!-- GUARANTEED CSS-ONLY MOBILE MENU -->
     <style>
-        /* Hide the checkbox */
-        #menu-toggle-checkbox {
-            display: none;
-        }
-
-        /* Hamburger icon - hidden on desktop, visible on mobile */
-        .menu-toggle {
-            display: none;
-            font-size: 1.8rem;
-            color: var(--primary-pink);
-            cursor: pointer;
-            padding: 0.5rem;
-            z-index: 1002;
-        }
-
+        #menu-toggle-checkbox { display: none; }
+        .menu-toggle { display: none; font-size: 1.8rem; color: var(--primary-pink); cursor: pointer; padding: 0.5rem; z-index: 1002; }
         @media (max-width: 768px) {
-            .menu-toggle {
-                display: block !important;
-            }
-
+            .menu-toggle { display: block !important; }
             .nav-links {
                 display: none !important;
                 flex-direction: column !important;
@@ -46,47 +30,26 @@
                 box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
                 z-index: 1001 !important;
             }
-
-            /* When checkbox is checked, show the menu */
-            #menu-toggle-checkbox:checked ~ .nav-links {
-                display: flex !important;
-            }
+            #menu-toggle-checkbox:checked ~ .nav-links { display: flex !important; }
         }
-
-        /* Desktop override */
         @media (min-width: 769px) {
-            .nav-links {
-                display: flex !important;
-                position: static !important;
-                box-shadow: none !important;
-            }
+            .nav-links { display: flex !important; position: static !important; box-shadow: none !important; }
         }
-
-        /* Ensure buttons are visible */
-        .btn-login, .btn-primary {
-            display: inline-block;
-            margin: 0.5rem;
-        }
+        .btn-login, .btn-primary { display: inline-block; margin: 0.5rem; }
+        /* Tiny debug indicator (green dot when auth.js loaded) */
+        #auth-status { position: fixed; bottom: 10px; right: 10px; width: 12px; height: 12px; border-radius: 50%; background: red; z-index: 9999; }
+        #auth-status.loaded { background: green; }
     </style>
 </head>
 <body>
+    <div id="auth-status"></div>
+
     <!-- Navigation -->
     <nav class="navbar" id="navbar">
         <div class="nav-container">
-            <div class="logo">
-                <i class="fas fa-gem"></i>
-                <span>LuxeCompanions</span>
-            </div>
-
-            <!-- Hidden checkbox controls the menu -->
+            <div class="logo"><i class="fas fa-gem"></i><span>LuxeCompanions</span></div>
             <input type="checkbox" id="menu-toggle-checkbox">
-
-            <!-- Hamburger label – clicking this toggles the checkbox -->
-            <label for="menu-toggle-checkbox" class="menu-toggle" id="mobileMenu">
-                <i class="fas fa-bars"></i>
-            </label>
-
-            <!-- STATIC FALLBACK MENU – will be replaced by auth.js once loaded -->
+            <label for="menu-toggle-checkbox" class="menu-toggle" id="mobileMenu"><i class="fas fa-bars"></i></label>
             <div class="nav-links" id="navLinks">
                 <a href="index.html">Home</a>
                 <a href="#vip">VIP Escorts</a>
@@ -98,178 +61,61 @@
         </div>
     </nav>
 
-    <!-- Hero Section -->
-    <section class="hero">
-        <div class="hero-content">
-            <h1>Elegant Connections for Discerning Individuals</h1>
-            <p>Join our exclusive community of sophisticated companions</p>
-            <div class="hero-buttons">
-                <a href="#" id="heroSignupBtn" class="btn-hero-primary">Become a Companion</a>
-                <a href="#vip" class="btn-hero-secondary">View VIP Companions</a>
-            </div>
-        </div>
-    </section>
-
-    <!-- VIP Section -->
-    <section id="vip" class="vip-section">
-        <div class="section-header">
-            <h2><i class="fas fa-crown"></i> VIP Elite Companions</h2>
-            <p>Premium listings for our most exclusive members</p>
-        </div>
-        <div class="listings-grid" id="vip-listings">
-            <div class="loading">Loading VIP listings...</div>
-        </div>
-    </section>
-
-    <!-- Regular Listings -->
-    <section id="regular" class="regular-section">
-        <div class="section-header">
-            <h2><i class="fas fa-star"></i> Recent Companions</h2>
-            <p>Latest additions to our community</p>
-        </div>
-        <div class="listings-grid" id="regular-listings">
-            <div class="loading">Loading recent listings...</div>
-        </div>
-    </section>
-
-    <!-- How It Works -->
-    <section id="how-it-works" class="how-it-works">
-        <h2>How It Works</h2>
-        <div class="steps">
-            <div class="step">
-                <div class="step-icon">1</div>
-                <h3>Create Account</h3>
-                <p>Sign up for free with basic information</p>
-            </div>
-            <div class="step">
-                <div class="step-icon">2</div>
-                <h3>Choose Subscription</h3>
-                <p>Select VIP ($20/month) or Regular ($10/month) plan</p>
-            </div>
-            <div class="step">
-                <div class="step-icon">3</div>
-                <h3>Post Your Profile</h3>
-                <p>Create your elegant listing with photos and details</p>
-            </div>
-            <div class="step">
-                <div class="step-icon">4</div>
-                <h3>Manage Listings</h3>
-                <p>Edit, update, or remove your posts anytime</p>
-            </div>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer>
-        <div class="footer-content">
-            <div class="footer-section">
-                <h3>LuxeCompanions</h3>
-                <p>An exclusive platform for sophisticated companionship connections.</p>
-            </div>
-            <div class="footer-section">
-                <h4>Important</h4>
-                <ul>
-                    <li><a href="#terms">Terms of Service</a></li>
-                    <li><a href="#privacy">Privacy Policy</a></li>
-                    <li><a href="#age">Age Verification</a></li>
-                    <li><a href="#safety">Safety Guidelines</a></li>
-                </ul>
-            </div>
-            <div class="footer-section">
-                <h4>Contact</h4>
-                <p><i class="fas fa-envelope"></i> support@luxecompanions.com</p>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <p>© 2024 LuxeCompanions. Must be 21+ to access. All rights reserved.</p>
-            <p class="disclaimer">This website is for legal companionship services only. Users must comply with all applicable laws.</p>
-        </div>
-    </footer>
+    <!-- Hero, sections, footer unchanged (keep your existing content) -->
+    <section class="hero">...</section>
+    <section id="vip" class="vip-section">...</section>
+    <section id="regular" class="regular-section">...</section>
+    <section id="how-it-works" class="how-it-works">...</section>
+    <footer>...</footer>
 
     <!-- Auth Modal -->
     <div id="authModal" class="modal" style="display: none;">
         <div class="modal-content">
             <span class="close">&times;</span>
-            <div id="authForms">
-                <div style="text-align: center; padding: 20px;">
-                    <p>Loading authentication forms...</p>
-                </div>
-            </div>
+            <div id="authForms"><div style="text-align:center; padding:20px;">Loading authentication forms...</div></div>
         </div>
     </div>
 
-    <!-- Main JavaScript files (deferred, will execute in order) -->
-    <script src="js/app.js" defer></script>
-    <script src="js/auth.js" defer></script>
+    <!-- Main JavaScript files (no defer) -->
+    <script src="js/app.js"></script>
+    <script src="js/auth.js"></script>
 
-    <!-- Unified modal opener with robust retry mechanism -->
+    <!-- Unified modal opener with longer retries (20 attempts = 10 seconds) -->
     <script>
-        // This function is called when any "Login" button is clicked
         window.openAuthModalStatic = function() {
             var modal = document.getElementById('authModal');
             if (!modal) return;
             modal.style.display = 'block';
 
-            // Try to load forms using window.loadAuthForms (set by auth.js)
             function attemptLoadForms(retries) {
                 if (typeof window.loadAuthForms === 'function') {
-                    console.log('loadAuthForms found, loading...');
+                    console.log('loadAuthForms found');
                     window.loadAuthForms();
                 } else if (retries > 0) {
-                    console.log('loadAuthForms not ready, retrying...', retries);
-                    setTimeout(function() {
-                        attemptLoadForms(retries - 1);
-                    }, 500);
+                    console.log('Retrying...', retries);
+                    setTimeout(() => attemptLoadForms(retries - 1), 500);
                 } else {
-                    // Ultimate fallback: show a simple message (should never happen)
                     document.getElementById('authForms').innerHTML = `
                         <div style="text-align:center; padding:20px;">
-                            <p>Please refresh the page if forms do not appear.</p>
+                            <p>Still loading... please refresh.</p>
                         </div>
                     `;
                 }
             }
-
-            // Start with 10 retries (5 seconds total)
-            attemptLoadForms(10);
+            attemptLoadForms(20); // 10 seconds total
         };
 
-        // Hero button uses the same unified opener
         document.addEventListener('DOMContentLoaded', function() {
             var heroBtn = document.getElementById('heroSignupBtn');
-            if (heroBtn) {
-                heroBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    window.openAuthModalStatic();
-                });
-            }
+            if (heroBtn) heroBtn.addEventListener('click', (e) => { e.preventDefault(); openAuthModalStatic(); });
+            document.querySelector('.close')?.addEventListener('click', () => document.getElementById('authModal').style.display = 'none');
+            window.addEventListener('click', (e) => { if (e.target.id === 'authModal') document.getElementById('authModal').style.display = 'none'; });
 
-            // Close modal when clicking the X
-            var closeBtn = document.querySelector('.close');
-            if (closeBtn) {
-                closeBtn.addEventListener('click', function() {
-                    document.getElementById('authModal').style.display = 'none';
-                });
-            }
-
-            // Close modal when clicking outside
-            window.addEventListener('click', function(e) {
-                if (e.target.id === 'authModal') {
-                    document.getElementById('authModal').style.display = 'none';
-                }
-            });
-
-            // When a navigation link is clicked, uncheck the checkbox to close the menu
             var checkbox = document.getElementById('menu-toggle-checkbox');
-            var navLinks = document.getElementById('navLinks');
-            if (navLinks) {
-                navLinks.addEventListener('click', function(e) {
-                    if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON') {
-                        if (checkbox) checkbox.checked = false;
-                    }
-                });
-            }
+            document.getElementById('navLinks')?.addEventListener('click', (e) => {
+                if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON') checkbox.checked = false;
+            });
         });
     </script>
 </body>
-    </html>
+</html>
