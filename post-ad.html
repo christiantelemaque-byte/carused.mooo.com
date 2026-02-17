@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-    <!-- Mobile menu toggle (same as index) -->
+    <script src="js/cache.js"></script>
     <script>
         window.toggleMobileMenu = function() {
             var navbar = document.getElementById('navbar');
@@ -18,7 +18,7 @@
     </script>
 </head>
 <body>
-    <!-- Navigation (same as index, will be populated by auth.js) -->
+    <!-- Navigation (identical to dashboard) -->
     <nav class="navbar" id="navbar">
         <div class="nav-container">
             <div class="logo">
@@ -32,6 +32,7 @@
         </div>
     </nav>
 
+    <!-- Main Content -->
     <main style="padding: 2rem 1.5rem; max-width: 800px; margin: 0 auto;">
         <div style="background: white; border-radius: 15px; padding: 2rem; box-shadow: 0 5px 15px rgba(0,0,0,0.05);">
             <h1 style="font-size: 2rem; margin-bottom: 1.5rem; color: var(--dark-pink);">
@@ -108,11 +109,10 @@
 
     <script src="js/auth.js"></script>
     <script>
-        // -------------------------------
-        // POST AD CONTROLLER
-        // -------------------------------
+        // ------------------------------------------------------------
+        // POST AD CONTROLLER WITH CACHING
+        // ------------------------------------------------------------
         document.addEventListener('DOMContentLoaded', async function() {
-            // 1. Check if user is logged in
             if (!window.supabase) {
                 window.location.href = 'index.html';
                 return;
@@ -124,25 +124,41 @@
                 return;
             }
 
-            // 2. Load user profile to check subscription
-            const { data: profile, error: profileError } = await window.supabase
-                .from('profiles')
-                .select('*')
-                .eq('id', user.id)
-                .single();
-
-            if (profileError || !profile) {
-                console.error('Profile error:', profileError);
-                return;
+            // Try to load profile from cache
+            let profile = getUserProfile();
+            if (profile && profile.id === user.id) {
+                checkSubscriptionAndRender(profile);
+                // Refresh in background
+                refreshProfile(user.id);
+            } else {
+                await refreshProfile(user.id);
             }
+        });
 
-            // 3. Check if user has active subscription
+        async function refreshProfile(userId) {
+            try {
+                const { data: profile, error } = await window.supabase
+                    .from('profiles')
+                    .select('*')
+                    .eq('id', userId)
+                    .single();
+
+                if (error) throw error;
+
+                setUserProfile(profile);
+                checkSubscriptionAndRender(profile);
+            } catch (err) {
+                console.error('Profile load error:', err);
+                showMessage('Failed to load subscription status.', 'error');
+            }
+        }
+
+        function checkSubscriptionAndRender(profile) {
             const now = new Date();
             const expiresAt = profile.subscription_expires_at ? new Date(profile.subscription_expires_at) : null;
             const hasValidSub = profile.subscription_type !== 'none' && expiresAt && expiresAt > now;
 
             const warningDiv = document.getElementById('subscriptionWarning');
-            const warningMsg = document.getElementById('warningMessage');
             const statusDiv = document.getElementById('subscriptionStatus');
             const submitBtn = document.getElementById('submitBtn');
 
@@ -165,51 +181,58 @@
                 submitBtn.disabled = true;
                 submitBtn.style.opacity = '0.5';
             }
+        }
 
-            // 4. Handle form submission
-            document.getElementById('postForm').addEventListener('submit', async function(e) {
-                e.preventDefault();
+        // Handle form submission
+        document.getElementById('postForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
 
-                const title = document.getElementById('title').value.trim();
-                const description = document.getElementById('description').value.trim();
-                const imageUrl = document.getElementById('images').value.trim();
+            const title = document.getElementById('title').value.trim();
+            const description = document.getElementById('description').value.trim();
+            const imageUrl = document.getElementById('images').value.trim();
 
-                if (!title || !description) {
-                    showMessage('Please fill all required fields', 'error');
-                    return;
-                }
+            if (!title || !description) {
+                showMessage('Please fill all required fields', 'error');
+                return;
+            }
 
-                // Prepare post data
-                const postData = {
-                    user_id: user.id,
-                    title,
-                    description,
-                    images: imageUrl ? [imageUrl] : [],
-                    is_vip: profile.subscription_type === 'vip', // VIP users get VIP flag
-                    status: 'active',
-                    created_at: new Date().toISOString(),
-                    updated_at: new Date().toISOString()
-                };
+            const { data: { user } } = await window.supabase.auth.getUser();
+            const profile = getUserProfile(); // should be fresh enough
 
-                try {
-                    const { data, error } = await window.supabase
-                        .from('posts')
-                        .insert([postData]);
+            // Prepare post data
+            const postData = {
+                user_id: user.id,
+                title,
+                description,
+                images: imageUrl ? [imageUrl] : [],
+                is_vip: profile?.subscription_type === 'vip',
+                status: 'active',
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+            };
 
-                    if (error) throw error;
+            try {
+                const { error } = await window.supabase
+                    .from('posts')
+                    .insert([postData]);
 
-                    showMessage('✅ Your listing has been published!', 'success');
-                    document.getElementById('postForm').reset();
+                if (error) throw error;
 
-                    // Redirect to dashboard after 2 seconds
-                    setTimeout(() => {
-                        window.location.href = 'dashboard.html';
-                    }, 2000);
-                } catch (err) {
-                    console.error('Insert error:', err);
-                    showMessage('Error: ' + err.message, 'error');
-                }
-            });
+                // Clear user posts cache so dashboard fetches fresh data
+                clearCache(CACHE_KEYS.USER_POSTS);
+                // Also clear public posts cache to show new post immediately (optional)
+                clearCache(CACHE_KEYS.PUBLIC_POSTS);
+
+                showMessage('✅ Your listing has been published!', 'success');
+                document.getElementById('postForm').reset();
+
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 2000);
+            } catch (err) {
+                console.error('Insert error:', err);
+                showMessage('Error: ' + err.message, 'error');
+            }
         });
 
         function showMessage(msg, type) {
@@ -221,21 +244,17 @@
         }
     </script>
 
-    <!-- Mobile menu close handler (same as index) -->
+    <!-- Mobile menu close handler (same as dashboard) -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             var navbar = document.getElementById('navbar');
             document.addEventListener('click', function(e) {
-                if (navbar.classList.contains('active') && !navbar.contains(e.target)) {
-                    navbar.classList.remove('active');
-                }
+                if (navbar.classList.contains('active') && !navbar.contains(e.target)) navbar.classList.remove('active');
             });
             var navLinks = document.getElementById('navLinks');
             if (navLinks) {
                 navLinks.addEventListener('click', function(e) {
-                    if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON') {
-                        navbar.classList.remove('active');
-                    }
+                    if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON') navbar.classList.remove('active');
                 });
             }
             window.addEventListener('resize', function() {
@@ -244,4 +263,4 @@
         });
     </script>
 </body>
-</html>
+                        </html>
