@@ -8,8 +8,9 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-    <script src="js/cache.js"></script>
+    <!-- Supabase and cache scripts (deferred to ensure execution order) -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2" defer></script>
+    <script src="js/cache.js" defer></script>
     <!-- GUARANTEED CSS-ONLY MOBILE MENU -->
     <style>
         /* Hide the checkbox */
@@ -91,7 +92,6 @@
                 <a href="#vip">VIP Escorts</a>
                 <a href="#regular">Regular Listings</a>
                 <a href="#how-it-works">How It Works</a>
-                <!-- Use the unified opener that works with both static and dynamic auth -->
                 <a href="#" onclick="openAuthModalStatic(); return false;" class="btn-login">Login</a>
                 <a href="#" onclick="openAuthModalStatic(); return false;" class="btn-primary">Become a Companion</a>
             </div>
@@ -191,7 +191,6 @@
         <div class="modal-content">
             <span class="close">&times;</span>
             <div id="authForms">
-                <!-- This placeholder will be replaced by loadAuthForms() -->
                 <div style="text-align: center; padding: 20px;">
                     <p>Loading authentication forms...</p>
                 </div>
@@ -199,42 +198,40 @@
         </div>
     </div>
 
-    <!-- Main JavaScript files (order matters) -->
-    <script src="js/app.js"></script>
-    <script src="js/auth.js"></script>
+    <!-- Main JavaScript files (deferred, will execute in order) -->
+    <script src="js/app.js" defer></script>
+    <script src="js/auth.js" defer></script>
 
-    <!-- Unified modal opener and UX enhancements -->
+    <!-- Unified modal opener with robust retry mechanism -->
     <script>
-        // This function works with both the static fallback menu and after auth.js loads
+        // This function is called when any "Login" button is clicked
         window.openAuthModalStatic = function() {
-            if (typeof window.openAuthModal === 'function') {
-                // If auth.js is loaded and ready, use its function
-                window.openAuthModal();
-            } else {
-                // Fallback: show the modal and try to load forms manually
-                var modal = document.getElementById('authModal');
-                if (modal) {
-                    modal.style.display = 'block';
-                    // If loadAuthForms is globally available (we made it so in auth.js), call it
-                    if (typeof window.loadAuthForms === 'function') {
-                        window.loadAuthForms();
-                    } else {
-                        // If not, retry after a short delay (auth.js might still be loading)
-                        setTimeout(function() {
-                            if (typeof window.loadAuthForms === 'function') {
-                                window.loadAuthForms();
-                            } else {
-                                // Ultimate fallback: directly insert a simple form
-                                document.getElementById('authForms').innerHTML = `
-                                    <div style="text-align:center; padding:20px;">
-                                        <p>Please refresh the page if forms do not appear.</p>
-                                    </div>
-                                `;
-                            }
-                        }, 1000);
-                    }
+            var modal = document.getElementById('authModal');
+            if (!modal) return;
+            modal.style.display = 'block';
+
+            // Try to load forms using window.loadAuthForms (set by auth.js)
+            function attemptLoadForms(retries) {
+                if (typeof window.loadAuthForms === 'function') {
+                    console.log('loadAuthForms found, loading...');
+                    window.loadAuthForms();
+                } else if (retries > 0) {
+                    console.log('loadAuthForms not ready, retrying...', retries);
+                    setTimeout(function() {
+                        attemptLoadForms(retries - 1);
+                    }, 500);
+                } else {
+                    // Ultimate fallback: show a simple message (should never happen)
+                    document.getElementById('authForms').innerHTML = `
+                        <div style="text-align:center; padding:20px;">
+                            <p>Please refresh the page if forms do not appear.</p>
+                        </div>
+                    `;
                 }
             }
+
+            // Start with 10 retries (5 seconds total)
+            attemptLoadForms(10);
         };
 
         // Hero button uses the same unified opener
