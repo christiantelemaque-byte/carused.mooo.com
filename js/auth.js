@@ -1,7 +1,7 @@
-// js/auth.js – Defines loadAuthForms at the very top
+// js/auth.js – with loadAuthForms defined immediately
 console.log('auth.js starting');
 
-// Define the form loader immediately so it's available globally
+// Define the form loader at the very top
 window.loadAuthForms = function() {
     console.log('loadAuthForms executing');
     document.getElementById('authForms').innerHTML = `
@@ -31,9 +31,9 @@ window.loadAuthForms = function() {
     document.getElementById('registerTabBtn').addEventListener('click', () => switchTab('register'));
 };
 
-// ========== Supabase Setup ==========
+// Supabase setup
 const supabaseUrl = 'https://mdjwpndaxksdxbjscgas.supabase.co';
-const supabaseKey = 'sb_publishable__JgPVoaGArNDKXB2lF--mw_X4XsBUwH';
+const supabaseKey = 'sb_publishable__JgPVoaGArNDKXB2lF--mw_X4XsBUwH'; // your key
 
 try {
     window.supabase = supabase.createClient(supabaseUrl, supabaseKey);
@@ -42,10 +42,10 @@ try {
     console.error('Supabase client failed:', e);
 }
 
-// ========== Modal Functions ==========
+// Modal functions
 window.openAuthModal = function() {
     document.getElementById('authModal').style.display = 'block';
-    window.loadAuthForms(); // use the already defined loader
+    window.loadAuthForms();
 };
 window.closeAuthModal = function() {
     document.getElementById('authModal').style.display = 'none';
@@ -63,12 +63,46 @@ window.switchTab = function(tab) {
     }
 };
 
-// ========== Auth Handlers ==========
-window.handleSignup = async function() { /* ... (same as before) ... */ };
-window.handleLogin = async function() { /* ... (same as before) ... */ };
-window.handleLogout = async function() { /* ... (same as before) ... */ };
+// Auth handlers (simplified, but functional)
+window.handleSignup = async function() {
+    const msg = document.getElementById('regMsg');
+    const email = document.getElementById('regEmail').value;
+    const password = document.getElementById('regPassword').value;
+    const username = document.getElementById('regUsername').value;
+    if (!window.supabase) { msg.textContent = 'DB error'; msg.className='auth-message error'; msg.style.display='block'; return; }
+    try {
+        const { data, error } = await window.supabase.auth.signUp({ email, password, options:{ data:{ username } } });
+        if (error) throw error;
+        await window.supabase.from('profiles').insert([{ id: data.user.id, username, subscription_type: 'none', subscription_expires_at: null }]);
+        msg.textContent = '✅ Account created! You can now log in.'; msg.className='auth-message success'; msg.style.display='block';
+        setTimeout(() => { switchTab('login'); document.getElementById('loginEmail').value = email; }, 2000);
+    } catch (err) { msg.textContent = 'Error: ' + err.message; msg.className='auth-message error'; msg.style.display='block'; }
+};
 
-// ========== UI Update ==========
+window.handleLogin = async function() {
+    const msg = document.getElementById('loginMsg');
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+    if (!window.supabase) { msg.textContent = 'DB error'; msg.className='auth-message error'; msg.style.display='block'; return; }
+    try {
+        const { data, error } = await window.supabase.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+        msg.textContent = '✅ Login successful! Redirecting...'; msg.className='auth-message success'; msg.style.display='block';
+        setTimeout(async () => {
+            const { data: profile } = await window.supabase.from('profiles').select('*').eq('id', data.user.id).single();
+            if (profile) setUserProfile(profile);
+            closeAuthModal();
+            window.location.href = 'dashboard.html';
+        }, 1000);
+    } catch (err) { msg.textContent = 'Error: ' + err.message; msg.className='auth-message error'; msg.style.display='block'; }
+};
+
+window.handleLogout = async function() {
+    if (window.supabase) await window.supabase.auth.signOut();
+    clearAllCaches();
+    window.location.href = 'index.html';
+};
+
 function updateAuthUI() {
     if (!window.supabase) return;
     window.supabase.auth.getUser().then(({ data }) => {
@@ -97,7 +131,7 @@ function updateAuthUI() {
     });
 }
 
-// ========== Init ==========
+// Init
 document.addEventListener('DOMContentLoaded', function() {
     document.querySelector('.close')?.addEventListener('click', closeAuthModal);
     window.addEventListener('click', e => { if (e.target.id === 'authModal') closeAuthModal(); });
@@ -105,6 +139,6 @@ document.addEventListener('DOMContentLoaded', function() {
     if (window.supabase) window.supabase.auth.onAuthStateChange(() => updateAuthUI());
 });
 
-// Signal that auth.js is fully loaded (turns the dot green)
+// Turn the status dot green
 document.getElementById('auth-status')?.classList.add('loaded');
 console.log('auth.js fully loaded');
