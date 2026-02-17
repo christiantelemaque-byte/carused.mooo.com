@@ -1,211 +1,140 @@
-// js/auth.js – With caching
-console.log('auth.js loading...');
+// js/app.js – With caching for public posts
+console.log('✅ app.js loaded');
 
-const supabaseUrl = 'https://mdjwpndaxksdxbjscgas.supabase.co';
-const supabaseKey = 'sb_publishable__JgPVoaGArNDKXB2lF--mw_X4XsBUwH';
-
-try {
-    window.supabase = supabase.createClient(supabaseUrl, supabaseKey);
-    console.log('✅ Supabase client ready');
-} catch (e) {
-    console.error('❌ Supabase client failed:', e);
-}
-
-// ========== MODAL FUNCTIONS ==========
-window.openAuthModal = function() {
-    document.getElementById('authModal').style.display = 'block';
-    loadAuthForms();
-};
-
-window.closeAuthModal = function() {
-    document.getElementById('authModal').style.display = 'none';
-};
-
-function loadAuthForms() {
-    document.getElementById('authForms').innerHTML = `
-        <div class="auth-container">
-            <div class="auth-tabs">
-                <button class="auth-tab active" id="loginTabBtn">Login</button>
-                <button class="auth-tab" id="registerTabBtn">Register</button>
-            </div>
-            <div id="loginForm" class="auth-form active">
-                <h3>Sign In</h3>
-                <div class="form-group">
-                    <label>Email</label>
-                    <input type="email" id="loginEmail" required placeholder="your@email.com">
-                </div>
-                <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" id="loginPassword" required placeholder="••••••••">
-                </div>
-                <button onclick="handleLogin()" class="btn-auth">Login</button>
-                <div id="loginMsg" class="auth-message"></div>
-            </div>
-            <div id="registerForm" class="auth-form">
-                <h3>Create Account</h3>
-                <div class="form-group">
-                    <label>Username</label>
-                    <input type="text" id="regUsername" required placeholder="Choose a username">
-                </div>
-                <div class="form-group">
-                    <label>Email</label>
-                    <input type="email" id="regEmail" required placeholder="your@email.com">
-                </div>
-                <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" id="regPassword" required minlength="6" placeholder="At least 6 characters">
-                </div>
-                <button onclick="handleSignup()" class="btn-auth">Sign Up</button>
-                <div id="regMsg" class="auth-message"></div>
-            </div>
-        </div>
-    `;
-    
-    document.getElementById('loginTabBtn').addEventListener('click', () => switchTab('login'));
-    document.getElementById('registerTabBtn').addEventListener('click', () => switchTab('register'));
-}
-
-window.switchTab = function(tab) {
-    document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
-    if (tab === 'login') {
-        document.getElementById('loginTabBtn').classList.add('active');
-        document.getElementById('loginForm').classList.add('active');
-    } else {
-        document.getElementById('registerTabBtn').classList.add('active');
-        document.getElementById('registerForm').classList.add('active');
+class EscortDirectory {
+    constructor() {
+        this.posts = JSON.parse(localStorage.getItem('luxePosts')) || [];
+        document.addEventListener('DOMContentLoaded', () => this.init());
     }
-};
 
-// ========== AUTH HANDLERS ==========
-window.handleSignup = async function() {
-    const msg = document.getElementById('regMsg');
-    const email = document.getElementById('regEmail').value;
-    const password = document.getElementById('regPassword').value;
-    const username = document.getElementById('regUsername').value;
-    
-    if (!window.supabase) {
-        msg.textContent = 'Database connection error';
-        msg.className = 'auth-message error';
-        msg.style.display = 'block';
-        return;
+    init() {
+        this.loadListings();
+        this.setupEventListeners();
     }
-    
-    try {
-        const { data, error } = await window.supabase.auth.signUp({
-            email, password,
-            options: { data: { username } }
-        });
-        if (error) throw error;
-        
-        // Create profile
-        await window.supabase.from('profiles').insert([{
-            id: data.user.id,
-            username,
-            subscription_type: 'none',
-            subscription_expires_at: null
-        }]);
-        
-        msg.textContent = '✅ Account created! You can now log in.';
-        msg.className = 'auth-message success';
-        msg.style.display = 'block';
-        
-        setTimeout(() => {
-            switchTab('login');
-            document.getElementById('loginEmail').value = email;
-        }, 2000);
-    } catch (err) {
-        msg.textContent = 'Error: ' + err.message;
-        msg.className = 'auth-message error';
-        msg.style.display = 'block';
-    }
-};
 
-window.handleLogin = async function() {
-    const msg = document.getElementById('loginMsg');
-    const email = document.getElementById('loginEmail').value;
-    const password = document.getElementById('loginPassword').value;
-    
-    if (!window.supabase) {
-        msg.textContent = 'Database connection error';
-        msg.className = 'auth-message error';
-        msg.style.display = 'block';
-        return;
-    }
-    
-    try {
-        const { data, error } = await window.supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
-        
-        msg.textContent = '✅ Login successful! Redirecting...';
-        msg.className = 'auth-message success';
-        msg.style.display = 'block';
-        
-        // After login, immediately fetch and cache user profile
-        setTimeout(async () => {
-            const { data: profile } = await window.supabase
-                .from('profiles')
-                .select('*')
-                .eq('id', data.user.id)
-                .single();
-            if (profile) setUserProfile(profile);
-            
-            closeAuthModal();
-            window.location.href = 'dashboard.html';
-        }, 1000);
-    } catch (err) {
-        msg.textContent = 'Error: ' + err.message;
-        msg.className = 'auth-message error';
-        msg.style.display = 'block';
-    }
-};
+    async loadListings() {
+        const vipListings = document.getElementById('vip-listings');
+        const regularListings = document.getElementById('regular-listings');
+        if (!vipListings && !regularListings) return;
 
-window.handleLogout = async function() {
-    if (window.supabase) await window.supabase.auth.signOut();
-    clearAllCaches(); // Clear all cached data on logout
-    window.location.href = 'index.html';
-};
+        // Clear loading messages
+        if (vipListings) vipListings.innerHTML = '';
+        if (regularListings) regularListings.innerHTML = '';
 
-// ========== UI UPDATE ==========
-function updateAuthUI() {
-    if (!window.supabase) return;
-    window.supabase.auth.getUser().then(({ data }) => {
-        const user = data?.user;
-        const navLinks = document.querySelector('.nav-links');
-        if (!navLinks) return;
-        
-        if (user) {
-            navLinks.innerHTML = `
-                <a href="index.html">Home</a>
-                <a href="#vip">VIP Escorts</a>
-                <a href="#regular">Regular Listings</a>
-                <a href="dashboard.html" class="btn-login">Dashboard</a>
-                <a href="profile.html" class="btn-login">Profile</a>
-                <button onclick="handleLogout()" class="btn-primary">Logout</button>
-            `;
+        // Try to load from cache first
+        const cachedPosts = getPublicPosts();
+        if (cachedPosts) {
+            this.displayPosts(cachedPosts, vipListings, regularListings);
+            // Then refresh in background
+            this.refreshListings(vipListings, regularListings);
         } else {
-            navLinks.innerHTML = `
-                <a href="index.html">Home</a>
-                <a href="#vip">VIP Escorts</a>
-                <a href="#regular">Regular Listings</a>
-                <a href="#how-it-works">How It Works</a>
-                <button onclick="openAuthModal()" class="btn-login">Login</button>
-                <button onclick="openAuthModal()" class="btn-primary">Become a Companion</button>
-            `;
+            // No cache, load directly from DB
+            await this.refreshListings(vipListings, regularListings);
         }
-    });
+    }
+
+    async refreshListings(vipContainer, regularContainer) {
+        try {
+            if (window.supabase && window.supabase.from) {
+                const { data: posts, error } = await window.supabase
+                    .from('posts')
+                    .select('*')
+                    .eq('status', 'active')
+                    .order('created_at', { ascending: false });
+                
+                if (!error && posts) {
+                    // Cache the fresh data
+                    setPublicPosts(posts);
+                    // Update display (overwrites previous)
+                    this.displayPosts(posts, vipContainer, regularContainer);
+                    return;
+                }
+            }
+            // Fallback to local storage
+            this.displayLocalPosts(vipContainer, regularContainer);
+        } catch (error) {
+            console.error('Error loading listings:', error);
+            this.displayLocalPosts(vipContainer, regularContainer);
+        }
+    }
+
+    displayPosts(posts, vipContainer, regularContainer) {
+        const vipPosts = posts.filter(p => p.is_vip === true);
+        const regularPosts = posts.filter(p => p.is_vip !== true);
+        
+        if (vipContainer) {
+            vipContainer.innerHTML = '';
+            if (vipPosts.length > 0) {
+                vipPosts.slice(0, 6).forEach(p => vipContainer.appendChild(this.createPostCard(p)));
+            } else {
+                vipContainer.innerHTML = '<div class="no-listings">No VIP listings available</div>';
+            }
+        }
+        
+        if (regularContainer) {
+            regularContainer.innerHTML = '';
+            if (regularPosts.length > 0) {
+                regularPosts.slice(0, 12).forEach(p => regularContainer.appendChild(this.createPostCard(p)));
+            } else {
+                regularContainer.innerHTML = '<div class="no-listings">No listings available</div>';
+            }
+        }
+    }
+
+    displayLocalPosts(vipContainer, regularContainer) {
+        const vipPosts = this.posts.filter(p => p.subscriptionType === 'vip' && p.status === 'active');
+        const regularPosts = this.posts.filter(p => p.subscriptionType === 'regular' && p.status === 'active');
+        
+        if (vipContainer) {
+            vipContainer.innerHTML = '';
+            if (vipPosts.length > 0) {
+                vipPosts.slice(0, 6).forEach(p => vipContainer.appendChild(this.createPostCard(p)));
+            } else {
+                vipContainer.innerHTML = '<div class="no-listings">No VIP listings available</div>';
+            }
+        }
+        
+        if (regularContainer) {
+            regularContainer.innerHTML = '';
+            if (regularPosts.length > 0) {
+                regularPosts.slice(0, 12).forEach(p => regularContainer.appendChild(this.createPostCard(p)));
+            } else {
+                regularContainer.innerHTML = '<div class="no-listings">No listings available</div>';
+            }
+        }
+    }
+
+    createPostCard(post) {
+        const card = document.createElement('div');
+        card.className = `listing-card ${post.is_vip ? 'vip-card' : ''}`;
+        card.innerHTML = `
+            ${post.is_vip ? '<div class="vip-badge"><i class="fas fa-crown"></i> VIP</div>' : ''}
+            <img src="${post.images?.[0] || 'images/default-avatar.jpg'}" class="listing-image" onerror="this.src='images/default-avatar.jpg'">
+            <div class="listing-content">
+                <h3>${this.escapeHtml(post.title || 'Untitled')}</h3>
+                <p class="listing-description">${this.escapeHtml((post.description || '').substring(0, 100))}...</p>
+                <div class="listing-meta">
+                    <span><i class="fas fa-user"></i> ${post.username || 'User'}</span>
+                    <span><i class="fas fa-clock"></i> ${this.formatDate(post.created_at || post.createdAt)}</span>
+                </div>
+            </div>
+        `;
+        return card;
+    }
+
+    formatDate(dateString) {
+        if (!dateString) return 'Recently';
+        return new Date(dateString).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+    }
+
+    escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    setupEventListeners() {}
 }
 
-// ========== INIT ==========
-document.addEventListener('DOMContentLoaded', function() {
-    document.querySelector('.close')?.addEventListener('click', closeAuthModal);
-    window.addEventListener('click', e => {
-        if (e.target.id === 'authModal') closeAuthModal();
-    });
-    
-    updateAuthUI();
-    
-    if (window.supabase) {
-        window.supabase.auth.onAuthStateChange(() => updateAuthUI());
-    }
-});
+const app = new EscortDirectory();
