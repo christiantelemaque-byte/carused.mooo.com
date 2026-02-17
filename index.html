@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
-    <!-- Supabase and cache scripts -->
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="js/cache.js"></script>
     <!-- GUARANTEED CSS-ONLY MOBILE MENU -->
@@ -92,7 +91,7 @@
                 <a href="#vip">VIP Escorts</a>
                 <a href="#regular">Regular Listings</a>
                 <a href="#how-it-works">How It Works</a>
-                <!-- Use a common function that works with both static and dynamic auth -->
+                <!-- Use the unified opener that works with both static and dynamic auth -->
                 <a href="#" onclick="openAuthModalStatic(); return false;" class="btn-login">Login</a>
                 <a href="#" onclick="openAuthModalStatic(); return false;" class="btn-primary">Become a Companion</a>
             </div>
@@ -212,20 +211,27 @@
                 // If auth.js is loaded and ready, use its function
                 window.openAuthModal();
             } else {
-                // Fallback: show the modal and attempt to load forms manually
+                // Fallback: show the modal and try to load forms manually
                 var modal = document.getElementById('authModal');
                 if (modal) {
                     modal.style.display = 'block';
-                    // If auth.js hasn't loaded yet, try to load forms via a simple retry
-                    if (typeof loadAuthForms === 'function') {
-                        loadAuthForms();
+                    // If loadAuthForms is globally available (we made it so in auth.js), call it
+                    if (typeof window.loadAuthForms === 'function') {
+                        window.loadAuthForms();
                     } else {
-                        // Wait a bit and try again (in case auth.js is still loading)
+                        // If not, retry after a short delay (auth.js might still be loading)
                         setTimeout(function() {
-                            if (typeof loadAuthForms === 'function') {
-                                loadAuthForms();
+                            if (typeof window.loadAuthForms === 'function') {
+                                window.loadAuthForms();
+                            } else {
+                                // Ultimate fallback: directly insert a simple form
+                                document.getElementById('authForms').innerHTML = `
+                                    <div style="text-align:center; padding:20px;">
+                                        <p>Please refresh the page if forms do not appear.</p>
+                                    </div>
+                                `;
                             }
-                        }, 500);
+                        }, 1000);
                     }
                 }
             }
@@ -256,7 +262,7 @@
                 }
             });
 
-            // When a navigation link is clicked, uncheck the checkbox to close the menu (improves UX)
+            // When a navigation link is clicked, uncheck the checkbox to close the menu
             var checkbox = document.getElementById('menu-toggle-checkbox');
             var navLinks = document.getElementById('navLinks');
             if (navLinks) {
@@ -269,4 +275,4 @@
         });
     </script>
 </body>
-                </html>
+    </html>
