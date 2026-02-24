@@ -17,7 +17,6 @@
         };
     </script>
     <style>
-        /* Additional plan card styling */
         .plan-card {
             cursor: pointer;
             transition: all 0.3s;
@@ -93,24 +92,52 @@
         <div id="subscriptionMessage" class="auth-message" style="display: none;"></div>
     </main>
 
-    <footer>...</footer> <!-- your existing footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>LuxeCompanions</h3>
+                <p>An exclusive platform for sophisticated companionship connections.</p>
+            </div>
+            <div class="footer-section">
+                <h4>Important</h4>
+                <ul>
+                    <li><a href="#terms">Terms of Service</a></li>
+                    <li><a href="#privacy">Privacy Policy</a></li>
+                    <li><a href="#age">Age Verification</a></li>
+                    <li><a href="#safety">Safety Guidelines</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Contact</h4>
+                <p><i class="fas fa-envelope"></i> support@luxecompanions.com</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2024 LuxeCompanions. Must be 21+ to access. All rights reserved.</p>
+            <p class="disclaimer">This website is for legal companionship services only. Users must comply with all applicable laws.</p>
+        </div>
+    </footer>
 
     <script src="js/auth.js"></script>
     <script>
-        // 🔁 REPLACE WITH YOUR ACTUAL STRIPE PRICE IDs
+        // ============================================
+        // STRIPE CONFIGURATION – PRICE IDs
+        // ============================================
         const PRICE_IDS = {
-            regular: 'price_1RegularTest...',   // Replace with your Regular price ID
-            vip: 'price_1VipTest...'            // Replace with your VIP price ID
+            regular: 'prod_U2En1VAK8OXznw',  // Your Regular product ID (not price ID)
+            vip: 'prod_U2Ep5EhMWzKBpF'       // Your VIP product ID (not price ID)
         };
+
+        // IMPORTANT: You need to use Price IDs (starting with "price_") not Product IDs.
+        // These look like product IDs. Please replace them with actual Price IDs from Stripe.
+        // For example: price_1MoBy5LkdIwHu7ixZhnattbh
 
         const EDGE_FUNCTION_URL = 'https://mdjwpndaxksdxbjscgas.supabase.co/functions/v1/create-checkout-session';
 
-        // Store selected plan
         let selectedPlan = null;
 
         function selectPlan(plan) {
             selectedPlan = plan;
-            // Visual feedback: remove active class from all cards, add to selected
             document.querySelectorAll('.plan-card').forEach(c => c.style.border = '');
             if (plan === 'regular') {
                 document.querySelector('.plan-card:not(.vip)').style.border = '3px solid var(--primary-pink)';
@@ -131,9 +158,8 @@
                 return;
             }
 
-            // Attach click handlers
             document.getElementById('subscribeRegular').addEventListener('click', (e) => {
-                e.stopPropagation(); // prevent card click
+                e.stopPropagation();
                 handleSubscribe('regular');
             });
             document.getElementById('subscribeVIP').addEventListener('click', (e) => {
@@ -143,8 +169,9 @@
         });
 
         async function handleSubscribe(plan) {
-            if (!PRICE_IDS[plan] || PRICE_IDS[plan].startsWith('price_1')) {
-                showMessage('Please set your Stripe Price ID in the code.', 'error');
+            // ⚠️ Check if the IDs look like product IDs (starts with "prod_") instead of price IDs ("price_")
+            if (PRICE_IDS[plan].startsWith('prod_')) {
+                showMessage('Please replace the product IDs with actual Price IDs from Stripe (e.g., price_1MoBy5LkdIwHu7ixZhnattbh).', 'error');
                 return;
             }
 
@@ -170,7 +197,6 @@
                 if (error) throw new Error(error);
                 if (!url) throw new Error('No checkout URL returned');
 
-                // Redirect to Stripe Checkout
                 window.location.href = url;
             } catch (err) {
                 showMessage('Error: ' + err.message, 'error');
@@ -198,4 +224,4 @@
         });
     </script>
 </body>
-                </html>
+    </html>
