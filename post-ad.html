@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+    <!-- Load Google API client library -->
+    <script src="https://apis.google.com/js/api.js"></script>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="js/cache.js"></script>
     <script>
@@ -18,21 +20,16 @@
     </script>
 </head>
 <body>
-    <!-- Navigation (identical to dashboard) -->
+    <!-- Navigation (same as index) -->
     <nav class="navbar" id="navbar">
         <div class="nav-container">
-            <div class="logo">
-                <i class="fas fa-gem"></i>
-                <span>LuxeCompanions</span>
-            </div>
-            <div class="menu-toggle" id="mobileMenu" onclick="toggleMobileMenu(); event.stopPropagation();">
-                <i class="fas fa-bars"></i>
-            </div>
+            <div class="logo"><i class="fas fa-gem"></i><span>LuxeCompanions</span></div>
+            <input type="checkbox" id="menu-toggle-checkbox">
+            <label for="menu-toggle-checkbox" class="menu-toggle" id="mobileMenu"><i class="fas fa-bars"></i></label>
             <div class="nav-links" id="navLinks"></div>
         </div>
     </nav>
 
-    <!-- Main Content -->
     <main style="padding: 2rem 1.5rem; max-width: 800px; margin: 0 auto;">
         <div style="background: white; border-radius: 15px; padding: 2rem; box-shadow: 0 5px 15px rgba(0,0,0,0.05);">
             <h1 style="font-size: 2rem; margin-bottom: 1.5rem; color: var(--dark-pink);">
@@ -43,6 +40,14 @@
                 <i class="fas fa-exclamation-triangle" style="color: #856404;"></i>
                 <span id="warningMessage">You need an active subscription to post ads.</span>
                 <a href="subscription.html" style="display: inline-block; margin-left: 1rem; color: var(--primary-pink); font-weight: 600;">Subscribe Now →</a>
+            </div>
+
+            <!-- Google Sign-In Button (hidden by default) -->
+            <div id="googleSignInSection" style="margin-bottom: 1.5rem; text-align: center; display: none;">
+                <button id="googleSignInBtn" class="btn-secondary" onclick="handleGoogleSignIn()">
+                    <i class="fab fa-google"></i> Connect to Google Drive
+                </button>
+                <p id="googleAuthStatus" style="margin-top: 0.5rem; font-size: 0.9rem; color: #666;"></p>
             </div>
 
             <form id="postForm">
@@ -57,10 +62,13 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="images">Photo URL (optional)</label>
-                    <input type="url" id="images" placeholder="https://example.com/photo.jpg">
-                    <small style="display: block; margin-top: 5px; color: #666;">For now, paste one image URL. Multiple images coming soon.</small>
+                    <label for="imageFile">Photo (optional)</label>
+                    <input type="file" id="imageFile" accept="image/*" disabled>
+                    <small style="display: block; margin-top: 5px; color: #666;">Please connect to Google Drive first to enable uploads.</small>
                 </div>
+
+                <!-- Hidden field to store the Google Drive image URL -->
+                <input type="hidden" id="imageUrl" name="imageUrl">
 
                 <div class="form-group">
                     <label>Your subscription status</label>
@@ -70,17 +78,20 @@
                 </div>
 
                 <div style="display: flex; gap: 1rem; margin-top: 2rem;">
-                    <button type="submit" id="submitBtn" class="btn-primary" style="font-size: 1.1rem; padding: 1rem 2rem;">
+                    <button type="submit" id="submitBtn" class="btn-primary" style="font-size: 1.1rem; padding: 1rem 2rem;" disabled>
                         <i class="fas fa-paper-plane"></i> Publish Listing
                     </button>
                     <a href="dashboard.html" class="btn-secondary" style="display: flex; align-items: center;">Cancel</a>
                 </div>
             </form>
+            <div id="uploadProgress" style="margin-top: 1rem; display: none;">
+                <p>Uploading to Google Drive... <span id="progressText">0%</span></p>
+                <progress id="progressBar" value="0" max="100" style="width:100%;"></progress>
+            </div>
             <div id="postMessage" class="auth-message" style="margin-top: 1.5rem;"></div>
         </div>
     </main>
 
-    <!-- Footer (same as index) -->
     <footer>
         <div class="footer-content">
             <div class="footer-section">
@@ -109,9 +120,130 @@
 
     <script src="js/auth.js"></script>
     <script>
-        // ------------------------------------------------------------
-        // POST AD CONTROLLER WITH CACHING
-        // ------------------------------------------------------------
+        // ============================================
+        // GOOGLE DRIVE API CONFIGURATION
+        // ============================================
+        
+        // ✅ YOUR ACTUAL CLIENT ID AND FOLDER ID
+        const CLIENT_ID = '533735133110-ep31d26sl64q8tfp2fscb47225ep7kns.apps.googleusercontent.com';
+        const API_KEY = '';  // Optional – you can leave empty
+        const FOLDER_ID = '14SR_VqLZIanCzbWAVfZHle1vgsBUvF4Q';
+        
+        // Array of API discovery doc URLs for APIs used by the quickstart
+        const DISCOVERY_DOCS = ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'];
+        
+        // Authorization scopes required by the API
+        const SCOPES = 'https://www.googleapis.com/auth/drive.file';
+        
+        let tokenClient;
+        let gapiInited = false;
+        let gisInited = false;
+        let accessToken = null;
+        
+        // ============================================
+        // GOOGLE API INITIALIZATION
+        // ============================================
+        
+        function loadGapi() {
+            console.log('Loading GAPI...');
+            gapi.load('client', initializeGapiClient);
+        }
+        
+        async function initializeGapiClient() {
+            await gapi.client.init({
+                apiKey: API_KEY,
+                discoveryDocs: DISCOVERY_DOCS,
+            });
+            gapiInited = true;
+            console.log('GAPI initialized');
+            maybeEnableButtons();
+        }
+        
+        function loadGis() {
+            console.log('Loading GIS...');
+            tokenClient = google.accounts.oauth2.initTokenClient({
+                client_id: CLIENT_ID,
+                scope: SCOPES,
+                callback: '', // defined later
+            });
+            gisInited = true;
+            console.log('GIS initialized');
+            maybeEnableButtons();
+        }
+        
+        function maybeEnableButtons() {
+            if (gapiInited && gisInited) {
+                document.getElementById('googleSignInSection').style.display = 'block';
+                document.getElementById('googleAuthStatus').textContent = 'Ready to connect';
+            }
+        }
+        
+        // ============================================
+        // GOOGLE SIGN-IN HANDLER
+        // ============================================
+        
+        window.handleGoogleSignIn = function() {
+            tokenClient.callback = async (resp) => {
+                if (resp.error !== undefined) {
+                    throw (resp);
+                }
+                accessToken = resp.access_token;
+                document.getElementById('googleAuthStatus').textContent = '✓ Connected to Google Drive';
+                document.getElementById('googleSignInBtn').style.display = 'none';
+                document.getElementById('imageFile').disabled = false;
+                document.getElementById('submitBtn').disabled = false;
+            };
+            
+            tokenClient.requestAccessToken({ prompt: 'consent' });
+        };
+        
+        // ============================================
+        // IMAGE UPLOAD TO GOOGLE DRIVE
+        // ============================================
+        
+        async function uploadToGoogleDrive(file) {
+            return new Promise((resolve, reject) => {
+                const metadata = {
+                    name: `${Date.now()}-${file.name}`, // Unique filename
+                    parents: [FOLDER_ID],
+                    mimeType: file.type
+                };
+                
+                const form = new FormData();
+                form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
+                form.append('file', file);
+                
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart');
+                xhr.setRequestHeader('Authorization', `Bearer ${accessToken}`);
+                
+                xhr.upload.addEventListener('progress', (e) => {
+                    if (e.lengthComputable) {
+                        const percent = Math.round((e.loaded / e.total) * 100);
+                        document.getElementById('progressBar').value = percent;
+                        document.getElementById('progressText').textContent = percent + '%';
+                    }
+                });
+                
+                xhr.onload = () => {
+                    if (xhr.status === 200) {
+                        const response = JSON.parse(xhr.responseText);
+                        const imageUrl = `https://drive.google.com/uc?id=${response.id}`;
+                        resolve(imageUrl);
+                    } else {
+                        reject(new Error(`Upload failed: ${xhr.status}`));
+                    }
+                };
+                
+                xhr.onerror = () => reject(new Error('Network error'));
+                xhr.send(form);
+            });
+        }
+        
+        // ============================================
+        // LOAD USER PROFILE & CHECK SUBSCRIPTION
+        // ============================================
+        
         document.addEventListener('DOMContentLoaded', async function() {
             if (!window.supabase) {
                 window.location.href = 'index.html';
@@ -124,32 +256,28 @@
                 return;
             }
 
-            // Try to load profile from cache
+            // Load user profile
             let profile = getUserProfile();
             if (profile && profile.id === user.id) {
                 checkSubscriptionAndRender(profile);
-                // Refresh in background
-                refreshProfile(user.id);
             } else {
                 await refreshProfile(user.id);
             }
+            
+            // Initialize Google API
+            loadGapi();
+            loadGis();
         });
 
         async function refreshProfile(userId) {
-            try {
-                const { data: profile, error } = await window.supabase
-                    .from('profiles')
-                    .select('*')
-                    .eq('id', userId)
-                    .single();
-
-                if (error) throw error;
-
+            const { data: profile, error } = await window.supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', userId)
+                .single();
+            if (!error && profile) {
                 setUserProfile(profile);
                 checkSubscriptionAndRender(profile);
-            } catch (err) {
-                console.error('Profile load error:', err);
-                showMessage('Failed to load subscription status.', 'error');
             }
         }
 
@@ -170,7 +298,7 @@
                     </span>
                     <span style="margin-left: 1rem;">Expires: ${expiresAt.toLocaleDateString()}</span>
                 `;
-                submitBtn.disabled = false;
+                // Submit button will be enabled after Google connection
             } else {
                 warningDiv.style.display = 'block';
                 statusDiv.innerHTML = `
@@ -183,23 +311,52 @@
             }
         }
 
-        // Handle form submission
+        // ============================================
+        // FORM SUBMISSION HANDLER
+        // ============================================
+        
         document.getElementById('postForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
             const title = document.getElementById('title').value.trim();
             const description = document.getElementById('description').value.trim();
-            const imageUrl = document.getElementById('images').value.trim();
+            const imageFile = document.getElementById('imageFile').files[0];
+            const submitBtn = document.getElementById('submitBtn');
+            const progressDiv = document.getElementById('uploadProgress');
 
             if (!title || !description) {
                 showMessage('Please fill all required fields', 'error');
                 return;
             }
 
-            const { data: { user } } = await window.supabase.auth.getUser();
-            const profile = getUserProfile(); // should be fresh enough
+            let imageUrl = '';
 
-            // Prepare post data
+            // Upload to Google Drive if an image was selected
+            if (imageFile) {
+                if (!accessToken) {
+                    showMessage('Please connect to Google Drive first', 'error');
+                    return;
+                }
+                
+                progressDiv.style.display = 'block';
+                submitBtn.disabled = true;
+
+                try {
+                    imageUrl = await uploadToGoogleDrive(imageFile);
+                    console.log('Image uploaded to:', imageUrl);
+                    progressDiv.style.display = 'none';
+                } catch (err) {
+                    progressDiv.style.display = 'none';
+                    showMessage('Image upload failed: ' + err.message, 'error');
+                    submitBtn.disabled = false;
+                    return;
+                }
+            }
+
+            // Create post in Supabase
+            const { data: { user } } = await window.supabase.auth.getUser();
+            const profile = getUserProfile();
+
             const postData = {
                 user_id: user.id,
                 title,
@@ -212,26 +369,19 @@
             };
 
             try {
-                const { error } = await window.supabase
-                    .from('posts')
-                    .insert([postData]);
-
+                const { error } = await window.supabase.from('posts').insert([postData]);
                 if (error) throw error;
 
-                // Clear user posts cache so dashboard fetches fresh data
                 clearCache(CACHE_KEYS.USER_POSTS);
-                // Also clear public posts cache to show new post immediately (optional)
                 clearCache(CACHE_KEYS.PUBLIC_POSTS);
 
                 showMessage('✅ Your listing has been published!', 'success');
                 document.getElementById('postForm').reset();
-
-                setTimeout(() => {
-                    window.location.href = 'dashboard.html';
-                }, 2000);
+                setTimeout(() => window.location.href = 'dashboard.html', 2000);
             } catch (err) {
-                console.error('Insert error:', err);
                 showMessage('Error: ' + err.message, 'error');
+            } finally {
+                submitBtn.disabled = false;
             }
         });
 
@@ -244,23 +394,14 @@
         }
     </script>
 
-    <!-- Mobile menu close handler (same as dashboard) -->
+    <!-- Mobile menu close handler -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            var navbar = document.getElementById('navbar');
-            document.addEventListener('click', function(e) {
-                if (navbar.classList.contains('active') && !navbar.contains(e.target)) navbar.classList.remove('active');
-            });
-            var navLinks = document.getElementById('navLinks');
-            if (navLinks) {
-                navLinks.addEventListener('click', function(e) {
-                    if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON') navbar.classList.remove('active');
-                });
-            }
-            window.addEventListener('resize', function() {
-                if (window.innerWidth > 768) navbar.classList.remove('active');
+            var checkbox = document.getElementById('menu-toggle-checkbox');
+            document.getElementById('navLinks')?.addEventListener('click', (e) => {
+                if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON') checkbox.checked = false;
             });
         });
     </script>
 </body>
-                        </html>
+    </html>
