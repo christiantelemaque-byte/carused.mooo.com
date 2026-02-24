@@ -2,11 +2,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>Subscription - LuxeCompanions</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="js/cache.js"></script>
     <script src="https://js.stripe.com/v3/"></script>
     <script>
         window.toggleMobileMenu = function() {
@@ -15,17 +16,39 @@
             return false;
         };
     </script>
+    <style>
+        /* Additional plan card styling */
+        .plan-card {
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .plan-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        .plan-card.vip {
+            border: 2px solid var(--gold);
+        }
+        .badge-popular {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: var(--gold);
+            color: white;
+            padding: 0.25rem 1rem;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+    </style>
 </head>
 <body>
+    <!-- Navigation (same as index) -->
     <nav class="navbar" id="navbar">
         <div class="nav-container">
-            <div class="logo">
-                <i class="fas fa-gem"></i>
-                <span>LuxeCompanions</span>
-            </div>
-            <div class="menu-toggle" id="mobileMenu" onclick="toggleMobileMenu(); event.stopPropagation();">
-                <i class="fas fa-bars"></i>
-            </div>
+            <div class="logo"><i class="fas fa-gem"></i><span>LuxeCompanions</span></div>
+            <input type="checkbox" id="menu-toggle-checkbox">
+            <label for="menu-toggle-checkbox" class="menu-toggle" id="mobileMenu"><i class="fas fa-bars"></i></label>
             <div class="nav-links" id="navLinks"></div>
         </div>
     </nav>
@@ -37,7 +60,7 @@
 
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; margin-bottom: 2rem;">
             <!-- Regular Plan -->
-            <div class="dashboard-card" style="text-align: center; padding: 2rem;">
+            <div class="dashboard-card plan-card" onclick="selectPlan('regular')">
                 <i class="fas fa-star" style="font-size: 3rem; color: var(--primary-pink); margin-bottom: 1rem;"></i>
                 <h2 style="margin-bottom: 0.5rem;">Regular</h2>
                 <div style="font-size: 2.5rem; font-weight: 700; color: var(--primary-pink); margin-bottom: 0.5rem;">$10</div>
@@ -51,8 +74,8 @@
             </div>
 
             <!-- VIP Plan -->
-            <div class="dashboard-card" style="text-align: center; padding: 2rem; border: 3px solid var(--gold); position: relative;">
-                <div style="position: absolute; top: 15px; right: 15px; background: var(--gold); color: white; padding: 0.25rem 1rem; border-radius: 30px; font-weight: 600;">POPULAR</div>
+            <div class="dashboard-card plan-card vip" onclick="selectPlan('vip')" style="position: relative;">
+                <div class="badge-popular">POPULAR</div>
                 <i class="fas fa-crown" style="font-size: 3rem; color: var(--gold); margin-bottom: 1rem;"></i>
                 <h2 style="margin-bottom: 0.5rem;">VIP</h2>
                 <div style="font-size: 2.5rem; font-weight: 700; color: var(--gold); margin-bottom: 0.5rem;">$20</div>
@@ -70,39 +93,31 @@
         <div id="subscriptionMessage" class="auth-message" style="display: none;"></div>
     </main>
 
-    <footer>
-        <div class="footer-content">
-            <div class="footer-section">
-                <h3>LuxeCompanions</h3>
-                <p>An exclusive platform for sophisticated companionship connections.</p>
-            </div>
-            <div class="footer-section">
-                <h4>Important</h4>
-                <ul>
-                    <li><a href="#terms">Terms of Service</a></li>
-                    <li><a href="#privacy">Privacy Policy</a></li>
-                </ul>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <p>© 2024 LuxeCompanions</p>
-        </div>
-    </footer>
+    <footer>...</footer> <!-- your existing footer -->
 
     <script src="js/auth.js"></script>
     <script>
-        // Stripe publishable key - REPLACE WITH YOUR ACTUAL KEY
-        const STRIPE_PUBLISHABLE_KEY = 'pk_test_...'; // Get from Stripe Dashboard
-        const stripe = Stripe(STRIPE_PUBLISHABLE_KEY);
+        // 🔁 REPLACE WITH YOUR ACTUAL STRIPE PRICE IDs
+        const PRICE_IDS = {
+            regular: 'price_1RegularTest...',   // Replace with your Regular price ID
+            vip: 'price_1VipTest...'            // Replace with your VIP price ID
+        };
 
-        // Your Supabase Edge Function URL (after deployment)
         const EDGE_FUNCTION_URL = 'https://mdjwpndaxksdxbjscgas.supabase.co/functions/v1/create-checkout-session';
 
-        // Price IDs from Stripe Dashboard
-        const PRICE_IDS = {
-            regular: 'price_1RegularTest...', // REPLACE with your Stripe price ID
-            vip: 'price_1VipTest...'          // REPLACE with your Stripe price ID
-        };
+        // Store selected plan
+        let selectedPlan = null;
+
+        function selectPlan(plan) {
+            selectedPlan = plan;
+            // Visual feedback: remove active class from all cards, add to selected
+            document.querySelectorAll('.plan-card').forEach(c => c.style.border = '');
+            if (plan === 'regular') {
+                document.querySelector('.plan-card:not(.vip)').style.border = '3px solid var(--primary-pink)';
+            } else {
+                document.querySelector('.plan-card.vip').style.border = '3px solid var(--gold)';
+            }
+        }
 
         document.addEventListener('DOMContentLoaded', async function() {
             if (!window.supabase) {
@@ -116,12 +131,23 @@
                 return;
             }
 
-            // Attach handlers
-            document.getElementById('subscribeRegular').addEventListener('click', () => handleSubscribe('regular'));
-            document.getElementById('subscribeVIP').addEventListener('click', () => handleSubscribe('vip'));
+            // Attach click handlers
+            document.getElementById('subscribeRegular').addEventListener('click', (e) => {
+                e.stopPropagation(); // prevent card click
+                handleSubscribe('regular');
+            });
+            document.getElementById('subscribeVIP').addEventListener('click', (e) => {
+                e.stopPropagation();
+                handleSubscribe('vip');
+            });
         });
 
         async function handleSubscribe(plan) {
+            if (!PRICE_IDS[plan] || PRICE_IDS[plan].startsWith('price_1')) {
+                showMessage('Please set your Stripe Price ID in the code.', 'error');
+                return;
+            }
+
             const btn = plan === 'regular' ? document.getElementById('subscribeRegular') : document.getElementById('subscribeVIP');
             btn.disabled = true;
             btn.textContent = 'Redirecting...';
@@ -140,8 +166,9 @@
                     })
                 });
 
-                const { sessionId, url, error } = await response.json();
+                const { url, error } = await response.json();
                 if (error) throw new Error(error);
+                if (!url) throw new Error('No checkout URL returned');
 
                 // Redirect to Stripe Checkout
                 window.location.href = url;
@@ -164,20 +191,11 @@
     <!-- Mobile menu close handler -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            var navbar = document.getElementById('navbar');
-            document.addEventListener('click', function(e) {
-                if (navbar.classList.contains('active') && !navbar.contains(e.target)) navbar.classList.remove('active');
-            });
-            var navLinks = document.getElementById('navLinks');
-            if (navLinks) {
-                navLinks.addEventListener('click', function(e) {
-                    if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON') navbar.classList.remove('active');
-                });
-            }
-            window.addEventListener('resize', function() {
-                if (window.innerWidth > 768) navbar.classList.remove('active');
+            var checkbox = document.getElementById('menu-toggle-checkbox');
+            document.getElementById('navLinks')?.addEventListener('click', (e) => {
+                if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON') checkbox.checked = false;
             });
         });
     </script>
 </body>
-</html>
+    </html>
