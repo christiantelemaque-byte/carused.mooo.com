@@ -148,10 +148,19 @@
                 return;
             }
 
+            // Get current user – if not logged in, redirect
             const { data: { user }, error } = await window.supabase.auth.getUser();
             if (error || !user) {
                 window.location.href = 'index.html';
                 return;
+            }
+
+            // Also fetch profile to check subscription status (optional)
+            let profile = getUserProfile();
+            if (profile && profile.id === user.id) {
+                // already cached
+            } else {
+                await refreshProfile(user.id);
             }
 
             document.getElementById('subscribeRegular').addEventListener('click', (e) => {
@@ -163,6 +172,17 @@
                 handleSubscribe('vip');
             });
         });
+
+        async function refreshProfile(userId) {
+            const { data: profile, error } = await window.supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', userId)
+                .single();
+            if (!error && profile) {
+                setUserProfile(profile);
+            }
+        }
 
         async function handleSubscribe(plan) {
             // Basic validation: ensure the Price ID looks correct (starts with price_)
@@ -176,7 +196,14 @@
             btn.textContent = 'Redirecting...';
 
             try {
-                const { data: { session } } = await supabase.auth.getSession();
+                // Get the current session token
+                const { data: { session }, error: sessionError } = await window.supabase.auth.getSession();
+                if (sessionError || !session) {
+                    throw new Error('No active session. Please log in again.');
+                }
+
+                console.log('Session token:', session.access_token);
+
                 const response = await fetch(EDGE_FUNCTION_URL, {
                     method: 'POST',
                     headers: {
@@ -189,12 +216,24 @@
                     })
                 });
 
-                const { url, error } = await response.json();
-                if (error) throw new Error(error);
-                if (!url) throw new Error('No checkout URL returned');
+                // Log the response status for debugging
+                console.log('Response status:', response.status);
 
-                window.location.href = url;
+                const data = await response.json();
+                console.log('Response data:', data);
+
+                if (!response.ok) {
+                    throw new Error(data.error || `HTTP error ${response.status}`);
+                }
+
+                if (!data.url) {
+                    throw new Error('No checkout URL returned');
+                }
+
+                // Redirect to Stripe Checkout
+                window.location.href = data.url;
             } catch (err) {
+                console.error('Subscription error:', err);
                 showMessage('Error: ' + err.message, 'error');
                 btn.disabled = false;
                 btn.textContent = plan === 'regular' ? 'Subscribe $10' : 'Subscribe $20';
@@ -220,4 +259,4 @@
         });
     </script>
 </body>
-                        </html>
+    </html>
