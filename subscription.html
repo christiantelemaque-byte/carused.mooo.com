@@ -121,16 +121,12 @@
     <script src="js/auth.js"></script>
     <script>
         // ============================================
-        // STRIPE CONFIGURATION – PRICE IDs
+        // STRIPE CONFIGURATION – YOUR ACTUAL PRICE IDs
         // ============================================
         const PRICE_IDS = {
-            regular: 'prod_U2En1VAK8OXznw',  // Your Regular product ID (not price ID)
-            vip: 'prod_U2Ep5EhMWzKBpF'       // Your VIP product ID (not price ID)
+            regular: 'price_1T4AJmFiAep3lhtUI3Rgs87i',
+            vip: 'price_1T4AM6FiAep3lhtUrW06HL7'
         };
-
-        // IMPORTANT: You need to use Price IDs (starting with "price_") not Product IDs.
-        // These look like product IDs. Please replace them with actual Price IDs from Stripe.
-        // For example: price_1MoBy5LkdIwHu7ixZhnattbh
 
         const EDGE_FUNCTION_URL = 'https://mdjwpndaxksdxbjscgas.supabase.co/functions/v1/create-checkout-session';
 
@@ -169,9 +165,9 @@
         });
 
         async function handleSubscribe(plan) {
-            // ⚠️ Check if the IDs look like product IDs (starts with "prod_") instead of price IDs ("price_")
-            if (PRICE_IDS[plan].startsWith('prod_')) {
-                showMessage('Please replace the product IDs with actual Price IDs from Stripe (e.g., price_1MoBy5LkdIwHu7ixZhnattbh).', 'error');
+            // Basic validation: ensure the Price ID looks correct (starts with price_)
+            if (!PRICE_IDS[plan] || !PRICE_IDS[plan].startsWith('price_')) {
+                showMessage('Invalid Price ID. Please check your configuration.', 'error');
                 return;
             }
 
@@ -224,4 +220,4 @@
         });
     </script>
 </body>
-    </html>
+                        </html>
