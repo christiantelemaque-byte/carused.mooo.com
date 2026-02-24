@@ -1,9 +1,29 @@
-// js/auth.js – with loadAuthForms defined immediately
-console.log('auth.js starting');
+// js/auth.js – FINAL VERSION with correct anon key
+console.log('auth.js loading...');
 
-// Define the form loader at the very top
-window.loadAuthForms = function() {
-    console.log('loadAuthForms executing');
+// ✅ YOUR CORRECT ANON PUBLIC KEY
+const supabaseUrl = 'https://mdjwpndaxksdxbjscgas.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1kandwbmRheGtzZHhianNjZ2FzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyOTc4NDUsImV4cCI6MjA4NTg3Mzg0NX0.ckKdTD02kTQ9au90rT6n42MHM1Y6GZ3PPAL1dz9EKKY';
+
+try {
+    window.supabase = supabase.createClient(supabaseUrl, supabaseKey);
+    console.log('✅ Supabase client ready');
+} catch (e) {
+    console.error('❌ Supabase client failed:', e);
+}
+
+// ========== MODAL FUNCTIONS ==========
+window.openAuthModal = function() {
+    document.getElementById('authModal').style.display = 'block';
+    loadAuthForms();
+};
+window.closeAuthModal = function() {
+    document.getElementById('authModal').style.display = 'none';
+};
+
+// Make loadAuthForms globally accessible
+function loadAuthForms() {
+    console.log('loadAuthForms called');
     document.getElementById('authForms').innerHTML = `
         <div class="auth-container">
             <div class="auth-tabs">
@@ -12,16 +32,31 @@ window.loadAuthForms = function() {
             </div>
             <div id="loginForm" class="auth-form active">
                 <h3>Sign In</h3>
-                <div class="form-group"><label>Email</label><input type="email" id="loginEmail" required placeholder="your@email.com"></div>
-                <div class="form-group"><label>Password</label><input type="password" id="loginPassword" required placeholder="••••••••"></div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="loginEmail" required placeholder="your@email.com">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="loginPassword" required placeholder="••••••••">
+                </div>
                 <button onclick="handleLogin()" class="btn-auth">Login</button>
                 <div id="loginMsg" class="auth-message"></div>
             </div>
             <div id="registerForm" class="auth-form">
                 <h3>Create Account</h3>
-                <div class="form-group"><label>Username</label><input type="text" id="regUsername" required placeholder="Choose a username"></div>
-                <div class="form-group"><label>Email</label><input type="email" id="regEmail" required placeholder="your@email.com"></div>
-                <div class="form-group"><label>Password</label><input type="password" id="regPassword" required minlength="6" placeholder="At least 6 characters"></div>
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="regUsername" required placeholder="Choose a username">
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="regEmail" required placeholder="your@email.com">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="regPassword" required minlength="6" placeholder="At least 6 characters">
+                </div>
                 <button onclick="handleSignup()" class="btn-auth">Sign Up</button>
                 <div id="regMsg" class="auth-message"></div>
             </div>
@@ -29,27 +64,8 @@ window.loadAuthForms = function() {
     `;
     document.getElementById('loginTabBtn').addEventListener('click', () => switchTab('login'));
     document.getElementById('registerTabBtn').addEventListener('click', () => switchTab('register'));
-};
-
-// Supabase setup
-const supabaseUrl = 'https://mdjwpndaxksdxbjscgas.supabase.co';
-const supabaseKey = 'sb_publishable__JgPVoaGArNDKXB2lF--mw_X4XsBUwH'; // your key
-
-try {
-    window.supabase = supabase.createClient(supabaseUrl, supabaseKey);
-    console.log('Supabase client ready');
-} catch (e) {
-    console.error('Supabase client failed:', e);
 }
-
-// Modal functions
-window.openAuthModal = function() {
-    document.getElementById('authModal').style.display = 'block';
-    window.loadAuthForms();
-};
-window.closeAuthModal = function() {
-    document.getElementById('authModal').style.display = 'none';
-};
+window.loadAuthForms = loadAuthForms;
 
 window.switchTab = function(tab) {
     document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
@@ -63,38 +79,71 @@ window.switchTab = function(tab) {
     }
 };
 
-// Auth handlers (simplified, but functional)
+// ========== AUTH HANDLERS ==========
 window.handleSignup = async function() {
     const msg = document.getElementById('regMsg');
     const email = document.getElementById('regEmail').value;
     const password = document.getElementById('regPassword').value;
     const username = document.getElementById('regUsername').value;
-    if (!window.supabase) { msg.textContent = 'DB error'; msg.className='auth-message error'; msg.style.display='block'; return; }
+    if (!window.supabase) {
+        msg.textContent = 'Database connection error';
+        msg.className = 'auth-message error';
+        msg.style.display = 'block';
+        return;
+    }
     try {
-        const { data, error } = await window.supabase.auth.signUp({ email, password, options:{ data:{ username } } });
+        const { data, error } = await window.supabase.auth.signUp({
+            email, password,
+            options: { data: { username } }
+        });
         if (error) throw error;
-        await window.supabase.from('profiles').insert([{ id: data.user.id, username, subscription_type: 'none', subscription_expires_at: null }]);
-        msg.textContent = '✅ Account created! You can now log in.'; msg.className='auth-message success'; msg.style.display='block';
-        setTimeout(() => { switchTab('login'); document.getElementById('loginEmail').value = email; }, 2000);
-    } catch (err) { msg.textContent = 'Error: ' + err.message; msg.className='auth-message error'; msg.style.display='block'; }
+        await window.supabase.from('profiles').insert([{
+            id: data.user.id,
+            username,
+            subscription_type: 'none',
+            subscription_expires_at: null
+        }]);
+        msg.textContent = '✅ Account created! You can now log in.';
+        msg.className = 'auth-message success';
+        msg.style.display = 'block';
+        setTimeout(() => {
+            switchTab('login');
+            document.getElementById('loginEmail').value = email;
+        }, 2000);
+    } catch (err) {
+        msg.textContent = 'Error: ' + err.message;
+        msg.className = 'auth-message error';
+        msg.style.display = 'block';
+    }
 };
 
 window.handleLogin = async function() {
     const msg = document.getElementById('loginMsg');
     const email = document.getElementById('loginEmail').value;
     const password = document.getElementById('loginPassword').value;
-    if (!window.supabase) { msg.textContent = 'DB error'; msg.className='auth-message error'; msg.style.display='block'; return; }
+    if (!window.supabase) {
+        msg.textContent = 'Database connection error';
+        msg.className = 'auth-message error';
+        msg.style.display = 'block';
+        return;
+    }
     try {
         const { data, error } = await window.supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        msg.textContent = '✅ Login successful! Redirecting...'; msg.className='auth-message success'; msg.style.display='block';
+        msg.textContent = '✅ Login successful! Redirecting...';
+        msg.className = 'auth-message success';
+        msg.style.display = 'block';
         setTimeout(async () => {
             const { data: profile } = await window.supabase.from('profiles').select('*').eq('id', data.user.id).single();
             if (profile) setUserProfile(profile);
             closeAuthModal();
             window.location.href = 'dashboard.html';
         }, 1000);
-    } catch (err) { msg.textContent = 'Error: ' + err.message; msg.className='auth-message error'; msg.style.display='block'; }
+    } catch (err) {
+        msg.textContent = 'Error: ' + err.message;
+        msg.className = 'auth-message error';
+        msg.style.display = 'block';
+    }
 };
 
 window.handleLogout = async function() {
@@ -103,6 +152,7 @@ window.handleLogout = async function() {
     window.location.href = 'index.html';
 };
 
+// ========== UI UPDATE ==========
 function updateAuthUI() {
     if (!window.supabase) return;
     window.supabase.auth.getUser().then(({ data }) => {
@@ -131,14 +181,14 @@ function updateAuthUI() {
     });
 }
 
-// Init
+// ========== INIT ==========
 document.addEventListener('DOMContentLoaded', function() {
     document.querySelector('.close')?.addEventListener('click', closeAuthModal);
-    window.addEventListener('click', e => { if (e.target.id === 'authModal') closeAuthModal(); });
+    window.addEventListener('click', e => {
+        if (e.target.id === 'authModal') closeAuthModal();
+    });
     updateAuthUI();
-    if (window.supabase) window.supabase.auth.onAuthStateChange(() => updateAuthUI());
+    if (window.supabase) {
+        window.supabase.auth.onAuthStateChange(() => updateAuthUI());
+    }
 });
-
-// Turn the status dot green
-document.getElementById('auth-status')?.classList.add('loaded');
-console.log('auth.js fully loaded');
