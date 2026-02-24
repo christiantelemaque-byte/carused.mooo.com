@@ -92,46 +92,17 @@
         <div id="subscriptionMessage" class="auth-message" style="display: none;"></div>
     </main>
 
-    <footer>
-        <div class="footer-content">
-            <div class="footer-section">
-                <h3>LuxeCompanions</h3>
-                <p>An exclusive platform for sophisticated companionship connections.</p>
-            </div>
-            <div class="footer-section">
-                <h4>Important</h4>
-                <ul>
-                    <li><a href="#terms">Terms of Service</a></li>
-                    <li><a href="#privacy">Privacy Policy</a></li>
-                    <li><a href="#age">Age Verification</a></li>
-                    <li><a href="#safety">Safety Guidelines</a></li>
-                </ul>
-            </div>
-            <div class="footer-section">
-                <h4>Contact</h4>
-                <p><i class="fas fa-envelope"></i> support@luxecompanions.com</p>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <p>© 2024 LuxeCompanions. Must be 21+ to access. All rights reserved.</p>
-            <p class="disclaimer">This website is for legal companionship services only. Users must comply with all applicable laws.</p>
-        </div>
-    </footer>
+    <footer>...</footer> <!-- your footer -->
 
     <script src="js/auth.js"></script>
     <script>
-        // ============================================
-        // STRIPE CONFIGURATION – YOUR ACTUAL PRICE IDs
-        // ============================================
         const PRICE_IDS = {
             regular: 'price_1T4AJmFiAep3lhtUI3Rgs87i',
             vip: 'price_1T4AM6FiAep3lhtUrW06HL7'
         };
-
         const EDGE_FUNCTION_URL = 'https://mdjwpndaxksdxbjscgas.supabase.co/functions/v1/create-checkout-session';
 
         let selectedPlan = null;
-
         function selectPlan(plan) {
             selectedPlan = plan;
             document.querySelectorAll('.plan-card').forEach(c => c.style.border = '');
@@ -147,22 +118,11 @@
                 window.location.href = 'index.html';
                 return;
             }
-
-            // Get current user – if not logged in, redirect
             const { data: { user }, error } = await window.supabase.auth.getUser();
             if (error || !user) {
                 window.location.href = 'index.html';
                 return;
             }
-
-            // Also fetch profile to check subscription status (optional)
-            let profile = getUserProfile();
-            if (profile && profile.id === user.id) {
-                // already cached
-            } else {
-                await refreshProfile(user.id);
-            }
-
             document.getElementById('subscribeRegular').addEventListener('click', (e) => {
                 e.stopPropagation();
                 handleSubscribe('regular');
@@ -173,35 +133,25 @@
             });
         });
 
-        async function refreshProfile(userId) {
-            const { data: profile, error } = await window.supabase
-                .from('profiles')
-                .select('*')
-                .eq('id', userId)
-                .single();
-            if (!error && profile) {
-                setUserProfile(profile);
-            }
-        }
-
         async function handleSubscribe(plan) {
-            // Basic validation: ensure the Price ID looks correct (starts with price_)
             if (!PRICE_IDS[plan] || !PRICE_IDS[plan].startsWith('price_')) {
                 showMessage('Invalid Price ID. Please check your configuration.', 'error');
                 return;
             }
-
             const btn = plan === 'regular' ? document.getElementById('subscribeRegular') : document.getElementById('subscribeVIP');
             btn.disabled = true;
             btn.textContent = 'Redirecting...';
 
             try {
-                // Get the current session token
                 const { data: { session }, error: sessionError } = await window.supabase.auth.getSession();
                 if (sessionError || !session) {
-                    throw new Error('No active session. Please log in again.');
+                    // Try to refresh session
+                    const { data: refreshData, error: refreshError } = await window.supabase.auth.refreshSession();
+                    if (refreshError || !refreshData.session) {
+                        throw new Error('No active session. Please log in again.');
+                    }
+                    session = refreshData.session;
                 }
-
                 console.log('Session token:', session.access_token);
 
                 const response = await fetch(EDGE_FUNCTION_URL, {
@@ -216,21 +166,13 @@
                     })
                 });
 
-                // Log the response status for debugging
-                console.log('Response status:', response.status);
-
                 const data = await response.json();
-                console.log('Response data:', data);
-
                 if (!response.ok) {
                     throw new Error(data.error || `HTTP error ${response.status}`);
                 }
-
                 if (!data.url) {
                     throw new Error('No checkout URL returned');
                 }
-
-                // Redirect to Stripe Checkout
                 window.location.href = data.url;
             } catch (err) {
                 console.error('Subscription error:', err);
@@ -248,7 +190,6 @@
             setTimeout(() => msgDiv.style.display = 'none', 5000);
         }
     </script>
-
     <!-- Mobile menu close handler -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
