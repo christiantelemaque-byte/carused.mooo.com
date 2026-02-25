@@ -180,7 +180,7 @@
         }
 
         // ============================================
-        // SUBSCRIBE HANDLER WITH FULL RESPONSE DISPLAY
+        // SUBSCRIBE HANDLER
         // ============================================
         async function subscribe(plan) {
             // Ensure user is logged in
@@ -213,27 +213,17 @@
                     })
                 });
 
-                // Get the raw response text first
-                const responseText = await response.text();
-                console.log('Raw response:', responseText);
-
-                // Try to parse as JSON
-                try {
-                    const data = JSON.parse(responseText);
-                    if (data.url) {
-                        // Success – redirect to Stripe
-                        window.location.href = data.url;
-                    } else {
-                        // Show the entire response object in the alert
-                        alert('Response from server:\n' + JSON.stringify(data, null, 2));
-                    }
-                } catch (parseError) {
-                    // Response was not JSON – show raw text
-                    alert('Server returned non-JSON response:\n' + responseText);
+                const data = await response.json();
+                if (data.url) {
+                    // Store selected plan in sessionStorage as backup
+                    sessionStorage.setItem('selectedPlan', plan);
+                    window.location.href = data.url;
+                } else {
+                    alert('Error: ' + (data.error || 'Unable to create checkout session.'));
                 }
             } catch (err) {
-                console.error('Fetch error:', err);
-                alert('Network error: ' + err.message);
+                console.error('Subscription error:', err);
+                alert('Error: ' + err.message);
             }
         }
 
@@ -255,4 +245,4 @@
         });
     </script>
 </body>
-    </html>
+</html>
