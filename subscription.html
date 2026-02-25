@@ -119,86 +119,44 @@
         <div id="subscriptionMessage" class="auth-message" style="display: none;"></div>
     </main>
 
-    <footer>
-        <div class="footer-content">
-            <div class="footer-section">
-                <h3>LuxeCompanions</h3>
-                <p>An exclusive platform for sophisticated companionship connections.</p>
-            </div>
-            <div class="footer-section">
-                <h4>Important</h4>
-                <ul>
-                    <li><a href="#terms">Terms of Service</a></li>
-                    <li><a href="#privacy">Privacy Policy</a></li>
-                    <li><a href="#age">Age Verification</a></li>
-                    <li><a href="#safety">Safety Guidelines</a></li>
-                </ul>
-            </div>
-            <div class="footer-section">
-                <h4>Contact</h4>
-                <p><i class="fas fa-envelope"></i> support@luxecompanions.com</p>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <p>© 2024 LuxeCompanions. Must be 21+ to access. All rights reserved.</p>
-            <p class="disclaimer">This website is for legal companionship services only. Users must comply with all applicable laws.</p>
-        </div>
-    </footer>
+    <footer>...</footer>
 
     <script src="js/auth.js"></script>
     <script>
-        // ============================================
-        // STRIPE CONFIGURATION – YOUR PRICE IDs
-        // ============================================
         const PRICE_IDS = {
             regular: 'price_1T4AJmFiAep3lhtUI3Rgs87i',
             vip: 'price_1T4AM6FiAep3lhtUrW06HL7'
         };
 
+        // 🔁 UPDATE THIS TO THE FUNCTION YOU ARE USING
         const CHECKOUT_FUNCTION_URL = 'https://mdjwpndaxksdxbjscgas.supabase.co/functions/v1/create-checkout-session';
 
-        // ============================================
-        // CHECK AUTHENTICATION STATUS
-        // ============================================
         async function checkAuth() {
             const statusEl = document.getElementById('authStatus');
             if (!window.supabase) {
-                statusEl.innerHTML = '❌ Supabase client not loaded. Check auth.js.';
+                statusEl.innerHTML = '❌ Supabase client not loaded.';
                 return false;
             }
             const { data: { session }, error } = await window.supabase.auth.getSession();
-            if (error) {
-                statusEl.innerHTML = '❌ Session error: ' + error.message;
-                return false;
-            }
-            if (!session) {
-                statusEl.innerHTML = '❌ Not logged in. <a href="index.html" style="color:var(--primary-pink);">Please log in first</a>.';
+            if (error || !session) {
+                statusEl.innerHTML = '❌ Not logged in. <a href="index.html">Log in</a>';
                 return false;
             }
             statusEl.innerHTML = `✅ Logged in as: ${session.user?.email}`;
             return true;
         }
 
-        // ============================================
-        // SUBSCRIBE HANDLER
-        // ============================================
         async function subscribe(plan) {
-            // Ensure user is logged in
-            const isLoggedIn = await checkAuth();
-            if (!isLoggedIn) return;
+            const loggedIn = await checkAuth();
+            if (!loggedIn) return;
 
             const priceId = PRICE_IDS[plan];
             if (!priceId) {
-                alert('Invalid plan selected.');
+                alert('Invalid plan.');
                 return;
             }
 
-            // Get current session token
-            const { data: { session }, error: sessionError } = await window.supabase.auth.getSession();
-            if (sessionError || !session) {
-                alert('Unable to retrieve your session. Please log in again.');
-                return;
-            }
+            const { data: { session } } = await window.supabase.auth.getSession();
 
             try {
                 const response = await fetch(CHECKOUT_FUNCTION_URL, {
@@ -207,32 +165,33 @@
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${session.access_token}`
                     },
-                    body: JSON.stringify({
-                        priceId: priceId,
-                        planType: plan
-                    })
+                    body: JSON.stringify({ priceId, planType: plan })
                 });
 
-                const data = await response.json();
-                if (data.url) {
-                    // Store selected plan in sessionStorage as backup
-                    sessionStorage.setItem('selectedPlan', plan);
+                // Try to get response as text
+                const text = await response.text();
+                console.log('Raw response:', text);
+
+                let data;
+                try {
+                    data = JSON.parse(text);
+                } catch (e) {
+                    alert('Server returned non-JSON:\n' + text);
+                    return;
+                }
+
+                if (response.ok && data.url) {
                     window.location.href = data.url;
                 } else {
-                    alert('Error: ' + (data.error || 'Unable to create checkout session.'));
+                    // Show full error details
+                    alert('Error ' + response.status + ':\n' + JSON.stringify(data, null, 2));
                 }
             } catch (err) {
-                console.error('Subscription error:', err);
-                alert('Error: ' + err.message);
+                alert('Network error: ' + err.message);
             }
         }
 
-        // ============================================
-        // INITIALIZE
-        // ============================================
-        document.addEventListener('DOMContentLoaded', async function() {
-            await checkAuth();
-        });
+        document.addEventListener('DOMContentLoaded', checkAuth);
     </script>
 
     <!-- Mobile menu close handler -->
