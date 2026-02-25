@@ -180,7 +180,7 @@
         }
 
         // ============================================
-        // SUBSCRIBE HANDLER
+        // SUBSCRIBE HANDLER WITH DEBUGGING
         // ============================================
         async function subscribe(plan) {
             // Ensure user is logged in
@@ -213,17 +213,27 @@
                     })
                 });
 
-                const data = await response.json();
-                if (data.url) {
-                    // Store selected plan in sessionStorage as backup
-                    sessionStorage.setItem('selectedPlan', plan);
-                    window.location.href = data.url;
-                } else {
-                    alert('Error: ' + (data.error || 'Unable to create checkout session.'));
+                // Get the raw response text first
+                const responseText = await response.text();
+                console.log('Raw response:', responseText);
+
+                // Try to parse as JSON
+                try {
+                    const data = JSON.parse(responseText);
+                    if (data.url) {
+                        // Success – redirect to Stripe
+                        window.location.href = data.url;
+                    } else {
+                        // Show the error from the function
+                        alert('Error: ' + (data.error || 'Unknown error occurred.'));
+                    }
+                } catch (parseError) {
+                    // Response was not JSON – show raw text
+                    alert('Invalid response from server:\n' + responseText);
                 }
             } catch (err) {
-                console.error('Subscription error:', err);
-                alert('Error: ' + err.message);
+                console.error('Fetch error:', err);
+                alert('Network error: ' + err.message);
             }
         }
 
@@ -245,4 +255,4 @@
         });
     </script>
 </body>
-    </html>
+            </html>
