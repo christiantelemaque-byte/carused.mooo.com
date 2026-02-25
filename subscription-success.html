@@ -54,9 +54,20 @@
                 return;
             }
 
-            // Get the plan from sessionStorage (set in subscription.html)
-            const plan = sessionStorage.getItem('selectedPlan') || 'regular';
+            // Get plan from URL parameter (e.g., ?plan=regular or ?plan=vip)
+            const urlParams = new URLSearchParams(window.location.search);
+            let plan = urlParams.get('plan');
             
+            // If not in URL, fall back to sessionStorage (set in subscription.html)
+            if (!plan) {
+                plan = sessionStorage.getItem('selectedPlan');
+            }
+            
+            // Default to regular if still not found (should not happen)
+            if (!plan) {
+                plan = 'regular';
+            }
+
             // Get current user
             const { data: { user }, error } = await window.supabase.auth.getUser();
             if (error || !user) {
