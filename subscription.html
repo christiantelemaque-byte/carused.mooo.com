@@ -26,6 +26,7 @@
         .token-box { background: white; border: 1px solid #ccc; border-radius: 5px; padding: 0.5rem; font-family: monospace; font-size: 0.8rem; width: 100%; overflow-wrap: break-word; }
         #copyTokenBtn { background: var(--primary-pink); color: white; border: none; border-radius: 5px; padding: 0.5rem 1rem; font-size: 0.9rem; cursor: pointer; align-self: flex-end; }
         #copyTokenBtn:active { opacity: 0.8; }
+        #decodedClaims { background: #fff3cd; border: 1px solid #ffeeba; border-radius: 5px; padding: 0.5rem; margin-top: 0.5rem; font-size: 0.8rem; width: 100%; overflow-wrap: break-word; }
     </style>
 </head>
 <body>
@@ -85,6 +86,17 @@
             el.style.display = 'block';
         }
 
+        function decodeToken(token) {
+            try {
+                const parts = token.split('.');
+                if (parts.length !== 3) return 'Invalid token format';
+                const payload = JSON.parse(atob(parts[1]));
+                return JSON.stringify(payload, null, 2);
+            } catch (e) {
+                return 'Failed to decode token: ' + e.message;
+            }
+        }
+
         let currentToken = '';
 
         async function checkAuth() {
@@ -103,14 +115,15 @@
                 return false;
             }
             currentToken = session.access_token;
-            // Display full token in a scrollable/breakable box
+            const decoded = decodeToken(currentToken);
             statusEl.innerHTML = `
                 <div style="width:100%;"><strong>✅ Logged in as:</strong> ${session.user?.email}</div>
                 <div><strong>Full token:</strong></div>
                 <div class="token-box">${currentToken}</div>
+                <div><strong>Decoded token claims:</strong></div>
+                <div id="decodedClaims">${decoded}</div>
                 <button id="copyTokenBtn">Copy Token</button>
             `;
-            // Attach copy button handler
             document.getElementById('copyTokenBtn')?.addEventListener('click', function() {
                 navigator.clipboard.writeText(currentToken).then(() => {
                     alert('Token copied to clipboard!');
