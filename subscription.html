@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="js/cache.js"></script>
-    <script src="https://js.stripe.com/v3/"></script>
     <script>
         window.toggleMobileMenu = function() {
             var navbar = document.getElementById('navbar');
@@ -17,19 +16,48 @@
         };
     </script>
     <style>
-        .plan-card { cursor: pointer; transition: all 0.3s; }
-        .plan-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-        .plan-card.vip { border: 2px solid var(--gold); }
-        .badge-popular { position: absolute; top: 15px; right: 15px; background: var(--gold); color: white; padding: 0.25rem 1rem; border-radius: 30px; font-weight: 600; font-size: 0.8rem; }
-        #errorDisplay { background: #f8d7da; color: #721c24; border: 2px solid #dc3545; border-radius: 8px; padding: 1rem; margin: 1rem 0; display: none; white-space: pre-wrap; font-family: monospace; }
-        #authStatus { background: #e2f0d9; color: #0a5c2e; border: 1px solid #28a745; border-radius: 8px; padding: 0.5rem; margin-bottom: 1rem; font-size: 0.9rem; display: flex; flex-direction: column; align-items: flex-start; gap: 0.5rem; word-break: break-all; }
-        .token-box { background: white; border: 1px solid #ccc; border-radius: 5px; padding: 0.5rem; font-family: monospace; font-size: 0.8rem; width: 100%; overflow-wrap: break-word; }
-        #copyTokenBtn { background: var(--primary-pink); color: white; border: none; border-radius: 5px; padding: 0.5rem 1rem; font-size: 0.9rem; cursor: pointer; align-self: flex-end; }
-        #copyTokenBtn:active { opacity: 0.8; }
-        #decodedClaims { background: #fff3cd; border: 1px solid #ffeeba; border-radius: 5px; padding: 0.5rem; margin-top: 0.5rem; font-size: 0.8rem; width: 100%; overflow-wrap: break-word; }
+        .plan-card {
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            padding: 2rem;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        .plan-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        .plan-card.vip {
+            border: 2px solid var(--gold);
+        }
+        .badge-popular {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: var(--gold);
+            color: white;
+            padding: 0.25rem 1rem;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+        .plans-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            max-width: 800px;
+            margin: 2rem auto;
+        }
+        .btn-subscribe {
+            width: 100%;
+            margin-top: 1.5rem;
+        }
     </style>
 </head>
 <body>
+    <!-- Navigation (same as index) -->
     <nav class="navbar" id="navbar">
         <div class="nav-container">
             <div class="logo"><i class="fas fa-gem"></i><span>LuxeCompanions</span></div>
@@ -39,179 +67,74 @@
         </div>
     </nav>
 
-    <main style="padding: 2rem 1.5rem; max-width: 1000px; margin: 0 auto;">
-        <div id="errorDisplay"></div>
-        <div id="authStatus">Checking login status...</div>
-
+    <main style="padding: 2rem 1.5rem; max-width: 1200px; margin: 0 auto;">
         <h1 style="text-align: center; margin-bottom: 2rem; color: var(--dark-pink);">
             <i class="fas fa-crown" style="color: var(--gold);"></i> Choose Your Plan
         </h1>
 
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; margin-bottom: 2rem;">
-            <div class="dashboard-card plan-card" onclick="selectPlan('regular')">
+        <div class="plans-grid">
+            <!-- Regular Plan -->
+            <div class="plan-card">
                 <i class="fas fa-star" style="font-size: 3rem; color: var(--primary-pink); margin-bottom: 1rem;"></i>
                 <h2>Regular</h2>
                 <div style="font-size: 2.5rem; font-weight: 700; color: var(--primary-pink);">$10<span style="font-size:1rem; color:#666;">/month</span></div>
-                <ul style="list-style:none; margin:1.5rem 0; text-align:left;">
+                <ul style="list-style:none; margin:1.5rem 0; text-align:left; padding-left: 1.5rem;">
                     <li><i class="fas fa-check" style="color:#28a745;"></i> Unlimited posts</li>
                     <li><i class="fas fa-check" style="color:#28a745;"></i> Standard placement</li>
                     <li><i class="fas fa-check" style="color:#28a745;"></i> Profile views</li>
                 </ul>
-                <button id="subscribeRegular" class="btn-primary" style="width:100%;">Subscribe $10</button>
+                <button onclick="subscribe('regular')" class="btn-primary btn-subscribe">Subscribe $10</button>
             </div>
-            <div class="dashboard-card plan-card vip" onclick="selectPlan('vip')" style="position:relative;">
+
+            <!-- VIP Plan -->
+            <div class="plan-card vip" style="position:relative;">
                 <div class="badge-popular">POPULAR</div>
                 <i class="fas fa-crown" style="font-size: 3rem; color: var(--gold); margin-bottom: 1rem;"></i>
                 <h2>VIP</h2>
                 <div style="font-size: 2.5rem; font-weight: 700; color: var(--gold);">$20<span style="font-size:1rem; color:#666;">/month</span></div>
-                <ul style="list-style:none; margin:1.5rem 0; text-align:left;">
+                <ul style="list-style:none; margin:1.5rem 0; text-align:left; padding-left: 1.5rem;">
                     <li><i class="fas fa-check" style="color:#28a745;"></i> Unlimited posts</li>
                     <li><i class="fas fa-crown" style="color:var(--gold);"></i> VIP featured placement</li>
                     <li><i class="fas fa-check" style="color:#28a745;"></i> Priority support</li>
                     <li><i class="fas fa-check" style="color:#28a745;"></i> Badge on profile</li>
                 </ul>
-                <button id="subscribeVIP" class="btn-primary" style="width:100%; background: linear-gradient(135deg, var(--gold), #ffd700);">Subscribe $20</button>
+                <button onclick="subscribe('vip')" class="btn-primary btn-subscribe" style="background: linear-gradient(135deg, var(--gold), #ffd700);">Subscribe $20</button>
             </div>
         </div>
+
         <div id="subscriptionMessage" class="auth-message" style="display: none;"></div>
     </main>
 
-    <footer>...</footer>
+    <footer>...</footer> <!-- your existing footer -->
 
     <script src="js/auth.js"></script>
     <script>
-        function showError(message) {
-            const el = document.getElementById('errorDisplay');
-            el.textContent = message;
-            el.style.display = 'block';
-        }
-
-        function decodeToken(token) {
-            try {
-                const parts = token.split('.');
-                if (parts.length !== 3) return 'Invalid token format';
-                const payload = JSON.parse(atob(parts[1]));
-                return JSON.stringify(payload, null, 2);
-            } catch (e) {
-                return 'Failed to decode token: ' + e.message;
-            }
-        }
-
-        let currentToken = '';
-
-        async function checkAuth() {
-            const statusEl = document.getElementById('authStatus');
-            if (!window.supabase) {
-                statusEl.innerHTML = '❌ Supabase client not loaded. Check auth.js.';
-                return false;
-            }
-            const { data: { session }, error } = await window.supabase.auth.getSession();
-            if (error) {
-                statusEl.innerHTML = '❌ Session error: ' + error.message;
-                return false;
-            }
-            if (!session) {
-                statusEl.innerHTML = '❌ Not logged in. Please log in first.';
-                return false;
-            }
-            currentToken = session.access_token;
-            const decoded = decodeToken(currentToken);
-            statusEl.innerHTML = `
-                <div style="width:100%;"><strong>✅ Logged in as:</strong> ${session.user?.email}</div>
-                <div><strong>Full token:</strong></div>
-                <div class="token-box">${currentToken}</div>
-                <div><strong>Decoded token claims:</strong></div>
-                <div id="decodedClaims">${decoded}</div>
-                <button id="copyTokenBtn">Copy Token</button>
-            `;
-            document.getElementById('copyTokenBtn')?.addEventListener('click', function() {
-                navigator.clipboard.writeText(currentToken).then(() => {
-                    alert('Token copied to clipboard!');
-                }).catch(() => {
-                    alert('Failed to copy token.');
-                });
-            });
-            return true;
-        }
-
-        const PRICE_IDS = {
-            regular: 'price_1T4AJmFiAep3lhtUI3Rgs87i',
-            vip: 'price_1T4AM6FiAep3lhtUrW06HL7'
+        // 🔁 YOUR STRIPE PAYMENT LINKS
+        const PAYMENT_LINKS = {
+            regular: 'https://buy.stripe.com/14A8wP2yY6ZK5zM0bF73G07',
+            vip: 'https://buy.stripe.com/9B68wP7Ti6ZKd2e9Mf73G08'
         };
-        const EDGE_FUNCTION_URL = 'https://mdjwpndaxksdxbjscgas.supabase.co/functions/v1/create-checkout-session-v2';
 
-        let selectedPlan = null;
-        function selectPlan(plan) {
-            selectedPlan = plan;
-            document.querySelectorAll('.plan-card').forEach(c => c.style.border = '');
-            if (plan === 'regular') {
-                document.querySelector('.plan-card:not(.vip)').style.border = '3px solid var(--primary-pink)';
-            } else {
-                document.querySelector('.plan-card.vip').style.border = '3px solid var(--gold)';
-            }
+        function subscribe(plan) {
+            // Store selected plan in sessionStorage to verify on success page
+            sessionStorage.setItem('selectedPlan', plan);
+            window.location.href = PAYMENT_LINKS[plan];
         }
 
+        // Optional: show error if not logged in (redirect to login)
         document.addEventListener('DOMContentLoaded', async function() {
-            await checkAuth();
-
-            document.getElementById('subscribeRegular').addEventListener('click', (e) => {
-                e.stopPropagation();
-                handleSubscribe('regular');
-            });
-            document.getElementById('subscribeVIP').addEventListener('click', (e) => {
-                e.stopPropagation();
-                handleSubscribe('vip');
-            });
-        });
-
-        async function handleSubscribe(plan) {
-            showError('');
-            if (!PRICE_IDS[plan] || !PRICE_IDS[plan].startsWith('price_')) {
-                showError('Invalid Price ID. Please check configuration.');
+            if (!window.supabase) {
+                window.location.href = 'index.html';
                 return;
             }
-            const btn = plan === 'regular' ? document.getElementById('subscribeRegular') : document.getElementById('subscribeVIP');
-            btn.disabled = true;
-            btn.textContent = 'Redirecting...';
-
-            try {
-                const { data: { session }, error: sessionError } = await window.supabase.auth.getSession();
-                if (sessionError || !session) {
-                    const { data: refreshData, error: refreshError } = await window.supabase.auth.refreshSession();
-                    if (refreshError || !refreshData.session) {
-                        throw new Error('No active session. Please log in again.');
-                    }
-                    session = refreshData.session;
-                }
-
-                const response = await fetch(EDGE_FUNCTION_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${session.access_token}`
-                    },
-                    body: JSON.stringify({ priceId: PRICE_IDS[plan], planType: plan })
-                });
-
-                const data = await response.json();
-                if (!response.ok) {
-                    showError('HTTP ' + response.status + ': ' + (data.error || JSON.stringify(data)));
-                    throw new Error(data.error || `HTTP error ${response.status}`);
-                }
-                if (!data.url) {
-                    showError('No checkout URL returned');
-                    throw new Error('No checkout URL returned');
-                }
-                window.location.href = data.url;
-            } catch (err) {
-                console.error(err);
-                showError('Error: ' + err.message);
-                btn.disabled = false;
-                btn.textContent = plan === 'regular' ? 'Subscribe $10' : 'Subscribe $20';
+            const { data: { user }, error } = await window.supabase.auth.getUser();
+            if (error || !user) {
+                window.location.href = 'index.html';
             }
-        }
+        });
     </script>
 
+    <!-- Mobile menu close handler -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             var checkbox = document.getElementById('menu-toggle-checkbox');
@@ -221,4 +144,4 @@
         });
     </script>
 </body>
-    </html>
+</html>
