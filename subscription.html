@@ -2,111 +2,146 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Payment Successful - LuxeCompanions</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Subscription - LuxeCompanions</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-    <script src="js/auth.js"></script>
+    <script src="js/cache.js"></script>
+    <script>
+        window.toggleMobileMenu = function() {
+            var navbar = document.getElementById('navbar');
+            if (navbar) navbar.classList.toggle('active');
+            return false;
+        };
+    </script>
     <style>
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            background: var(--soft-pink);
-        }
-        .success-card {
+        .plan-card {
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            padding: 2rem;
             background: white;
             border-radius: 15px;
-            padding: 2rem;
-            max-width: 400px;
-            text-align: center;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
         }
-        .success-card i {
-            font-size: 5rem;
-            color: #28a745;
-            margin-bottom: 1rem;
+        .plan-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
         }
-        .success-card h1 {
-            color: var(--dark-pink);
-            margin-bottom: 1rem;
+        .plan-card.vip {
+            border: 2px solid var(--gold);
         }
-        .success-card p {
-            color: #666;
-            margin-bottom: 1.5rem;
+        .badge-popular {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: var(--gold);
+            color: white;
+            padding: 0.25rem 1rem;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+        .plans-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            max-width: 800px;
+            margin: 2rem auto;
+        }
+        .btn-subscribe {
+            width: 100%;
+            margin-top: 1.5rem;
         }
     </style>
 </head>
 <body>
-    <div class="success-card">
-        <i class="fas fa-check-circle"></i>
-        <h1>Payment Successful!</h1>
-        <p>Your subscription is being activated. Please wait...</p>
-    </div>
+    <!-- Navigation (same as index) -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <div class="logo"><i class="fas fa-gem"></i><span>LuxeCompanions</span></div>
+            <input type="checkbox" id="menu-toggle-checkbox">
+            <label for="menu-toggle-checkbox" class="menu-toggle" id="mobileMenu"><i class="fas fa-bars"></i></label>
+            <div class="nav-links" id="navLinks"></div>
+        </div>
+    </nav>
 
+    <main style="padding: 2rem 1.5rem; max-width: 1200px; margin: 0 auto;">
+        <h1 style="text-align: center; margin-bottom: 2rem; color: var(--dark-pink);">
+            <i class="fas fa-crown" style="color: var(--gold);"></i> Choose Your Plan
+        </h1>
+
+        <div class="plans-grid">
+            <!-- Regular Plan -->
+            <div class="plan-card">
+                <i class="fas fa-star" style="font-size: 3rem; color: var(--primary-pink); margin-bottom: 1rem;"></i>
+                <h2>Regular</h2>
+                <div style="font-size: 2.5rem; font-weight: 700; color: var(--primary-pink);">$10<span style="font-size:1rem; color:#666;">/month</span></div>
+                <ul style="list-style:none; margin:1.5rem 0; text-align:left; padding-left: 1.5rem;">
+                    <li><i class="fas fa-check" style="color:#28a745;"></i> Unlimited posts</li>
+                    <li><i class="fas fa-check" style="color:#28a745;"></i> Standard placement</li>
+                    <li><i class="fas fa-check" style="color:#28a745;"></i> Profile views</li>
+                </ul>
+                <button onclick="subscribe('regular')" class="btn-primary btn-subscribe">Subscribe $10</button>
+            </div>
+
+            <!-- VIP Plan -->
+            <div class="plan-card vip" style="position:relative;">
+                <div class="badge-popular">POPULAR</div>
+                <i class="fas fa-crown" style="font-size: 3rem; color: var(--gold); margin-bottom: 1rem;"></i>
+                <h2>VIP</h2>
+                <div style="font-size: 2.5rem; font-weight: 700; color: var(--gold);">$20<span style="font-size:1rem; color:#666;">/month</span></div>
+                <ul style="list-style:none; margin:1.5rem 0; text-align:left; padding-left: 1.5rem;">
+                    <li><i class="fas fa-check" style="color:#28a745;"></i> Unlimited posts</li>
+                    <li><i class="fas fa-crown" style="color:var(--gold);"></i> VIP featured placement</li>
+                    <li><i class="fas fa-check" style="color:#28a745;"></i> Priority support</li>
+                    <li><i class="fas fa-check" style="color:#28a745;"></i> Badge on profile</li>
+                </ul>
+                <button onclick="subscribe('vip')" class="btn-primary btn-subscribe" style="background: linear-gradient(135deg, var(--gold), #ffd700);">Subscribe $20</button>
+            </div>
+        </div>
+
+        <div id="subscriptionMessage" class="auth-message" style="display: none;"></div>
+    </main>
+
+    <footer>...</footer> <!-- your existing footer -->
+
+    <script src="js/auth.js"></script>
     <script>
-        (async function() {
-            // Wait for supabase to be ready
+        // 🔁 YOUR STRIPE PAYMENT LINKS
+        const PAYMENT_LINKS = {
+            regular: 'https://buy.stripe.com/14A8wP2yY6ZK5zM0bF73G07',
+            vip: 'https://buy.stripe.com/9B68wP7Ti6ZKd2e9Mf73G08'
+        };
+
+        function subscribe(plan) {
+            // Store selected plan in sessionStorage to verify on success page
+            sessionStorage.setItem('selectedPlan', plan);
+            window.location.href = PAYMENT_LINKS[plan];
+        }
+
+        // Optional: show error if not logged in (redirect to login)
+        document.addEventListener('DOMContentLoaded', async function() {
             if (!window.supabase) {
-                console.error('Supabase not loaded');
-                return;
-            }
-
-            // Get plan from URL parameter (e.g., ?plan=regular or ?plan=vip)
-            const urlParams = new URLSearchParams(window.location.search);
-            let plan = urlParams.get('plan');
-            
-            // If not in URL, fall back to sessionStorage (set in subscription.html)
-            if (!plan) {
-                plan = sessionStorage.getItem('selectedPlan');
-            }
-            
-            // Default to regular if still not found (should not happen)
-            if (!plan) {
-                plan = 'regular';
-            }
-
-            // Get current user
-            const { data: { user }, error } = await window.supabase.auth.getUser();
-            if (error || !user) {
-                alert('You must be logged in to activate a subscription.');
                 window.location.href = 'index.html';
                 return;
             }
-
-            // Calculate expiration (30 days from now)
-            const expiresAt = new Date();
-            expiresAt.setDate(expiresAt.getDate() + 30);
-            const expiresAtISO = expiresAt.toISOString();
-
-            // Update user's profile in Supabase
-            const { error: updateError } = await window.supabase
-                .from('profiles')
-                .update({
-                    subscription_type: plan,
-                    subscription_expires_at: expiresAtISO
-                })
-                .eq('id', user.id);
-
-            if (updateError) {
-                console.error('Failed to update subscription:', updateError);
-                alert('There was an error updating your subscription. Please contact support.');
-            } else {
-                // Store in localStorage for quick access
-                localStorage.setItem('subscription_expires_at', expiresAtISO);
-                localStorage.setItem('subscription_type', plan);
+            const { data: { user }, error } = await window.supabase.auth.getUser();
+            if (error || !user) {
+                window.location.href = 'index.html';
             }
+        });
+    </script>
 
-            // Clear session storage
-            sessionStorage.removeItem('selectedPlan');
-
-            // Redirect to dashboard after a short delay
-            setTimeout(() => {
-                window.location.href = 'dashboard.html';
-            }, 2000);
-        })();
+    <!-- Mobile menu close handler -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var checkbox = document.getElementById('menu-toggle-checkbox');
+            document.getElementById('navLinks')?.addEventListener('click', (e) => {
+                if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON') checkbox.checked = false;
+            });
+        });
     </script>
 </body>
-</html>
+                            </html>
