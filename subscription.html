@@ -180,7 +180,7 @@
         }
 
         // ============================================
-        // SUBSCRIBE HANDLER WITH DEBUGGING
+        // SUBSCRIBE HANDLER WITH FULL RESPONSE DISPLAY
         // ============================================
         async function subscribe(plan) {
             // Ensure user is logged in
@@ -224,12 +224,12 @@
                         // Success – redirect to Stripe
                         window.location.href = data.url;
                     } else {
-                        // Show the error from the function
-                        alert('Error: ' + (data.error || 'Unknown error occurred.'));
+                        // Show the entire response object in the alert
+                        alert('Response from server:\n' + JSON.stringify(data, null, 2));
                     }
                 } catch (parseError) {
                     // Response was not JSON – show raw text
-                    alert('Invalid response from server:\n' + responseText);
+                    alert('Server returned non-JSON response:\n' + responseText);
                 }
             } catch (err) {
                 console.error('Fetch error:', err);
@@ -255,4 +255,4 @@
         });
     </script>
 </body>
-            </html>
+    </html>
