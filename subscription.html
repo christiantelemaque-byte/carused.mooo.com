@@ -9,6 +9,7 @@
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="js/cache.js"></script>
     <script src="https://js.stripe.com/v3/"></script>
+    <!-- MOBILE MENU TOGGLE – defined early -->
     <script>
         window.toggleMobileMenu = function() {
             var navbar = document.getElementById('navbar');
@@ -39,10 +40,31 @@
             font-weight: 600;
             font-size: 0.8rem;
         }
+        /* Error display */
+        #errorDisplay {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #dc3545;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            display: none;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+        #authStatus {
+            background: #e2f0d9;
+            color: #0a5c2e;
+            border: 1px solid #28a745;
+            border-radius: 8px;
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
     </style>
 </head>
 <body>
-    <!-- Navigation (same as index) -->
+    <!-- Navigation -->
     <nav class="navbar" id="navbar">
         <div class="nav-container">
             <div class="logo"><i class="fas fa-gem"></i><span>LuxeCompanions</span></div>
@@ -53,6 +75,11 @@
     </nav>
 
     <main style="padding: 2rem 1.5rem; max-width: 1000px; margin: 0 auto;">
+        <!-- Error display area -->
+        <div id="errorDisplay"></div>
+        <!-- Auth status area -->
+        <div id="authStatus">Checking login status...</div>
+
         <h1 style="text-align: center; margin-bottom: 2rem; color: var(--dark-pink);">
             <i class="fas fa-crown" style="color: var(--gold);"></i> Choose Your Plan
         </h1>
@@ -65,9 +92,9 @@
                 <div style="font-size: 2.5rem; font-weight: 700; color: var(--primary-pink); margin-bottom: 0.5rem;">$10</div>
                 <div style="color: #666; margin-bottom: 1.5rem;">per month</div>
                 <ul style="list-style: none; margin-bottom: 2rem; text-align: left; padding-left: 1.5rem;">
-                    <li style="margin-bottom: 0.75rem;"><i class="fas fa-check" style="color: #28a745; margin-right: 0.5rem;"></i> Unlimited posts</li>
-                    <li style="margin-bottom: 0.75rem;"><i class="fas fa-check" style="color: #28a745; margin-right: 0.5rem;"></i> Standard placement</li>
-                    <li style="margin-bottom: 0.75rem;"><i class="fas fa-check" style="color: #28a745; margin-right: 0.5rem;"></i> Profile views</li>
+                    <li><i class="fas fa-check" style="color: #28a745;"></i> Unlimited posts</li>
+                    <li><i class="fas fa-check" style="color: #28a745;"></i> Standard placement</li>
+                    <li><i class="fas fa-check" style="color: #28a745;"></i> Profile views</li>
                 </ul>
                 <button id="subscribeRegular" class="btn-primary" style="width: 100%;">Subscribe $10</button>
             </div>
@@ -79,11 +106,11 @@
                 <h2 style="margin-bottom: 0.5rem;">VIP</h2>
                 <div style="font-size: 2.5rem; font-weight: 700; color: var(--gold); margin-bottom: 0.5rem;">$20</div>
                 <div style="color: #666; margin-bottom: 1.5rem;">per month</div>
-                <ul style="list-style: none; margin-bottom: 2rem; text-align: left; padding-left: 1.5rem;">
-                    <li style="margin-bottom: 0.75rem;"><i class="fas fa-check" style="color: #28a745; margin-right: 0.5rem;"></i> Unlimited posts</li>
-                    <li style="margin-bottom: 0.75rem;"><i class="fas fa-crown" style="color: var(--gold); margin-right: 0.5rem;"></i> VIP featured placement</li>
-                    <li style="margin-bottom: 0.75rem;"><i class="fas fa-check" style="color: #28a745; margin-right: 0.5rem;"></i> Priority support</li>
-                    <li style="margin-bottom: 0.75rem;"><i class="fas fa-check" style="color: #28a745; margin-right: 0.5rem;"></i> Badge on profile</li>
+                <ul style="list-style: none; margin-bottom: 2rem; text-align: left;">
+                    <li><i class="fas fa-check" style="color: #28a745;"></i> Unlimited posts</li>
+                    <li><i class="fas fa-crown" style="color: var(--gold);"></i> VIP featured placement</li>
+                    <li><i class="fas fa-check" style="color: #28a745;"></i> Priority support</li>
+                    <li><i class="fas fa-check" style="color: #28a745;"></i> Badge on profile</li>
                 </ul>
                 <button id="subscribeVIP" class="btn-primary" style="width: 100%; background: linear-gradient(135deg, var(--gold), #ffd700);">Subscribe $20</button>
             </div>
@@ -96,11 +123,39 @@
 
     <script src="js/auth.js"></script>
     <script>
+        // Helper to show errors on screen
+        function showError(message) {
+            const el = document.getElementById('errorDisplay');
+            el.textContent = message;
+            el.style.display = 'block';
+        }
+
+        // Check auth status
+        async function checkAuth() {
+            const statusEl = document.getElementById('authStatus');
+            if (!window.supabase) {
+                statusEl.innerHTML = '❌ Supabase client not loaded. Check auth.js.';
+                return false;
+            }
+            const { data: { session }, error } = await window.supabase.auth.getSession();
+            if (error) {
+                statusEl.innerHTML = '❌ Session error: ' + error.message;
+                return false;
+            }
+            if (!session) {
+                statusEl.innerHTML = '❌ Not logged in. Please log in first.';
+                return false;
+            }
+            statusEl.innerHTML = '✅ Logged in as: ' + (session.user?.email || 'unknown') + '<br>Token: ' + session.access_token.substring(0,20) + '...';
+            return true;
+        }
+
+        // Price IDs
         const PRICE_IDS = {
             regular: 'price_1T4AJmFiAep3lhtUI3Rgs87i',
             vip: 'price_1T4AM6FiAep3lhtUrW06HL7'
         };
-        const EDGE_FUNCTION_URL = 'https://mdjwpndaxksdxbjscgas.supabase.co/functions/v1/create-checkout-session-v2';
+        const EDGE_FUNCTION_URL = 'https://mdjwpndaxksdxbjscgas.supabase.co/functions/v1/create-checkout-session-v2'; // adjust if needed
 
         let selectedPlan = null;
         function selectPlan(plan) {
@@ -114,15 +169,10 @@
         }
 
         document.addEventListener('DOMContentLoaded', async function() {
-            if (!window.supabase) {
-                window.location.href = 'index.html';
-                return;
-            }
-            const { data: { user }, error } = await window.supabase.auth.getUser();
-            if (error || !user) {
-                window.location.href = 'index.html';
-                return;
-            }
+            // First, check auth
+            await checkAuth();
+
+            // Attach button listeners
             document.getElementById('subscribeRegular').addEventListener('click', (e) => {
                 e.stopPropagation();
                 handleSubscribe('regular');
@@ -134,8 +184,9 @@
         });
 
         async function handleSubscribe(plan) {
+            showError(''); // clear previous
             if (!PRICE_IDS[plan] || !PRICE_IDS[plan].startsWith('price_')) {
-                showMessage('Invalid Price ID. Please check your configuration.', 'error');
+                showError('Invalid Price ID. Please check configuration.');
                 return;
             }
             const btn = plan === 'regular' ? document.getElementById('subscribeRegular') : document.getElementById('subscribeVIP');
@@ -145,7 +196,7 @@
             try {
                 const { data: { session }, error: sessionError } = await window.supabase.auth.getSession();
                 if (sessionError || !session) {
-                    // Try to refresh session
+                    // Try refresh
                     const { data: refreshData, error: refreshError } = await window.supabase.auth.refreshSession();
                     if (refreshError || !refreshData.session) {
                         throw new Error('No active session. Please log in again.');
@@ -168,28 +219,24 @@
 
                 const data = await response.json();
                 if (!response.ok) {
+                    // Show detailed error on screen
+                    showError('HTTP ' + response.status + ': ' + (data.error || JSON.stringify(data)));
                     throw new Error(data.error || `HTTP error ${response.status}`);
                 }
                 if (!data.url) {
+                    showError('No checkout URL returned');
                     throw new Error('No checkout URL returned');
                 }
                 window.location.href = data.url;
             } catch (err) {
                 console.error('Subscription error:', err);
-                showMessage('Error: ' + err.message, 'error');
+                showError('Error: ' + err.message);
                 btn.disabled = false;
                 btn.textContent = plan === 'regular' ? 'Subscribe $10' : 'Subscribe $20';
             }
         }
-
-        function showMessage(msg, type) {
-            const msgDiv = document.getElementById('subscriptionMessage');
-            msgDiv.textContent = msg;
-            msgDiv.className = 'auth-message ' + type;
-            msgDiv.style.display = 'block';
-            setTimeout(() => msgDiv.style.display = 'none', 5000);
-        }
     </script>
+
     <!-- Mobile menu close handler -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
