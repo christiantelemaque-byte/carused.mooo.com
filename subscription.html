@@ -114,18 +114,16 @@
                 <button onclick="subscribe('vip')" class="btn-primary btn-subscribe" style="background: linear-gradient(135deg, var(--gold), #ffd700);">Subscribe $20</button>
             </div>
         </div>
-
-        <div id="subscriptionMessage" class="auth-message" style="display: none;"></div>
     </main>
 
     <footer>...</footer>
 
     <script src="js/auth.js"></script>
     <script>
-        // 🔁 YOUR LIVE STRIPE PAYMENT LINKS
+        // 🔁 YOUR LIVE STRIPE PAYMENT LINKS (recurring monthly)
         const PAYMENT_LINKS = {
-            regular: 'https://buy.stripe.com/14A8wP2yY6ZK5zM0bF73G07', // your regular link
-            vip: 'https://buy.stripe.com/9B68wP7Ti6ZKd2e9Mf73G08'      // your VIP link
+            regular: 'https://buy.stripe.com/14A8wP2yY6ZK5zM0bF73G07',
+            vip: 'https://buy.stripe.com/9B68wP7Ti6ZKd2e9Mf73G08'
         };
 
         async function checkAuth() {
@@ -165,4 +163,4 @@
         });
     </script>
 </body>
-                </html>
+                        </html>
