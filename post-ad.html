@@ -51,10 +51,12 @@
                     <textarea id="description" rows="6" required placeholder="Describe yourself, services, availability..." style="width: 100%; padding: 12px 15px; border: 2px solid var(--light-pink); border-radius: 8px; font-size: 1rem;"></textarea>
                 </div>
 
+                <!-- Campo para múltiples imágenes -->
                 <div class="form-group">
-                    <label for="imageFile">Photo (optional)</label>
-                    <input type="file" id="imageFile" accept="image/*">
-                    <small style="display: block; margin-top: 5px; color: #666;">Upload an image – it will be hosted on Imgur (paste URL later).</small>
+                    <label for="imageFiles">Photos (up to 5)</label>
+                    <input type="file" id="imageFiles" accept="image/*" multiple>
+                    <small style="display: block; margin-top: 5px; color: #666;">You can select up to 5 images. They will be uploaded to Google Drive.</small>
+                    <div id="imagePreview" style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px;"></div>
                 </div>
 
                 <div class="form-group">
@@ -72,59 +74,45 @@
                 </div>
             </form>
             <div id="uploadProgress" style="margin-top: 1rem; display: none;">
-                <p>Uploading... <span id="progressText">0%</span></p>
+                <p>Uploading images to Google Drive... <span id="progressText">0%</span></p>
                 <progress id="progressBar" value="0" max="100" style="width:100%;"></progress>
             </div>
             <div id="postMessage" class="auth-message" style="margin-top: 1.5rem;"></div>
         </div>
     </main>
 
-    <footer>...</footer> <!-- your footer -->
+    <footer>...</footer> <!-- tu footer existente -->
 
     <script src="js/auth.js"></script>
     <script>
-        // Helper: Check if user has an active subscription using localStorage and fallback to DB
-        async function hasActiveSubscription() {
-            // Check localStorage first
-            const expiry = localStorage.getItem('subscription_expires_at');
-            if (expiry && new Date(expiry) > new Date()) {
-                return true;
-            }
+        const UPLOAD_FUNCTION_URL = 'https://mdjwpndaxksdxbjscgas.supabase.co/functions/v1/upload-to-drive';
 
-            // If not in localStorage or expired, fetch from Supabase
+        // Helper: Check subscription
+        async function hasActiveSubscription() {
+            const expiry = localStorage.getItem('subscription_expires_at');
+            if (expiry && new Date(expiry) > new Date()) return true;
             const { data: { user } } = await window.supabase.auth.getUser();
             if (!user) return false;
-
             const { data: profile, error } = await window.supabase
                 .from('profiles')
-                .select('subscription_expires_at, subscription_type')
+                .select('subscription_expires_at')
                 .eq('id', user.id)
                 .single();
-
-            if (error || !profile || !profile.subscription_expires_at) {
-                return false;
-            }
-
+            if (error || !profile?.subscription_expires_at) return false;
             const dbExpiry = new Date(profile.subscription_expires_at);
             if (dbExpiry > new Date()) {
-                // Update localStorage with fresh data
                 localStorage.setItem('subscription_expires_at', profile.subscription_expires_at);
-                localStorage.setItem('subscription_type', profile.subscription_type || 'none');
                 return true;
             } else {
-                // Expired – clear localStorage
                 localStorage.removeItem('subscription_expires_at');
-                localStorage.removeItem('subscription_type');
                 return false;
             }
         }
 
-        // Update subscription status display
         async function updateSubscriptionStatus() {
             const statusDiv = document.getElementById('subscriptionStatus');
             const warningDiv = document.getElementById('subscriptionWarning');
             const submitBtn = document.getElementById('submitBtn');
-
             const active = await hasActiveSubscription();
             if (active) {
                 statusDiv.innerHTML = '<span style="color: #28a745; font-weight:600;"><i class="fas fa-check-circle"></i> Active subscription</span>';
@@ -138,25 +126,40 @@
             }
         }
 
+        // Preview selected images
+        document.getElementById('imageFiles').addEventListener('change', function(e) {
+            const preview = document.getElementById('imagePreview');
+            preview.innerHTML = '';
+            const files = Array.from(e.target.files);
+            files.forEach(file => {
+                const reader = new FileReader();
+                reader.onload = function(ev) {
+                    const img = document.createElement('img');
+                    img.src = ev.target.result;
+                    img.style.width = '80px';
+                    img.style.height = '80px';
+                    img.style.objectFit = 'cover';
+                    img.style.borderRadius = '8px';
+                    preview.appendChild(img);
+                };
+                reader.readAsDataURL(file);
+            });
+        });
+
         document.addEventListener('DOMContentLoaded', async function() {
             if (!window.supabase) {
                 window.location.href = 'index.html';
                 return;
             }
-
             const { data: { user }, error } = await window.supabase.auth.getUser();
             if (error || !user) {
                 window.location.href = 'index.html';
                 return;
             }
-
             await updateSubscriptionStatus();
 
-            // Handle form submission
             document.getElementById('postForm').addEventListener('submit', async function(e) {
                 e.preventDefault();
-
-                // Double-check subscription before posting
                 const active = await hasActiveSubscription();
                 if (!active) {
                     showMessage('You need an active subscription to post.', 'error');
@@ -166,18 +169,60 @@
 
                 const title = document.getElementById('title').value.trim();
                 const description = document.getElementById('description').value.trim();
-                const imageFile = document.getElementById('imageFile').files[0];
+                const imageFiles = document.getElementById('imageFiles').files;
 
                 if (!title || !description) {
                     showMessage('Please fill all required fields', 'error');
                     return;
                 }
 
-                // For now, handle image upload (you can integrate Imgur here)
-                let imageUrl = '';
-                if (imageFile) {
-                    // Placeholder – implement Imgur upload if desired
-                    imageUrl = prompt('Image upload not yet implemented. Enter a URL for your image (or leave blank):', '');
+                let imageUrls = [];
+
+                // Upload images if any
+                if (imageFiles.length > 0) {
+                    const formData = new FormData();
+                    for (let i = 0; i < imageFiles.length; i++) {
+                        formData.append('images', imageFiles[i]);
+                    }
+
+                    const progressDiv = document.getElementById('uploadProgress');
+                    const progressBar = document.getElementById('progressBar');
+                    const progressText = document.getElementById('progressText');
+                    progressDiv.style.display = 'block';
+                    document.getElementById('submitBtn').disabled = true;
+
+                    try {
+                        const xhr = new XMLHttpRequest();
+                        xhr.open('POST', UPLOAD_FUNCTION_URL, true);
+                        xhr.upload.addEventListener('progress', (e) => {
+                            if (e.lengthComputable) {
+                                const percent = Math.round((e.loaded / e.total) * 100);
+                                progressBar.value = percent;
+                                progressText.textContent = percent + '%';
+                            }
+                        });
+                        const uploadPromise = new Promise((resolve, reject) => {
+                            xhr.onload = () => {
+                                if (xhr.status === 200) {
+                                    const resp = JSON.parse(xhr.responseText);
+                                    resolve(resp.urls);
+                                } else {
+                                    reject(new Error(xhr.responseText || 'Upload failed'));
+                                }
+                            };
+                            xhr.onerror = () => reject(new Error('Network error'));
+                            xhr.send(formData);
+                        });
+                        imageUrls = await uploadPromise;
+                        progressDiv.style.display = 'none';
+                    } catch (err) {
+                        progressDiv.style.display = 'none';
+                        showMessage('Image upload failed: ' + err.message, 'error');
+                        document.getElementById('submitBtn').disabled = false;
+                        return;
+                    } finally {
+                        document.getElementById('submitBtn').disabled = false;
+                    }
                 }
 
                 // Create post in Supabase
@@ -186,8 +231,8 @@
                     user_id: user.id,
                     title,
                     description,
-                    images: imageUrl ? [imageUrl] : [],
-                    is_vip: false, // You can set based on subscription_type if needed
+                    images: imageUrls,
+                    is_vip: false, // You can set based on user's subscription type if needed
                     status: 'active',
                     created_at: new Date().toISOString(),
                     updated_at: new Date().toISOString()
@@ -197,8 +242,12 @@
                     const { error } = await window.supabase.from('posts').insert([postData]);
                     if (error) throw error;
 
+                    clearCache(CACHE_KEYS.USER_POSTS);
+                    clearCache(CACHE_KEYS.PUBLIC_POSTS);
+
                     showMessage('✅ Your listing has been published!', 'success');
                     document.getElementById('postForm').reset();
+                    document.getElementById('imagePreview').innerHTML = '';
                     setTimeout(() => window.location.href = 'dashboard.html', 2000);
                 } catch (err) {
                     showMessage('Error: ' + err.message, 'error');
@@ -225,4 +274,4 @@
         });
     </script>
 </body>
-    </html>
+</html>
