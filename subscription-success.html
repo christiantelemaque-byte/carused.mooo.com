@@ -48,27 +48,14 @@
 
     <script>
         (async function() {
-            // Wait for supabase to be ready
             if (!window.supabase) {
                 console.error('Supabase not loaded');
                 return;
             }
 
-            // Get plan from URL parameter (e.g., ?plan=regular or ?plan=vip)
-            const urlParams = new URLSearchParams(window.location.search);
-            let plan = urlParams.get('plan');
+            // Get plan from sessionStorage (set in subscription.html)
+            const plan = sessionStorage.getItem('selectedPlan') || 'regular';
             
-            // If not in URL, fall back to sessionStorage (set in subscription.html)
-            if (!plan) {
-                plan = sessionStorage.getItem('selectedPlan');
-            }
-            
-            // Default to regular if still not found (should not happen)
-            if (!plan) {
-                plan = 'regular';
-            }
-
-            // Get current user
             const { data: { user }, error } = await window.supabase.auth.getUser();
             if (error || !user) {
                 alert('You must be logged in to activate a subscription.');
@@ -76,12 +63,10 @@
                 return;
             }
 
-            // Calculate expiration (30 days from now)
             const expiresAt = new Date();
             expiresAt.setDate(expiresAt.getDate() + 30);
             const expiresAtISO = expiresAt.toISOString();
 
-            // Update user's profile in Supabase
             const { error: updateError } = await window.supabase
                 .from('profiles')
                 .update({
@@ -94,15 +79,12 @@
                 console.error('Failed to update subscription:', updateError);
                 alert('There was an error updating your subscription. Please contact support.');
             } else {
-                // Store in localStorage for quick access
                 localStorage.setItem('subscription_expires_at', expiresAtISO);
                 localStorage.setItem('subscription_type', plan);
             }
 
-            // Clear session storage
             sessionStorage.removeItem('selectedPlan');
 
-            // Redirect to dashboard after a short delay
             setTimeout(() => {
                 window.location.href = 'dashboard.html';
             }, 2000);
