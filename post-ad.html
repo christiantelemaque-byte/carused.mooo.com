@@ -51,7 +51,7 @@
                     <textarea id="description" rows="6" required placeholder="Describe yourself, services, availability..." style="width: 100%; padding: 12px 15px; border: 2px solid var(--light-pink); border-radius: 8px; font-size: 1rem;"></textarea>
                 </div>
 
-                <!-- Freeimage.host Upload -->
+                <!-- File input for images -->
                 <div class="form-group">
                     <label for="imageFiles">Photos (up to 5)</label>
                     <input type="file" id="imageFiles" accept="image/*" multiple>
@@ -85,9 +85,8 @@
 
     <script src="js/auth.js"></script>
     <script>
-        // 🔁 YOUR FREEIMAGE.HOST API KEY (from screenshot)
-        const FREEIMAGE_API_KEY = '6d207e02198a847aa98d0a2a901485a5';
-        const FREEIMAGE_UPLOAD_URL = 'https://freeimage.host/api/upload'; // Correct endpoint
+        // Edge Function URL
+        const UPLOAD_FUNCTION_URL = 'https://mdjwpndaxksdxbjscgas.supabase.co/functions/v1/upload-to-freeimage';
 
         // Helper: Check subscription (same as before)
         async function hasActiveSubscription() {
@@ -148,31 +147,24 @@
             });
         });
 
-        // Upload function for Freeimage.host (using correct endpoint and parameters)
-        async function uploadToFreeimage(file) {
+        // Upload a single file via Edge Function
+        async function uploadFileViaEdge(file) {
             const formData = new FormData();
-            formData.append('key', FREEIMAGE_API_KEY);
-            formData.append('action', 'upload');          // as per docs, optional but safe
-            formData.append('source', file);               // file input
-            formData.append('format', 'json');             // ensure JSON response
+            formData.append('image', file); // Must match field name expected by Edge Function
 
-            const response = await fetch(FREEIMAGE_UPLOAD_URL, {
+            const response = await fetch(UPLOAD_FUNCTION_URL, {
                 method: 'POST',
                 body: formData
             });
 
             if (!response.ok) {
                 const errorText = await response.text();
-                throw new Error(`HTTP error ${response.status}: ${errorText}`);
+                throw new Error(`Upload failed: ${response.status} ${errorText}`);
             }
 
             const data = await response.json();
-            // Check status_code from response
-            if (data.status_code !== 200) {
-                throw new Error(data.error?.message || 'Upload failed');
-            }
-            // The direct image URL is in data.image.url
-            return data.image.url;
+            if (!data.url) throw new Error('No URL returned');
+            return data.url;
         }
 
         document.addEventListener('DOMContentLoaded', async function() {
@@ -207,7 +199,6 @@
 
                 let imageUrls = [];
 
-                // Upload files to Freeimage.host
                 if (imageFiles.length > 0) {
                     const progressDiv = document.getElementById('uploadProgress');
                     const progressBar = document.getElementById('progressBar');
@@ -219,7 +210,7 @@
                         for (let i = 0; i < imageFiles.length; i++) {
                             const file = imageFiles[i];
                             progressText.textContent = `Uploading ${i+1}/${imageFiles.length}...`;
-                            const url = await uploadToFreeimage(file);
+                            const url = await uploadFileViaEdge(file);
                             imageUrls.push(url);
                         }
                         progressDiv.style.display = 'none';
