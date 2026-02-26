@@ -51,12 +51,18 @@
                     <textarea id="description" rows="6" required placeholder="Describe yourself, services, availability..." style="width: 100%; padding: 12px 15px; border: 2px solid var(--light-pink); border-radius: 8px; font-size: 1rem;"></textarea>
                 </div>
 
-                <!-- Campo para múltiples imágenes -->
+                <!-- PixelDrain upload -->
                 <div class="form-group">
-                    <label for="imageFiles">Photos (up to 5)</label>
+                    <label for="imageFiles">Photos (up to 5) – will be uploaded to PixelDrain</label>
                     <input type="file" id="imageFiles" accept="image/*" multiple>
-                    <small style="display: block; margin-top: 5px; color: #666;">You can select up to 5 images. They will be uploaded to Google Drive.</small>
+                    <small style="display: block; margin-top: 5px; color: #666;">Images are uploaded to PixelDrain and stored as links.</small>
                     <div id="imagePreview" style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px;"></div>
+                </div>
+
+                <!-- Manual URL alternative (optional) -->
+                <div class="form-group">
+                    <label for="imageUrl">Or paste image URL directly</label>
+                    <input type="url" id="imageUrl" placeholder="https://... (optional)">
                 </div>
 
                 <div class="form-group">
@@ -74,18 +80,19 @@
                 </div>
             </form>
             <div id="uploadProgress" style="margin-top: 1rem; display: none;">
-                <p>Uploading images to Google Drive... <span id="progressText">0%</span></p>
+                <p>Uploading to PixelDrain... <span id="progressText">0%</span></p>
                 <progress id="progressBar" value="0" max="100" style="width:100%;"></progress>
             </div>
             <div id="postMessage" class="auth-message" style="margin-top: 1.5rem;"></div>
         </div>
     </main>
 
-    <footer>...</footer> <!-- tu footer existente -->
+    <footer>...</footer>
 
     <script src="js/auth.js"></script>
     <script>
-        const UPLOAD_FUNCTION_URL = 'https://mdjwpndaxksdxbjscgas.supabase.co/functions/v1/upload-to-drive';
+        // 🔁 YOUR PIXELDRAIN API KEY
+        const PIXELDRAIN_API_KEY = '269d25d0-ce6e-4b84-a977-46e8b3bc19c3';
 
         // Helper: Check subscription
         async function hasActiveSubscription() {
@@ -146,6 +153,30 @@
             });
         });
 
+        // Upload function for PixelDrain
+        async function uploadToPixelDrain(file) {
+            const formData = new FormData();
+            formData.append('file', file);
+
+            const response = await fetch('https://pixeldrain.com/api/file', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Basic ${btoa(':' + PIXELDRAIN_API_KEY)}` // API key as username, blank password
+                },
+                body: formData
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Upload failed: ${response.status} ${errorText}`);
+            }
+
+            const data = await response.json();
+            // PixelDrain returns { success: true, id: "...", url: "..." }
+            // Direct file URL: https://pixeldrain.com/api/file/{id}
+            return `https://pixeldrain.com/api/file/${data.id}`;
+        }
+
         document.addEventListener('DOMContentLoaded', async function() {
             if (!window.supabase) {
                 window.location.href = 'index.html';
@@ -170,6 +201,7 @@
                 const title = document.getElementById('title').value.trim();
                 const description = document.getElementById('description').value.trim();
                 const imageFiles = document.getElementById('imageFiles').files;
+                const manualUrl = document.getElementById('imageUrl').value.trim();
 
                 if (!title || !description) {
                     showMessage('Please fill all required fields', 'error');
@@ -178,13 +210,8 @@
 
                 let imageUrls = [];
 
-                // Upload images if any
+                // If files selected, upload to PixelDrain
                 if (imageFiles.length > 0) {
-                    const formData = new FormData();
-                    for (let i = 0; i < imageFiles.length; i++) {
-                        formData.append('images', imageFiles[i]);
-                    }
-
                     const progressDiv = document.getElementById('uploadProgress');
                     const progressBar = document.getElementById('progressBar');
                     const progressText = document.getElementById('progressText');
@@ -192,28 +219,13 @@
                     document.getElementById('submitBtn').disabled = true;
 
                     try {
-                        const xhr = new XMLHttpRequest();
-                        xhr.open('POST', UPLOAD_FUNCTION_URL, true);
-                        xhr.upload.addEventListener('progress', (e) => {
-                            if (e.lengthComputable) {
-                                const percent = Math.round((e.loaded / e.total) * 100);
-                                progressBar.value = percent;
-                                progressText.textContent = percent + '%';
-                            }
-                        });
-                        const uploadPromise = new Promise((resolve, reject) => {
-                            xhr.onload = () => {
-                                if (xhr.status === 200) {
-                                    const resp = JSON.parse(xhr.responseText);
-                                    resolve(resp.urls);
-                                } else {
-                                    reject(new Error(xhr.responseText || 'Upload failed'));
-                                }
-                            };
-                            xhr.onerror = () => reject(new Error('Network error'));
-                            xhr.send(formData);
-                        });
-                        imageUrls = await uploadPromise;
+                        for (let i = 0; i < imageFiles.length; i++) {
+                            const file = imageFiles[i];
+                            // Update progress text
+                            progressText.textContent = `Uploading file ${i+1}/${imageFiles.length}...`;
+                            const url = await uploadToPixelDrain(file);
+                            imageUrls.push(url);
+                        }
                         progressDiv.style.display = 'none';
                     } catch (err) {
                         progressDiv.style.display = 'none';
@@ -223,6 +235,9 @@
                     } finally {
                         document.getElementById('submitBtn').disabled = false;
                     }
+                } else if (manualUrl) {
+                    // Use manually entered URL
+                    imageUrls = [manualUrl];
                 }
 
                 // Create post in Supabase
@@ -232,7 +247,7 @@
                     title,
                     description,
                     images: imageUrls,
-                    is_vip: false, // You can set based on user's subscription type if needed
+                    is_vip: false,
                     status: 'active',
                     created_at: new Date().toISOString(),
                     updated_at: new Date().toISOString()
@@ -274,4 +289,4 @@
         });
     </script>
 </body>
-</html>
+    </html>
