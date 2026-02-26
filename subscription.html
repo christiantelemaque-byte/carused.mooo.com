@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="js/cache.js"></script>
-    <script src="https://js.stripe.com/v3/"></script>
     <script>
         window.toggleMobileMenu = function() {
             var navbar = document.getElementById('navbar');
@@ -69,7 +68,7 @@
     </style>
 </head>
 <body>
-    <!-- Navigation (same as index) -->
+    <!-- Navigation -->
     <nav class="navbar" id="navbar">
         <div class="nav-container">
             <div class="logo"><i class="fas fa-gem"></i><span>LuxeCompanions</span></div>
@@ -123,13 +122,11 @@
 
     <script src="js/auth.js"></script>
     <script>
-        const PRICE_IDS = {
-            regular: 'price_1T4AJmFiAep3lhtUI3Rgs87i',
-            vip: 'price_1T4AM6FiAep3lhtUrW06HL7'
+        // 🔁 YOUR LIVE STRIPE PAYMENT LINKS
+        const PAYMENT_LINKS = {
+            regular: 'https://buy.stripe.com/14A8wP2yY6ZK5zM0bF73G07', // your regular link
+            vip: 'https://buy.stripe.com/9B68wP7Ti6ZKd2e9Mf73G08'      // your VIP link
         };
-
-        // 🔁 UPDATE THIS TO THE FUNCTION YOU ARE USING
-        const CHECKOUT_FUNCTION_URL = 'https://mdjwpndaxksdxbjscgas.supabase.co/functions/v1/create-checkout-session';
 
         async function checkAuth() {
             const statusEl = document.getElementById('authStatus');
@@ -146,49 +143,13 @@
             return true;
         }
 
-        async function subscribe(plan) {
-            const loggedIn = await checkAuth();
-            if (!loggedIn) return;
-
-            const priceId = PRICE_IDS[plan];
-            if (!priceId) {
-                alert('Invalid plan.');
-                return;
-            }
-
-            const { data: { session } } = await window.supabase.auth.getSession();
-
-            try {
-                const response = await fetch(CHECKOUT_FUNCTION_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${session.access_token}`
-                    },
-                    body: JSON.stringify({ priceId, planType: plan })
-                });
-
-                // Try to get response as text
-                const text = await response.text();
-                console.log('Raw response:', text);
-
-                let data;
-                try {
-                    data = JSON.parse(text);
-                } catch (e) {
-                    alert('Server returned non-JSON:\n' + text);
-                    return;
-                }
-
-                if (response.ok && data.url) {
-                    window.location.href = data.url;
-                } else {
-                    // Show full error details
-                    alert('Error ' + response.status + ':\n' + JSON.stringify(data, null, 2));
-                }
-            } catch (err) {
-                alert('Network error: ' + err.message);
-            }
+        function subscribe(plan) {
+            checkAuth().then(loggedIn => {
+                if (!loggedIn) return;
+                // Store the plan in sessionStorage for the success page
+                sessionStorage.setItem('selectedPlan', plan);
+                window.location.href = PAYMENT_LINKS[plan];
+            });
         }
 
         document.addEventListener('DOMContentLoaded', checkAuth);
@@ -204,4 +165,4 @@
         });
     </script>
 </body>
-</html>
+                </html>
