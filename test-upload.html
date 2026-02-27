@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Upload to Edge Function</title>
+</head>
+<body>
+    <h1>Test Upload</h1>
+    <div id="status"></div>
+    <input type="file" id="fileInput" multiple>
+    <button id="uploadBtn">Upload</button>
+
+    <script>
+        const FUNCTION_URL = 'https://mdjwpndaxksdxbjscgas.supabase.co/functions/v1/upload-to-github';
+        const statusDiv = document.getElementById('status');
+
+        function log(msg) {
+            statusDiv.innerHTML += '<br>' + msg;
+        }
+
+        document.getElementById('uploadBtn').addEventListener('click', function() {
+            const files = document.getElementById('fileInput').files;
+            if (files.length === 0) {
+                log('No files selected');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('title', 'Test Title');
+            formData.append('description', 'Test Description');
+            for (let f of files) formData.append('images', f);
+
+            log('Sending request to: ' + FUNCTION_URL);
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', FUNCTION_URL, true);
+            xhr.onload = function() {
+                log('Status: ' + xhr.status);
+                log('Response: ' + xhr.responseText);
+            };
+            xhr.onerror = function() {
+                log('Network error – request blocked. Possible CORS issue or function unreachable.');
+            };
+            xhr.send(formData);
+        });
+    </script>
+</body>
+</html>
