@@ -17,7 +17,7 @@
     </script>
 </head>
 <body>
-    <!-- Navigation (same as index) -->
+    <!-- Navigation -->
     <nav class="navbar" id="navbar">
         <div class="nav-container">
             <div class="logo"><i class="fas fa-gem"></i><span>LuxeCompanions</span></div>
@@ -33,7 +33,6 @@
                 <i class="fas fa-plus-circle" style="color: var(--primary-pink);"></i> Create New Listing
             </h1>
             
-            <!-- Error display area (visible if something goes wrong) -->
             <div id="pageError" style="background: #f8d7da; color: #721c24; border: 2px solid #dc3545; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; display: none;"></div>
 
             <div id="subscriptionWarning" style="background: #fff3cd; border: 1px solid #ffeeba; border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem; display: none;">
@@ -89,23 +88,20 @@
         // Edge Function URL
         const FUNCTION_URL = 'https://mdjwpndaxksdxbjscgas.supabase.co/functions/v1/upload-to-github';
 
-        // Helper to show page errors
         function showPageError(message) {
             const errorDiv = document.getElementById('pageError');
             errorDiv.textContent = message;
             errorDiv.style.display = 'block';
         }
 
-        // Helper: Check subscription using localStorage first, then fallback to DB
+        // Helper: Check subscription
         async function hasActiveSubscription() {
             try {
-                // Check localStorage first
                 const expiry = localStorage.getItem('subscription_expires_at');
                 if (expiry && new Date(expiry) > new Date()) {
                     return true;
                 }
 
-                // If not in localStorage or expired, fetch from Supabase
                 if (!window.supabase) {
                     showPageError('Supabase client not initialized.');
                     return false;
@@ -113,7 +109,7 @@
 
                 const { data: { user }, error: userError } = await window.supabase.auth.getUser();
                 if (userError || !user) {
-                    showPageError('Not logged in. Please log in first.');
+                    showPageError('Not logged in.');
                     return false;
                 }
 
@@ -125,27 +121,21 @@
 
                 if (profileError) {
                     console.error('Profile fetch error:', profileError);
-                    showPageError('Could not fetch subscription status.');
                     return false;
                 }
 
-                if (!profile || !profile.subscription_expires_at) {
-                    return false;
-                }
+                if (!profile || !profile.subscription_expires_at) return false;
 
                 const dbExpiry = new Date(profile.subscription_expires_at);
                 if (dbExpiry > new Date()) {
-                    // Update localStorage with fresh data
                     localStorage.setItem('subscription_expires_at', profile.subscription_expires_at);
                     return true;
                 } else {
-                    // Expired – clear localStorage
                     localStorage.removeItem('subscription_expires_at');
                     return false;
                 }
             } catch (err) {
                 console.error('Subscription check error:', err);
-                showPageError('Error checking subscription: ' + err.message);
                 return false;
             }
         }
@@ -168,7 +158,7 @@
             }
         }
 
-        // Preview selected images
+        // Preview images
         document.getElementById('imageFiles').addEventListener('change', function(e) {
             const preview = document.getElementById('imagePreview');
             preview.innerHTML = '';
@@ -188,31 +178,60 @@
             });
         });
 
-        // Initialize page
+        // Upload using XMLHttpRequest (supports progress)
+        function uploadFormData(formData) {
+            return new Promise((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', FUNCTION_URL, true);
+
+                // Track upload progress
+                xhr.upload.addEventListener('progress', (e) => {
+                    if (e.lengthComputable) {
+                        const percent = Math.round((e.loaded / e.total) * 100);
+                        document.getElementById('progressBar').value = percent;
+                        document.getElementById('progressText').textContent = percent + '%';
+                    }
+                });
+
+                xhr.onload = function() {
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        try {
+                            const result = JSON.parse(xhr.responseText);
+                            resolve(result);
+                        } catch (e) {
+                            reject(new Error('Invalid JSON response'));
+                        }
+                    } else {
+                        reject(new Error(`HTTP ${xhr.status}: ${xhr.statusText}`));
+                    }
+                };
+
+                xhr.onerror = function() {
+                    reject(new Error('Network error'));
+                };
+
+                xhr.send(formData);
+            });
+        }
+
         (async function init() {
             try {
-                // Ensure supabase is loaded
                 if (!window.supabase) {
-                    showPageError('Supabase client not loaded. Make sure auth.js is included.');
+                    showPageError('Supabase client not loaded.');
                     return;
                 }
 
-                // Check if user is logged in
                 const { data: { user }, error: userError } = await window.supabase.auth.getUser();
                 if (userError || !user) {
-                    // Redirect to login
                     window.location.href = 'index.html';
                     return;
                 }
 
-                // Update subscription status
                 await updateSubscriptionStatus();
 
-                // Set up form submission
                 document.getElementById('postForm').addEventListener('submit', async function(e) {
                     e.preventDefault();
 
-                    // Double-check subscription before proceeding
                     const active = await hasActiveSubscription();
                     if (!active) {
                         showMessage('You need an active subscription to post.', 'error');
@@ -243,13 +262,12 @@
                     document.getElementById('submitBtn').disabled = true;
 
                     try {
-                        const response = await fetch(FUNCTION_URL, {
-                            method: 'POST',
-                            body: formData
-                        });
+                        // Reset progress bar
+                        progressBar.value = 0;
+                        progressText.textContent = '0%';
 
-                        const result = await response.json();
-                        if (!response.ok || !result.success) {
+                        const result = await uploadFormData(formData);
+                        if (!result.success) {
                             throw new Error(result.error?.message || 'Upload failed');
                         }
 
@@ -289,4 +307,4 @@
         });
     </script>
 </body>
-    </html>
+                </html>
