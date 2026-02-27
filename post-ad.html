@@ -12,7 +12,7 @@
 
     <script>
         const supabaseUrl = 'https://mdjwpndaxksdxbjscgas.supabase.co';
-        const supabaseKey = 'YOUR_PUBLIC_ANON_KEY_HERE';
+        const supabaseKey = 'YOUR_PUBLIC_ANON_KEY_HERE'; // 🔥 Replace with your anon key
         window.supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
         window.toggleMobileMenu = function() {
@@ -72,7 +72,7 @@
 
             <div id="subscriptionStatus">Checking subscription...</div>
 
-            <button type="submit" id="submitBtn">Publish Listing</button>
+            <button type="submit" id="submitBtn" disabled>Publish Listing</button>
             <a href="dashboard.html">Cancel</a>
 
         </form>
@@ -99,14 +99,21 @@ function showError(message) {
     el.style.display = 'block';
 }
 
+async function getCurrentSession() {
+    const { data } = await supabase.auth.getSession();
+    return data.session;
+}
+
 async function checkSubscription() {
     try {
-        const { data: { user } } = await supabase.auth.getUser();
+        const session = await getCurrentSession();
 
-        if (!user) {
+        if (!session) {
             window.location.href = 'index.html';
             return false;
         }
+
+        const user = session.user;
 
         const { data: profile, error } = await supabase
             .from('profiles')
@@ -142,15 +149,14 @@ document.getElementById('postForm').addEventListener('submit', async (e) => {
 
     document.getElementById('errorDisplay').style.display = 'none';
 
-    const validSubscription = await checkSubscription();
-    if (!validSubscription) return;
-
-    const { data: { session } } = await supabase.auth.getSession();
-
+    const session = await getCurrentSession();
     if (!session) {
-        showError('You are not authenticated. Please log in again.');
+        showError('You must be logged in.');
         return;
     }
+
+    const subscriptionValid = await checkSubscription();
+    if (!subscriptionValid) return;
 
     const title = document.getElementById('title').value.trim();
     const description = document.getElementById('description').value.trim();
@@ -177,7 +183,7 @@ document.getElementById('postForm').addEventListener('submit', async (e) => {
     const xhr = new XMLHttpRequest();
     xhr.open('POST', FUNCTION_URL, true);
 
-    // 🔥 Attach Supabase JWT
+    // 🔥 Attach JWT to request
     xhr.setRequestHeader('Authorization', 'Bearer ' + session.access_token);
 
     xhr.upload.onprogress = function(event) {
@@ -201,7 +207,7 @@ document.getElementById('postForm').addEventListener('submit', async (e) => {
                     showError(response.error || 'Upload failed.');
                 }
 
-            } catch (err) {
+            } catch {
                 showError('Invalid server response.');
             }
         } else {
@@ -217,8 +223,10 @@ document.getElementById('postForm').addEventListener('submit', async (e) => {
     xhr.send(formData);
 });
 
-// Run on load
-checkSubscription();
+// Wait for full page load before checking
+window.addEventListener('load', async () => {
+    await checkSubscription();
+});
 
 </script>
 
