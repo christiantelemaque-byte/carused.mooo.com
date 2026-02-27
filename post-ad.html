@@ -12,12 +12,12 @@
 
     <script>
         const supabaseUrl = 'https://mdjwpndaxksdxbjscgas.supabase.co';
-        const supabaseKey = 'YOUR_PUBLIC_ANON_KEY_HERE'; // 🔥 Replace with your anon key
+        const supabaseKey = 'YOUR_PUBLIC_ANON_KEY_HERE'; // 🔥 Put your anon key here
         window.supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-        window.toggleMobileMenu = function() {
+        function toggleMobileMenu() {
             document.getElementById('navbar')?.classList.toggle('active');
-        };
+        }
     </script>
 </head>
 
@@ -70,7 +70,7 @@
                 <input type="file" id="imageFiles" accept="image/*" multiple>
             </div>
 
-            <div id="subscriptionStatus">Checking subscription...</div>
+            <div id="subscriptionStatus">Checking login...</div>
 
             <button type="submit" id="submitBtn" disabled>Publish Listing</button>
             <a href="dashboard.html">Cancel</a>
@@ -99,26 +99,27 @@ function showError(message) {
     el.style.display = 'block';
 }
 
-async function getCurrentSession() {
+async function getSession() {
     const { data } = await supabase.auth.getSession();
     return data.session;
 }
 
 async function checkSubscription() {
+
+    const session = await getSession();
+
+    if (!session) {
+        document.getElementById('subscriptionStatus').innerHTML =
+            'You must be logged in to create a listing.';
+        document.getElementById('submitBtn').disabled = true;
+        return false;
+    }
+
     try {
-        const session = await getCurrentSession();
-
-        if (!session) {
-            window.location.href = 'index.html';
-            return false;
-        }
-
-        const user = session.user;
-
         const { data: profile, error } = await supabase
             .from('profiles')
             .select('subscription_expires_at')
-            .eq('id', user.id)
+            .eq('id', session.user.id)
             .single();
 
         if (error) throw error;
@@ -127,12 +128,14 @@ async function checkSubscription() {
             profile?.subscription_expires_at &&
             new Date(profile.subscription_expires_at) > new Date()
         ) {
-            document.getElementById('subscriptionStatus').innerHTML = 'Active subscription';
+            document.getElementById('subscriptionStatus').innerHTML =
+                'Active subscription';
             document.getElementById('submitBtn').disabled = false;
             document.getElementById('subscriptionWarning').style.display = 'none';
             return true;
         } else {
-            document.getElementById('subscriptionStatus').innerHTML = 'No active subscription';
+            document.getElementById('subscriptionStatus').innerHTML =
+                'No active subscription';
             document.getElementById('subscriptionWarning').style.display = 'block';
             document.getElementById('submitBtn').disabled = true;
             return false;
@@ -147,11 +150,10 @@ async function checkSubscription() {
 document.getElementById('postForm').addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    document.getElementById('errorDisplay').style.display = 'none';
+    const session = await getSession();
 
-    const session = await getCurrentSession();
     if (!session) {
-        showError('You must be logged in.');
+        showError('You must log in first.');
         return;
     }
 
@@ -183,13 +185,11 @@ document.getElementById('postForm').addEventListener('submit', async (e) => {
     const xhr = new XMLHttpRequest();
     xhr.open('POST', FUNCTION_URL, true);
 
-    // 🔥 Attach JWT to request
     xhr.setRequestHeader('Authorization', 'Bearer ' + session.access_token);
 
     xhr.upload.onprogress = function(event) {
         if (event.lengthComputable) {
-            const percent = Math.round((event.loaded / event.total) * 100);
-            progressBar.value = percent;
+            progressBar.value = Math.round((event.loaded / event.total) * 100);
         }
     };
 
@@ -211,7 +211,7 @@ document.getElementById('postForm').addEventListener('submit', async (e) => {
                 showError('Invalid server response.');
             }
         } else {
-            showError('Server error: ' + xhr.status + ' ' + xhr.statusText);
+            showError('Server error: ' + xhr.status);
         }
     };
 
@@ -223,12 +223,9 @@ document.getElementById('postForm').addEventListener('submit', async (e) => {
     xhr.send(formData);
 });
 
-// Wait for full page load before checking
-window.addEventListener('load', async () => {
-    await checkSubscription();
-});
+window.addEventListener('load', checkSubscription);
 
 </script>
 
 </body>
-</html>
+        </html>
