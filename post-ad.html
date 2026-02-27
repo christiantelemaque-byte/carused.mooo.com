@@ -8,18 +8,15 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script>
-        // Supabase config (same as auth.js)
         const supabaseUrl = 'https://mdjwpndaxksdxbjscgas.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1kandwbmRheGtzZHhianNjZ2FzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyOTc4NDUsImV4cCI6MjA4NTg3Mzg0NX0.ckKdTD02kTQ9au90rT6n42MHM1Y6GZ3PPAL1dz9EKKY';
         window.supabase = supabase.createClient(supabaseUrl, supabaseKey);
-
         window.toggleMobileMenu = function() {
             document.getElementById('navbar')?.classList.toggle('active');
         };
     </script>
 </head>
 <body>
-    <!-- Navigation -->
     <nav class="navbar" id="navbar">
         <div class="nav-container">
             <div class="logo"><i class="fas fa-gem"></i><span>LuxeCompanions</span></div>
@@ -32,8 +29,8 @@
     <main style="padding: 2rem 1.5rem; max-width: 800px; margin: 0 auto;">
         <div style="background: white; border-radius: 15px; padding: 2rem; box-shadow: 0 5px 15px rgba(0,0,0,0.05);">
             <h1>Create New Listing</h1>
-            <div id="errorDisplay" style="color: red; display: none;"></div>
-            <div id="subscriptionWarning" style="background: #fff3cd; display: none;">You need an active subscription.</div>
+            <div id="errorDisplay" style="color: red; background: #ffeeee; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; display: none;"></div>
+            <div id="subscriptionWarning" style="background: #fff3cd; padding: 1rem; border-radius: 8px; display: none;">You need an active subscription. <a href="subscription.html">Subscribe now</a></div>
             <form id="postForm">
                 <div class="form-group">
                     <label>Title *</label>
@@ -51,9 +48,13 @@
                 <button type="submit" id="submitBtn">Publish Listing</button>
                 <a href="dashboard.html">Cancel</a>
             </form>
-            <div id="progress" style="display: none;">Uploading... <progress id="progressBar" value="0" max="100"></progress></div>
+            <div id="progress" style="display: none; margin-top: 1rem;">
+                <p>Uploading... <progress id="progressBar" value="0" max="100" style="width:100%;"></progress></p>
+            </div>
         </div>
     </main>
+
+    <footer>...</footer>
 
     <script>
         const FUNCTION_URL = 'https://mdjwpndaxksdxbjscgas.supabase.co/functions/v1/upload-to-github';
@@ -72,6 +73,7 @@
                 if (profile?.subscription_expires_at && new Date(profile.subscription_expires_at) > new Date()) {
                     document.getElementById('subscriptionStatus').innerHTML = 'Active subscription';
                     document.getElementById('submitBtn').disabled = false;
+                    document.getElementById('subscriptionWarning').style.display = 'none';
                     return true;
                 } else {
                     document.getElementById('subscriptionStatus').innerHTML = 'No active subscription';
@@ -133,7 +135,6 @@
             xhr.send(formData);
         });
 
-        // Initialize
         checkSubscription();
     </script>
 </body>
