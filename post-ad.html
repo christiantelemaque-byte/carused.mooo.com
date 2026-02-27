@@ -4,138 +4,223 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>Post Ad - LuxeCompanions</title>
+
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+
     <script>
         const supabaseUrl = 'https://mdjwpndaxksdxbjscgas.supabase.co';
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1kandwbmRheGtzZHhianNjZ2FzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyOTc4NDUsImV4cCI6MjA4NTg3Mzg0NX0.ckKdTD02kTQ9au90rT6n42MHM1Y6GZ3PPAL1dz9EKKY';
+        const supabaseKey = 'YOUR_PUBLIC_ANON_KEY_HERE';
         window.supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
         window.toggleMobileMenu = function() {
             document.getElementById('navbar')?.classList.toggle('active');
         };
     </script>
 </head>
+
 <body>
-    <nav class="navbar" id="navbar">
-        <div class="nav-container">
-            <div class="logo"><i class="fas fa-gem"></i><span>LuxeCompanions</span></div>
-            <input type="checkbox" id="menu-toggle-checkbox">
-            <label for="menu-toggle-checkbox" class="menu-toggle" onclick="toggleMobileMenu()"><i class="fas fa-bars"></i></label>
-            <div class="nav-links" id="navLinks"></div>
-        </div>
-    </nav>
 
-    <main style="padding: 2rem 1.5rem; max-width: 800px; margin: 0 auto;">
-        <div style="background: white; border-radius: 15px; padding: 2rem; box-shadow: 0 5px 15px rgba(0,0,0,0.05);">
-            <h1>Create New Listing</h1>
-            <div id="errorDisplay" style="color: red; background: #ffeeee; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; display: none;"></div>
-            <div id="subscriptionWarning" style="background: #fff3cd; padding: 1rem; border-radius: 8px; display: none;">You need an active subscription. <a href="subscription.html">Subscribe now</a></div>
-            <form id="postForm">
-                <div class="form-group">
-                    <label>Title *</label>
-                    <input type="text" id="title" required>
-                </div>
-                <div class="form-group">
-                    <label>Description *</label>
-                    <textarea id="description" rows="6" required></textarea>
-                </div>
-                <div class="form-group">
-                    <label>Photos (up to 5)</label>
-                    <input type="file" id="imageFiles" accept="image/*" multiple>
-                </div>
-                <div id="subscriptionStatus">Checking subscription...</div>
-                <button type="submit" id="submitBtn">Publish Listing</button>
-                <a href="dashboard.html">Cancel</a>
-            </form>
-            <div id="progress" style="display: none; margin-top: 1rem;">
-                <p>Uploading... <progress id="progressBar" value="0" max="100" style="width:100%;"></progress></p>
+<nav class="navbar" id="navbar">
+    <div class="nav-container">
+        <div class="logo">
+            <i class="fas fa-gem"></i>
+            <span>LuxeCompanions</span>
+        </div>
+
+        <input type="checkbox" id="menu-toggle-checkbox">
+        <label for="menu-toggle-checkbox" class="menu-toggle" onclick="toggleMobileMenu()">
+            <i class="fas fa-bars"></i>
+        </label>
+
+        <div class="nav-links" id="navLinks"></div>
+    </div>
+</nav>
+
+<main style="padding: 2rem 1.5rem; max-width: 800px; margin: 0 auto;">
+    <div style="background: white; border-radius: 15px; padding: 2rem; box-shadow: 0 5px 15px rgba(0,0,0,0.05);">
+        <h1>Create New Listing</h1>
+
+        <div id="errorDisplay"
+             style="color: red; background: #ffeeee; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; display: none;">
+        </div>
+
+        <div id="subscriptionWarning"
+             style="background: #fff3cd; padding: 1rem; border-radius: 8px; display: none;">
+            You need an active subscription.
+            <a href="subscription.html">Subscribe now</a>
+        </div>
+
+        <form id="postForm">
+
+            <div class="form-group">
+                <label>Title *</label>
+                <input type="text" id="title" required>
             </div>
+
+            <div class="form-group">
+                <label>Description *</label>
+                <textarea id="description" rows="6" required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Photos (up to 5)</label>
+                <input type="file" id="imageFiles" accept="image/*" multiple>
+            </div>
+
+            <div id="subscriptionStatus">Checking subscription...</div>
+
+            <button type="submit" id="submitBtn">Publish Listing</button>
+            <a href="dashboard.html">Cancel</a>
+
+        </form>
+
+        <div id="progress" style="display: none; margin-top: 1rem;">
+            <p>
+                Uploading...
+                <progress id="progressBar" value="0" max="100" style="width:100%;"></progress>
+            </p>
         </div>
-    </main>
 
-    <footer>...</footer>
+    </div>
+</main>
 
-    <script>
-        const FUNCTION_URL = 'https://mdjwpndaxksdxbjscgas.supabase.co/functions/v1/upload-to-github';
+<footer></footer>
 
-        function showError(msg) {
-            const el = document.getElementById('errorDisplay');
-            el.textContent = msg;
-            el.style.display = 'block';
+<script>
+
+const FUNCTION_URL = 'https://mdjwpndaxksdxbjscgas.supabase.co/functions/v1/upload-to-github';
+
+function showError(message) {
+    const el = document.getElementById('errorDisplay');
+    el.textContent = message;
+    el.style.display = 'block';
+}
+
+async function checkSubscription() {
+    try {
+        const { data: { user } } = await supabase.auth.getUser();
+
+        if (!user) {
+            window.location.href = 'index.html';
+            return false;
         }
 
-        async function checkSubscription() {
+        const { data: profile, error } = await supabase
+            .from('profiles')
+            .select('subscription_expires_at')
+            .eq('id', user.id)
+            .single();
+
+        if (error) throw error;
+
+        if (
+            profile?.subscription_expires_at &&
+            new Date(profile.subscription_expires_at) > new Date()
+        ) {
+            document.getElementById('subscriptionStatus').innerHTML = 'Active subscription';
+            document.getElementById('submitBtn').disabled = false;
+            document.getElementById('subscriptionWarning').style.display = 'none';
+            return true;
+        } else {
+            document.getElementById('subscriptionStatus').innerHTML = 'No active subscription';
+            document.getElementById('subscriptionWarning').style.display = 'block';
+            document.getElementById('submitBtn').disabled = true;
+            return false;
+        }
+
+    } catch (err) {
+        showError('Subscription check failed: ' + err.message);
+        return false;
+    }
+}
+
+document.getElementById('postForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    document.getElementById('errorDisplay').style.display = 'none';
+
+    const validSubscription = await checkSubscription();
+    if (!validSubscription) return;
+
+    const { data: { session } } = await supabase.auth.getSession();
+
+    if (!session) {
+        showError('You are not authenticated. Please log in again.');
+        return;
+    }
+
+    const title = document.getElementById('title').value.trim();
+    const description = document.getElementById('description').value.trim();
+    const files = document.getElementById('imageFiles').files;
+
+    if (!title || !description) {
+        showError('Please fill all required fields.');
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('title', title);
+    formData.append('description', description);
+
+    for (let file of files) {
+        formData.append('images', file);
+    }
+
+    const progressDiv = document.getElementById('progress');
+    const progressBar = document.getElementById('progressBar');
+    progressBar.value = 0;
+    progressDiv.style.display = 'block';
+
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', FUNCTION_URL, true);
+
+    // 🔥 Attach Supabase JWT
+    xhr.setRequestHeader('Authorization', 'Bearer ' + session.access_token);
+
+    xhr.upload.onprogress = function(event) {
+        if (event.lengthComputable) {
+            const percent = Math.round((event.loaded / event.total) * 100);
+            progressBar.value = percent;
+        }
+    };
+
+    xhr.onload = function() {
+        progressDiv.style.display = 'none';
+
+        if (xhr.status >= 200 && xhr.status < 300) {
             try {
-                const { data: { user } } = await supabase.auth.getUser();
-                if (!user) { window.location.href = 'index.html'; return false; }
-                const { data: profile } = await supabase.from('profiles').select('subscription_expires_at').eq('id', user.id).single();
-                if (profile?.subscription_expires_at && new Date(profile.subscription_expires_at) > new Date()) {
-                    document.getElementById('subscriptionStatus').innerHTML = 'Active subscription';
-                    document.getElementById('submitBtn').disabled = false;
-                    document.getElementById('subscriptionWarning').style.display = 'none';
-                    return true;
+                const response = JSON.parse(xhr.responseText);
+
+                if (response.success) {
+                    alert('Post published successfully!');
+                    window.location.href = 'dashboard.html';
                 } else {
-                    document.getElementById('subscriptionStatus').innerHTML = 'No active subscription';
-                    document.getElementById('subscriptionWarning').style.display = 'block';
-                    document.getElementById('submitBtn').disabled = true;
-                    return false;
+                    showError(response.error || 'Upload failed.');
                 }
+
             } catch (err) {
-                showError('Subscription check failed: ' + err.message);
-                return false;
+                showError('Invalid server response.');
             }
+        } else {
+            showError('Server error: ' + xhr.status + ' ' + xhr.statusText);
         }
+    };
 
-        document.getElementById('postForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            if (!await checkSubscription()) return;
+    xhr.onerror = function() {
+        progressDiv.style.display = 'none';
+        showError('Network error. Could not reach the Edge Function.');
+    };
 
-            const title = document.getElementById('title').value.trim();
-            const description = document.getElementById('description').value.trim();
-            const files = document.getElementById('imageFiles').files;
-            if (!title || !description) { showError('Fill all fields'); return; }
+    xhr.send(formData);
+});
 
-            const formData = new FormData();
-            formData.append('title', title);
-            formData.append('description', description);
-            for (let f of files) formData.append('images', f);
+// Run on load
+checkSubscription();
 
-            const progressDiv = document.getElementById('progress');
-            progressDiv.style.display = 'block';
-            const xhr = new XMLHttpRequest();
-            xhr.open('POST', FUNCTION_URL, true);
-            xhr.upload.onprogress = (e) => {
-                if (e.lengthComputable) {
-                    document.getElementById('progressBar').value = (e.loaded / e.total) * 100;
-                }
-            };
-            xhr.onload = () => {
-                if (xhr.status === 200) {
-                    try {
-                        const res = JSON.parse(xhr.responseText);
-                        if (res.success) {
-                            alert('Post published!');
-                            window.location.href = 'dashboard.html';
-                        } else {
-                            showError('Upload failed: ' + (res.error || 'Unknown error'));
-                        }
-                    } catch {
-                        showError('Invalid server response');
-                    }
-                } else {
-                    showError('HTTP error ' + xhr.status + ': ' + xhr.statusText);
-                }
-                progressDiv.style.display = 'none';
-            };
-            xhr.onerror = () => {
-                showError('Network error – cannot reach the Edge Function. Check URL and function deployment.');
-                progressDiv.style.display = 'none';
-            };
-            xhr.send(formData);
-        });
+</script>
 
-        checkSubscription();
-    </script>
 </body>
-    </html>
+</html>
