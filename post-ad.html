@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-    <script src="js/cache.js"></script>
     <script>
         window.toggleMobileMenu = function() {
             var navbar = document.getElementById('navbar');
@@ -34,6 +33,9 @@
                 <i class="fas fa-plus-circle" style="color: var(--primary-pink);"></i> Create New Listing
             </h1>
             
+            <!-- Error display area (visible if something goes wrong) -->
+            <div id="pageError" style="background: #f8d7da; color: #721c24; border: 2px solid #dc3545; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; display: none;"></div>
+
             <div id="subscriptionWarning" style="background: #fff3cd; border: 1px solid #ffeeba; border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem; display: none;">
                 <i class="fas fa-exclamation-triangle" style="color: #856404;"></i>
                 <span id="warningMessage">You need an active subscription to post ads.</span>
@@ -83,41 +85,67 @@
 
     <footer>...</footer>
 
-    <script src="js/auth.js"></script>
     <script>
         // Edge Function URL
         const FUNCTION_URL = 'https://mdjwpndaxksdxbjscgas.supabase.co/functions/v1/upload-to-github';
 
+        // Helper to show page errors
+        function showPageError(message) {
+            const errorDiv = document.getElementById('pageError');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+
         // Helper: Check subscription using localStorage first, then fallback to DB
         async function hasActiveSubscription() {
-            // Check localStorage first
-            const expiry = localStorage.getItem('subscription_expires_at');
-            if (expiry && new Date(expiry) > new Date()) {
-                return true;
-            }
+            try {
+                // Check localStorage first
+                const expiry = localStorage.getItem('subscription_expires_at');
+                if (expiry && new Date(expiry) > new Date()) {
+                    return true;
+                }
 
-            // If not in localStorage or expired, fetch from Supabase
-            const { data: { user } } = await window.supabase.auth.getUser();
-            if (!user) return false;
+                // If not in localStorage or expired, fetch from Supabase
+                if (!window.supabase) {
+                    showPageError('Supabase client not initialized.');
+                    return false;
+                }
 
-            const { data: profile, error } = await window.supabase
-                .from('profiles')
-                .select('subscription_expires_at')
-                .eq('id', user.id)
-                .single();
+                const { data: { user }, error: userError } = await window.supabase.auth.getUser();
+                if (userError || !user) {
+                    showPageError('Not logged in. Please log in first.');
+                    return false;
+                }
 
-            if (error || !profile || !profile.subscription_expires_at) {
-                return false;
-            }
+                const { data: profile, error: profileError } = await window.supabase
+                    .from('profiles')
+                    .select('subscription_expires_at')
+                    .eq('id', user.id)
+                    .single();
 
-            const dbExpiry = new Date(profile.subscription_expires_at);
-            if (dbExpiry > new Date()) {
-                // Update localStorage with fresh data
-                localStorage.setItem('subscription_expires_at', profile.subscription_expires_at);
-                return true;
-            } else {
-                // Expired – clear localStorage
-                localStorage.removeItem('subscription_expires_at');
+                if (profileError) {
+                    console.error('Profile fetch error:', profileError);
+                    showPageError('Could not fetch subscription status.');
+                    return false;
+                }
+
+                if (!profile || !profile.subscription_expires_at) {
+                    return false;
+                }
+
+                const dbExpiry = new Date(profile.subscription_expires_at);
+                if (dbExpiry > new Date()) {
+                    // Update localStorage with fresh data
+                    localStorage.setItem('subscription_expires_at', profile.subscription_expires_at);
+                    return true;
+                } else {
+                    // Expired – clear localStorage
+                    localStorage.removeItem('subscription_expires_at');
+                    return false;
+                }
+            } catch (err) {
+                console.error('Subscription check error:', err);
+                showPageError('Error checking subscription: ' + err.message);
                 return false;
             }
         }
@@ -160,79 +188,87 @@
             });
         });
 
-        document.addEventListener('DOMContentLoaded', async function() {
-            // Ensure supabase is available
-            if (!window.supabase) {
-                window.location.href = 'index.html';
-                return;
-            }
-
-            // Ensure user is logged in
-            const { data: { user }, error } = await window.supabase.auth.getUser();
-            if (error || !user) {
-                window.location.href = 'index.html';
-                return;
-            }
-
-            // Update subscription status on page load
-            await updateSubscriptionStatus();
-
-            document.getElementById('postForm').addEventListener('submit', async function(e) {
-                e.preventDefault();
-
-                // Double-check subscription before proceeding
-                const active = await hasActiveSubscription();
-                if (!active) {
-                    showMessage('You need an active subscription to post.', 'error');
-                    await updateSubscriptionStatus();
+        // Initialize page
+        (async function init() {
+            try {
+                // Ensure supabase is loaded
+                if (!window.supabase) {
+                    showPageError('Supabase client not loaded. Make sure auth.js is included.');
                     return;
                 }
 
-                const title = document.getElementById('title').value.trim();
-                const description = document.getElementById('description').value.trim();
-                const imageFiles = document.getElementById('imageFiles').files;
-
-                if (!title || !description) {
-                    showMessage('Please fill all required fields', 'error');
+                // Check if user is logged in
+                const { data: { user }, error: userError } = await window.supabase.auth.getUser();
+                if (userError || !user) {
+                    // Redirect to login
+                    window.location.href = 'index.html';
                     return;
                 }
 
-                const formData = new FormData();
-                formData.append('title', title);
-                formData.append('description', description);
-                for (let i = 0; i < imageFiles.length; i++) {
-                    formData.append('images', imageFiles[i]);
-                }
+                // Update subscription status
+                await updateSubscriptionStatus();
 
-                const progressDiv = document.getElementById('uploadProgress');
-                const progressBar = document.getElementById('progressBar');
-                const progressText = document.getElementById('progressText');
-                progressDiv.style.display = 'block';
-                document.getElementById('submitBtn').disabled = true;
+                // Set up form submission
+                document.getElementById('postForm').addEventListener('submit', async function(e) {
+                    e.preventDefault();
 
-                try {
-                    const response = await fetch(FUNCTION_URL, {
-                        method: 'POST',
-                        body: formData
-                    });
-
-                    const result = await response.json();
-                    if (!response.ok || !result.success) {
-                        throw new Error(result.error?.message || 'Upload failed');
+                    // Double-check subscription before proceeding
+                    const active = await hasActiveSubscription();
+                    if (!active) {
+                        showMessage('You need an active subscription to post.', 'error');
+                        await updateSubscriptionStatus();
+                        return;
                     }
 
-                    showMessage('✅ Your listing has been published!', 'success');
-                    document.getElementById('postForm').reset();
-                    document.getElementById('imagePreview').innerHTML = '';
-                    setTimeout(() => window.location.href = 'dashboard.html', 2000);
-                } catch (err) {
-                    showMessage('Error: ' + err.message, 'error');
-                } finally {
-                    progressDiv.style.display = 'none';
-                    document.getElementById('submitBtn').disabled = false;
-                }
-            });
-        });
+                    const title = document.getElementById('title').value.trim();
+                    const description = document.getElementById('description').value.trim();
+                    const imageFiles = document.getElementById('imageFiles').files;
+
+                    if (!title || !description) {
+                        showMessage('Please fill all required fields', 'error');
+                        return;
+                    }
+
+                    const formData = new FormData();
+                    formData.append('title', title);
+                    formData.append('description', description);
+                    for (let i = 0; i < imageFiles.length; i++) {
+                        formData.append('images', imageFiles[i]);
+                    }
+
+                    const progressDiv = document.getElementById('uploadProgress');
+                    const progressBar = document.getElementById('progressBar');
+                    const progressText = document.getElementById('progressText');
+                    progressDiv.style.display = 'block';
+                    document.getElementById('submitBtn').disabled = true;
+
+                    try {
+                        const response = await fetch(FUNCTION_URL, {
+                            method: 'POST',
+                            body: formData
+                        });
+
+                        const result = await response.json();
+                        if (!response.ok || !result.success) {
+                            throw new Error(result.error?.message || 'Upload failed');
+                        }
+
+                        showMessage('✅ Your listing has been published!', 'success');
+                        document.getElementById('postForm').reset();
+                        document.getElementById('imagePreview').innerHTML = '';
+                        setTimeout(() => window.location.href = 'dashboard.html', 2000);
+                    } catch (err) {
+                        showMessage('Error: ' + err.message, 'error');
+                    } finally {
+                        progressDiv.style.display = 'none';
+                        document.getElementById('submitBtn').disabled = false;
+                    }
+                });
+            } catch (err) {
+                console.error('Initialization error:', err);
+                showPageError('Failed to load page: ' + err.message);
+            }
+        })();
 
         function showMessage(msg, type) {
             const msgDiv = document.getElementById('postMessage');
@@ -253,4 +289,4 @@
         });
     </script>
 </body>
-                </html>
+    </html>
