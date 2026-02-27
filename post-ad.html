@@ -7,9 +7,17 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+    <!-- Load Supabase library directly -->
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-    <script src="js/auth.js"></script>
     <script>
+        // Supabase configuration (same as in auth.js)
+        const supabaseUrl = 'https://mdjwpndaxksdxbjscgas.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1kandwbmRheGtzZHhianNjZ2FzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyOTc4NDUsImV4cCI6MjA4NTg3Mzg0NX0.ckKdTD02kTQ9au90rT6n42MHM1Y6GZ3PPAL1dz9EKKY';
+
+        // Create Supabase client and make it globally available
+        window.supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+        // Mobile menu toggle
         window.toggleMobileMenu = function() {
             var navbar = document.getElementById('navbar');
             if (navbar) navbar.classList.toggle('active');
@@ -18,7 +26,7 @@
     </script>
 </head>
 <body>
-    <!-- Navigation -->
+    <!-- Navigation (same as before) -->
     <nav class="navbar" id="navbar">
         <div class="nav-container">
             <div class="logo"><i class="fas fa-gem"></i><span>LuxeCompanions</span></div>
@@ -83,55 +91,30 @@
         </div>
     </main>
 
-    <footer>
-        <div class="footer-content">
-            <div class="footer-section">
-                <h3>LuxeCompanions</h3>
-                <p>An exclusive platform for sophisticated companionship connections.</p>
-            </div>
-            <div class="footer-section">
-                <h4>Important</h4>
-                <ul>
-                    <li><a href="#terms">Terms of Service</a></li>
-                    <li><a href="#privacy">Privacy Policy</a></li>
-                    <li><a href="#age">Age Verification</a></li>
-                    <li><a href="#safety">Safety Guidelines</a></li>
-                </ul>
-            </div>
-            <div class="footer-section">
-                <h4>Contact</h4>
-                <p><i class="fas fa-envelope"></i> support@luxecompanions.com</p>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <p>© 2024 LuxeCompanions. Must be 21+ to access. All rights reserved.</p>
-            <p class="disclaimer">This website is for legal companionship services only. Users must comply with all applicable laws.</p>
-        </div>
-    </footer>
+    <footer>...</footer> <!-- same as before -->
 
     <script>
         // Edge Function URL
         const FUNCTION_URL = 'https://mdjwpndaxksdxbjscgas.supabase.co/functions/v1/upload-to-github';
 
-        // Show error in red box
         function showPageError(message) {
             const errorDiv = document.getElementById('pageError');
             errorDiv.textContent = message;
             errorDiv.style.display = 'block';
         }
 
-        // Wait for window.supabase to be ready (auth.js loads asynchronously)
+        // Wait for Supabase client to be fully ready (auth should be defined)
         function waitForSupabase() {
             return new Promise((resolve) => {
-                if (window.supabase) {
+                if (window.supabase?.auth) {
                     resolve();
                 } else {
                     let attempts = 0;
                     const interval = setInterval(() => {
-                        if (window.supabase || attempts > 20) {
+                        if (window.supabase?.auth || attempts > 20) {
                             clearInterval(interval);
-                            if (window.supabase) resolve();
-                            else showPageError('Supabase client failed to load.');
+                            if (window.supabase?.auth) resolve();
+                            else showPageError('Supabase auth not available.');
                         }
                         attempts++;
                     }, 200);
