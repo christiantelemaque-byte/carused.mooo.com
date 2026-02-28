@@ -1,12 +1,11 @@
 // api/upload-image.js
 export const config = {
   api: {
-    bodyParser: false, // to handle multipart/form-data
+    bodyParser: false,
   },
 };
 
 export default async function handler(req, res) {
-  // CORS headers
   res.setHeader('Access-Control-Allow-Origin', 'https://escortcanada.mooo.com');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -35,7 +34,6 @@ export default async function handler(req, res) {
 
     if (!fileBuffer) throw new Error('No file uploaded');
 
-    // Upload to Picser (same logic as before)
     const PICSER_URL = 'https://picser.pages.dev/api/public-upload';
     const formData = new FormData();
     formData.append('file', new Blob([fileBuffer]), filename);
@@ -46,9 +44,14 @@ export default async function handler(req, res) {
     formData.append('folder', process.env.PICSER_FOLDER || 'uploads');
 
     const response = await fetch(PICSER_URL, { method: 'POST', body: formData });
-    if (!response.ok) throw new Error(`Picser error: ${response.status}`);
+    const responseText = await response.text();
 
-    const json = await response.json();
+    if (!response.ok) {
+      console.error('Picser error response:', response.status, responseText);
+      throw new Error(`Picser error: ${response.status} - ${responseText}`);
+    }
+
+    const json = JSON.parse(responseText);
     const url = json?.url || json?.urls?.jsdelivr_commit || json?.urls?.jsdelivr;
     if (!url) throw new Error('No URL from Picser');
 
@@ -57,4 +60,4 @@ export default async function handler(req, res) {
     console.error('Upload error:', error);
     res.status(500).json({ error: error.message });
   }
-}
+          }
