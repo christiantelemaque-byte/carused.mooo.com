@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Test Upload to Edge Function</title>
+    <title>Test Upload to Picser</title>
 </head>
 <body>
-    <h1>Test Upload</h1>
+    <h1>Test Upload to Picser</h1>
     <div id="status"></div>
     <input type="file" id="fileInput" multiple>
-    <button id="uploadBtn">Upload</button>
+    <button id="uploadBtn">Upload to Picser</button>
 
     <script>
-        const FUNCTION_URL = 'https://mdjwpndaxksdxbjscgas.supabase.co/functions/v1/upload-to-github';
+        const PICSER_UPLOAD_URL = 'https://picser.pages.dev/api/upload';  // ✅ Correct URL
         const statusDiv = document.getElementById('status');
 
         function log(msg) {
@@ -27,13 +27,12 @@
             }
 
             const formData = new FormData();
-            formData.append('title', 'Test Title');
-            formData.append('description', 'Test Description');
-            for (let f of files) formData.append('images', f);
+            for (let f of files) formData.append('file', f);
+            formData.append('format', 'json'); // optional, ask for JSON
 
-            log('Sending request to: ' + FUNCTION_URL);
+            log('Sending request to: ' + PICSER_UPLOAD_URL);
             const xhr = new XMLHttpRequest();
-            xhr.open('POST', FUNCTION_URL, true);
+            xhr.open('POST', PICSER_UPLOAD_URL, true);
             xhr.onload = function() {
                 log('Status: ' + xhr.status);
                 log('Response: ' + xhr.responseText);
