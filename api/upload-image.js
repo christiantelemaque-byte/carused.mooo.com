@@ -1,0 +1,60 @@
+// api/upload-image.js
+export const config = {
+  api: {
+    bodyParser: false, // to handle multipart/form-data
+  },
+};
+
+export default async function handler(req, res) {
+  // CORS headers
+  res.setHeader('Access-Control-Allow-Origin', 'https://escortcanada.mooo.com');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  if (req.method === 'OPTIONS') return res.status(200).end();
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+
+  try {
+    const busboy = require('busboy');
+    const bb = busboy({ headers: req.headers });
+
+    let fileBuffer, filename, mimeType;
+
+    await new Promise((resolve, reject) => {
+      bb.on('file', (name, file, info) => {
+        filename = info.filename;
+        mimeType = info.mimeType;
+        const chunks = [];
+        file.on('data', chunk => chunks.push(chunk));
+        file.on('end', () => { fileBuffer = Buffer.concat(chunks); });
+      });
+      bb.on('error', reject);
+      bb.on('close', resolve);
+      req.pipe(bb);
+    });
+
+    if (!fileBuffer) throw new Error('No file uploaded');
+
+    // Upload to Picser (same logic as before)
+    const PICSER_URL = 'https://picser.pages.dev/api/public-upload';
+    const formData = new FormData();
+    formData.append('file', new Blob([fileBuffer]), filename);
+    formData.append('github_token', process.env.PICSER_GITHUB_TOKEN);
+    formData.append('github_owner', process.env.PICSER_GITHUB_OWNER);
+    formData.append('github_repo', process.env.PICSER_GITHUB_REPO);
+    formData.append('github_branch', process.env.PICSER_GITHUB_BRANCH || 'main');
+    formData.append('folder', process.env.PICSER_FOLDER || 'uploads');
+
+    const response = await fetch(PICSER_URL, { method: 'POST', body: formData });
+    if (!response.ok) throw new Error(`Picser error: ${response.status}`);
+
+    const json = await response.json();
+    const url = json?.url || json?.urls?.jsdelivr_commit || json?.urls?.jsdelivr;
+    if (!url) throw new Error('No URL from Picser');
+
+    res.status(200).json({ success: true, url });
+  } catch (error) {
+    console.error('Upload error:', error);
+    res.status(500).json({ error: error.message });
+  }
+}
