@@ -22,7 +22,7 @@ export default async function handler(req, res) {
     await new Promise((resolve, reject) => {
       bb.on('file', (name, file, info) => {
         filename = info.filename;
-        mimeType = info.mimeType;
+        mimeType = info.mimeType; // Capture the MIME type
         const chunks = [];
         file.on('data', chunk => chunks.push(chunk));
         file.on('end', () => { fileBuffer = Buffer.concat(chunks); });
@@ -36,7 +36,8 @@ export default async function handler(req, res) {
 
     const PICSER_URL = 'https://picser.pages.dev/api/public-upload';
     const formData = new FormData();
-    formData.append('file', new Blob([fileBuffer]), filename);
+    // Use the captured MIME type
+    formData.append('file', new Blob([fileBuffer], { type: mimeType }), filename);
     formData.append('github_token', process.env.PICSER_GITHUB_TOKEN);
     formData.append('github_owner', process.env.PICSER_GITHUB_OWNER);
     formData.append('github_repo', process.env.PICSER_GITHUB_REPO);
@@ -60,4 +61,4 @@ export default async function handler(req, res) {
     console.error('Upload error:', error);
     res.status(500).json({ error: error.message });
   }
-          }
+}
