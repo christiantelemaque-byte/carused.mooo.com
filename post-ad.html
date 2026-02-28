@@ -56,11 +56,11 @@
                     <textarea id="description" rows="6" required placeholder="Describe yourself, services, availability..." style="width: 100%; padding: 12px 15px; border: 2px solid var(--light-pink); border-radius: 8px; font-size: 1rem;"></textarea>
                 </div>
 
-                <!-- Image upload (to Vercel function) -->
+                <!-- Image upload -->
                 <div class="form-group">
                     <label for="imageFiles">Photos (up to 5)</label>
                     <input type="file" id="imageFiles" accept="image/*" multiple>
-                    <small style="display: block; margin-top: 5px; color: #666;">Images will be uploaded to GitHub via Picser, then saved to your post.</small>
+                    <small style="display: block; margin-top: 5px; color: #666;">Images will be uploaded one by one to GitHub via Picser, then saved to your post.</small>
                     <div id="imagePreview" style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px;"></div>
                 </div>
 
@@ -79,7 +79,7 @@
                 </div>
             </form>
             <div id="uploadProgress" style="margin-top: 1rem; display: none;">
-                <p>Uploading... <span id="progressText">0%</span></p>
+                <p id="progressMessage">Uploading...</p>
                 <progress id="progressBar" value="0" max="100" style="width:100%;"></progress>
             </div>
             <div id="postMessage" class="auth-message" style="margin-top: 1.5rem;"></div>
@@ -114,7 +114,8 @@
 
     <script>
         // ---------- Configuration ----------
-        const VERCEL_FUNCTION_URL = 'https://carused-mooo-com.vercel.app/api/publish-post';
+        const UPLOAD_IMAGE_URL = 'https://carused-mooo-com.vercel.app/api/upload-image';
+        const SAVE_POST_URL = 'https://carused-mooo-com.vercel.app/api/publish-post';
 
         // ---------- Helper functions ----------
         function showPageError(msg) {
@@ -192,17 +193,19 @@
             });
         });
 
-        // Upload all files to Vercel function (returns array of image URLs)
-        function uploadToVercel(formData) {
+        // Upload a single image to the upload-image endpoint
+        function uploadSingleImage(file) {
             return new Promise((resolve, reject) => {
+                const formData = new FormData();
+                formData.append('images', file);
+
                 const xhr = new XMLHttpRequest();
-                xhr.open('POST', VERCEL_FUNCTION_URL, true);
+                xhr.open('POST', UPLOAD_IMAGE_URL, true);
 
                 xhr.upload.addEventListener('progress', (e) => {
                     if (e.lengthComputable) {
                         const percent = Math.round((e.loaded / e.total) * 100);
                         document.getElementById('progressBar').value = percent;
-                        document.getElementById('progressText').textContent = percent + '%';
                     }
                 });
 
@@ -210,16 +213,12 @@
                     if (xhr.status >= 200 && xhr.status < 300) {
                         try {
                             const data = JSON.parse(xhr.responseText);
-                            if (data.success) {
-                                resolve(data.urls || []);
-                            } else {
-                                reject(new Error(data.error || 'Upload failed'));
-                            }
+                            if (data.success) resolve(data.url);
+                            else reject(new Error(data.error || 'Upload failed'));
                         } catch (e) {
                             reject(new Error('Invalid JSON response'));
                         }
                     } else {
-                        // Try to parse error response
                         let errorMsg = `HTTP ${xhr.status}: ${xhr.statusText}`;
                         try {
                             const errData = JSON.parse(xhr.responseText);
@@ -229,12 +228,21 @@
                     }
                 };
 
-                xhr.onerror = function() {
-                    reject(new Error('Network error – Vercel function unreachable.'));
-                };
-
+                xhr.onerror = () => reject(new Error('Network error – upload endpoint unreachable'));
                 xhr.send(formData);
             });
+        }
+
+        // Save post data to publish-post endpoint
+        async function savePost(title, description, imageUrls) {
+            const response = await fetch(SAVE_POST_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title, description, imageUrls })
+            });
+            const result = await response.json();
+            if (!response.ok) throw new Error(result.error || 'Failed to save post');
+            return result;
         }
 
         // ---------- Page Initialization ----------
@@ -271,27 +279,23 @@
                     return;
                 }
 
-                // Prepare FormData for Vercel function
-                const formData = new FormData();
-                formData.append('title', title);
-                formData.append('description', description);
-                for (let i = 0; i < files.length; i++) {
-                    formData.append('images', files[i]);
-                }
-
                 const progressDiv = document.getElementById('uploadProgress');
                 const progressBar = document.getElementById('progressBar');
-                const progressText = document.getElementById('progressText');
+                const progressMessage = document.getElementById('progressMessage');
                 progressDiv.style.display = 'block';
                 document.getElementById('submitBtn').disabled = true;
 
+                const imageUrls = [];
                 try {
-                    // Reset progress bar
-                    progressBar.value = 0;
-                    progressText.textContent = '0%';
+                    for (let i = 0; i < files.length; i++) {
+                        progressMessage.textContent = `Uploading image ${i+1} of ${files.length}...`;
+                        progressBar.value = 0;
+                        const url = await uploadSingleImage(files[i]);
+                        imageUrls.push(url);
+                    }
 
-                    // Upload to Vercel function
-                    const imageUrls = await uploadToVercel(formData);
+                    progressMessage.textContent = 'Saving your post...';
+                    await savePost(title, description, imageUrls);
 
                     showMessage('✅ Your listing has been published!', 'success');
                     document.getElementById('postForm').reset();
@@ -325,4 +329,4 @@
         });
     </script>
 </body>
-                    </html>
+    </html>
