@@ -6,17 +6,22 @@
     <title>Post Ad - LuxeCompanions</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script>
+        // Supabase config (same as auth.js)
         const supabaseUrl = 'https://mdjwpndaxksdxbjscgas.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1kandwbmRheGtzZHhianNjZ2FzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyOTc4NDUsImV4cCI6MjA4NTg3Mzg0NX0.ckKdTD02kTQ9au90rT6n42MHM1Y6GZ3PPAL1dz9EKKY';
         window.supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
         window.toggleMobileMenu = function() {
-            document.getElementById('navbar')?.classList.toggle('active');
+            const navbar = document.getElementById('navbar');
+            if (navbar) navbar.classList.toggle('active');
         };
     </script>
 </head>
 <body>
+    <!-- Navigation -->
     <nav class="navbar" id="navbar">
         <div class="nav-container">
             <div class="logo"><i class="fas fa-gem"></i><span>LuxeCompanions</span></div>
@@ -28,116 +33,287 @@
 
     <main style="padding: 2rem 1.5rem; max-width: 800px; margin: 0 auto;">
         <div style="background: white; border-radius: 15px; padding: 2rem; box-shadow: 0 5px 15px rgba(0,0,0,0.05);">
-            <h1>Create New Listing</h1>
-            <div id="errorDisplay" style="color: red; background: #ffeeee; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; display: none;"></div>
-            <div id="subscriptionWarning" style="background: #fff3cd; padding: 1rem; border-radius: 8px; display: none;">You need an active subscription. <a href="subscription.html">Subscribe now</a></div>
+            <h1 style="font-size: 2rem; margin-bottom: 1.5rem; color: var(--dark-pink);">
+                <i class="fas fa-plus-circle" style="color: var(--primary-pink);"></i> Create New Listing
+            </h1>
+            
+            <div id="pageError" style="background: #f8d7da; color: #721c24; border: 2px solid #dc3545; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; display: none;"></div>
+
+            <div id="subscriptionWarning" style="background: #fff3cd; border: 1px solid #ffeeba; border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem; display: none;">
+                <i class="fas fa-exclamation-triangle" style="color: #856404;"></i>
+                <span id="warningMessage">You need an active subscription to post ads.</span>
+                <a href="subscription.html" style="display: inline-block; margin-left: 1rem; color: var(--primary-pink); font-weight: 600;">Subscribe Now →</a>
+            </div>
+
             <form id="postForm">
                 <div class="form-group">
-                    <label>Title *</label>
-                    <input type="text" id="title" required>
+                    <label for="title">Title *</label>
+                    <input type="text" id="title" required placeholder="e.g. Elegant companion for dinner & events">
                 </div>
+
                 <div class="form-group">
-                    <label>Description *</label>
-                    <textarea id="description" rows="6" required></textarea>
+                    <label for="description">Description *</label>
+                    <textarea id="description" rows="6" required placeholder="Describe yourself, services, availability..." style="width: 100%; padding: 12px 15px; border: 2px solid var(--light-pink); border-radius: 8px; font-size: 1rem;"></textarea>
                 </div>
+
+                <!-- Picser upload -->
                 <div class="form-group">
-                    <label>Photos (up to 5)</label>
+                    <label for="imageFiles">Photos (up to 5)</label>
                     <input type="file" id="imageFiles" accept="image/*" multiple>
+                    <small style="display: block; margin-top: 5px; color: #666;">Images will be uploaded to Picser and then saved to your post.</small>
+                    <div id="imagePreview" style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px;"></div>
                 </div>
-                <div id="subscriptionStatus">Checking subscription...</div>
-                <button type="submit" id="submitBtn">Publish Listing</button>
-                <a href="dashboard.html">Cancel</a>
+
+                <div class="form-group">
+                    <label>Your subscription status</label>
+                    <div id="subscriptionStatus" style="padding: 12px; background: var(--light-gray); border-radius: 8px;">
+                        Checking...
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                    <button type="submit" id="submitBtn" class="btn-primary" style="font-size: 1.1rem; padding: 1rem 2rem;">
+                        <i class="fas fa-paper-plane"></i> Publish Listing
+                    </button>
+                    <a href="dashboard.html" class="btn-secondary" style="display: flex; align-items: center;">Cancel</a>
+                </div>
             </form>
-            <div id="progress" style="display: none; margin-top: 1rem;">
-                <p>Uploading... <progress id="progressBar" value="0" max="100" style="width:100%;"></progress></p>
+            <div id="uploadProgress" style="margin-top: 1rem; display: none;">
+                <p>Uploading to Picser... <span id="progressText">0%</span></p>
+                <progress id="progressBar" value="0" max="100" style="width:100%;"></progress>
             </div>
+            <div id="postMessage" class="auth-message" style="margin-top: 1.5rem;"></div>
         </div>
     </main>
 
     <footer>...</footer>
 
     <script>
-        const FUNCTION_URL = 'https://mdjwpndaxksdxbjscgas.supabase.co/functions/v1/upload-to-github';
+        // ---------- Configuration ----------
+        const PICSER_UPLOAD_URL = 'https://picser.pages.dev/api/upload'; // Picser API endpoint
+        const VERCEL_FUNCTION_URL = 'https://carused-mooo-com.vercel.app/api/save-post'; // Your Vercel function URL
 
-        function showError(msg) {
-            const el = document.getElementById('errorDisplay');
+        // ---------- Helper functions ----------
+        function showPageError(msg) {
+            const el = document.getElementById('pageError');
             el.textContent = msg;
             el.style.display = 'block';
         }
 
-        async function checkSubscription() {
+        // Subscription check (uses localStorage + Supabase fallback)
+        async function hasActiveSubscription() {
             try {
-                const { data: { user } } = await supabase.auth.getUser();
-                if (!user) { window.location.href = 'index.html'; return false; }
-                const { data: profile } = await supabase.from('profiles').select('subscription_expires_at').eq('id', user.id).single();
-                if (profile?.subscription_expires_at && new Date(profile.subscription_expires_at) > new Date()) {
-                    document.getElementById('subscriptionStatus').innerHTML = 'Active subscription';
-                    document.getElementById('submitBtn').disabled = false;
-                    document.getElementById('subscriptionWarning').style.display = 'none';
+                const expiry = localStorage.getItem('subscription_expires_at');
+                if (expiry && new Date(expiry) > new Date()) return true;
+
+                const { data: { user } } = await window.supabase.auth.getUser();
+                if (!user) return false;
+
+                const { data: profile, error } = await window.supabase
+                    .from('profiles')
+                    .select('subscription_expires_at')
+                    .eq('id', user.id)
+                    .single();
+
+                if (error || !profile?.subscription_expires_at) return false;
+
+                const dbExpiry = new Date(profile.subscription_expires_at);
+                if (dbExpiry > new Date()) {
+                    localStorage.setItem('subscription_expires_at', profile.subscription_expires_at);
                     return true;
                 } else {
-                    document.getElementById('subscriptionStatus').innerHTML = 'No active subscription';
-                    document.getElementById('subscriptionWarning').style.display = 'block';
-                    document.getElementById('submitBtn').disabled = true;
+                    localStorage.removeItem('subscription_expires_at');
                     return false;
                 }
             } catch (err) {
-                showError('Subscription check failed: ' + err.message);
+                console.error('Subscription check error:', err);
                 return false;
             }
         }
 
-        document.getElementById('postForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            if (!await checkSubscription()) return;
+        async function updateSubscriptionStatus() {
+            const statusDiv = document.getElementById('subscriptionStatus');
+            const warningDiv = document.getElementById('subscriptionWarning');
+            const submitBtn = document.getElementById('submitBtn');
 
-            const title = document.getElementById('title').value.trim();
-            const description = document.getElementById('description').value.trim();
-            const files = document.getElementById('imageFiles').files;
-            if (!title || !description) { showError('Fill all fields'); return; }
+            const active = await hasActiveSubscription();
+            if (active) {
+                statusDiv.innerHTML = '<span style="color: #28a745; font-weight:600;"><i class="fas fa-check-circle"></i> Active subscription</span>';
+                warningDiv.style.display = 'none';
+                submitBtn.disabled = false;
+            } else {
+                statusDiv.innerHTML = '<span style="color: #dc3545; font-weight:600;"><i class="fas fa-times-circle"></i> No active subscription</span>';
+                warningDiv.style.display = 'block';
+                submitBtn.disabled = true;
+                submitBtn.style.opacity = '0.5';
+            }
+        }
 
-            const formData = new FormData();
-            formData.append('title', title);
-            formData.append('description', description);
-            for (let f of files) formData.append('images', f);
-
-            const progressDiv = document.getElementById('progress');
-            progressDiv.style.display = 'block';
-            const xhr = new XMLHttpRequest();
-            xhr.open('POST', FUNCTION_URL, true);
-            xhr.upload.onprogress = (e) => {
-                if (e.lengthComputable) {
-                    document.getElementById('progressBar').value = (e.loaded / e.total) * 100;
-                }
-            };
-            xhr.onload = () => {
-                if (xhr.status === 200) {
-                    try {
-                        const res = JSON.parse(xhr.responseText);
-                        if (res.success) {
-                            alert('Post published!');
-                            window.location.href = 'dashboard.html';
-                        } else {
-                            showError('Upload failed: ' + (res.error || 'Unknown error'));
-                        }
-                    } catch {
-                        showError('Invalid server response');
-                    }
-                } else {
-                    // Show the HTTP error and response text if available
-                    showError('HTTP error ' + xhr.status + ': ' + xhr.statusText + '\nResponse: ' + xhr.responseText);
-                }
-                progressDiv.style.display = 'none';
-            };
-            xhr.onerror = () => {
-                // This triggers for network errors, including CORS blocks
-                showError('Network error – request blocked. Possible CORS issue or function unreachable.');
-                progressDiv.style.display = 'none';
-            };
-            xhr.send(formData);
+        // Preview selected images
+        document.getElementById('imageFiles').addEventListener('change', function(e) {
+            const preview = document.getElementById('imagePreview');
+            preview.innerHTML = '';
+            const files = Array.from(e.target.files);
+            files.forEach(file => {
+                const reader = new FileReader();
+                reader.onload = function(ev) {
+                    const img = document.createElement('img');
+                    img.src = ev.target.result;
+                    img.style.width = '80px';
+                    img.style.height = '80px';
+                    img.style.objectFit = 'cover';
+                    img.style.borderRadius = '8px';
+                    preview.appendChild(img);
+                };
+                reader.readAsDataURL(file);
+            });
         });
 
-        checkSubscription();
+        // Upload a single file to Picser (returns URL)
+        function uploadToPicser(file) {
+            return new Promise((resolve, reject) => {
+                const formData = new FormData();
+                formData.append('file', file, file.name);
+                formData.append('format', 'json'); // ask for JSON response
+
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', PICSER_UPLOAD_URL, true);
+
+                xhr.upload.onprogress = (e) => {
+                    if (e.lengthComputable) {
+                        const percent = Math.round((e.loaded / e.total) * 100);
+                        document.getElementById('progressBar').value = percent;
+                        document.getElementById('progressText').textContent = percent + '%';
+                    }
+                };
+
+                xhr.onload = () => {
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        try {
+                            const data = JSON.parse(xhr.responseText);
+                            // Picser returns URL in various fields; try common ones
+                            const url = data.url || data.urls?.jsdelivr_commit || data.urls?.jsdelivr;
+                            if (url) resolve(url);
+                            else reject(new Error('No URL in response'));
+                        } catch (e) {
+                            reject(new Error('Invalid JSON response'));
+                        }
+                    } else {
+                        reject(new Error(`HTTP ${xhr.status}: ${xhr.statusText}`));
+                    }
+                };
+
+                xhr.onerror = () => reject(new Error('Network error – Picser unreachable'));
+                xhr.send(formData);
+            });
+        }
+
+        // Save post data to Vercel function
+        async function savePostToVercel(title, description, imageUrls) {
+            const response = await fetch(VERCEL_FUNCTION_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title, description, imageUrls })
+            });
+            const result = await response.json();
+            if (!response.ok) throw new Error(result.error || 'Failed to save post');
+            return result;
+        }
+
+        // ---------- Page Initialization ----------
+        (async function init() {
+            // Wait for supabase to be ready
+            if (!window.supabase) {
+                showPageError('Supabase client not initialized.');
+                return;
+            }
+
+            // Check if user is logged in
+            const { data: { user }, error: userError } = await window.supabase.auth.getUser();
+            if (userError || !user) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            await updateSubscriptionStatus();
+
+            // Form submission handler
+            document.getElementById('postForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+
+                // Double-check subscription
+                const active = await hasActiveSubscription();
+                if (!active) {
+                    showMessage('You need an active subscription to post.', 'error');
+                    await updateSubscriptionStatus();
+                    return;
+                }
+
+                const title = document.getElementById('title').value.trim();
+                const description = document.getElementById('description').value.trim();
+                const files = document.getElementById('imageFiles').files;
+
+                if (!title || !description) {
+                    showMessage('Please fill all required fields', 'error');
+                    return;
+                }
+
+                // Upload each file to Picser
+                const imageUrls = [];
+                if (files.length > 0) {
+                    const progressDiv = document.getElementById('uploadProgress');
+                    const progressBar = document.getElementById('progressBar');
+                    const progressText = document.getElementById('progressText');
+                    progressDiv.style.display = 'block';
+                    document.getElementById('submitBtn').disabled = true;
+
+                    try {
+                        for (let i = 0; i < files.length; i++) {
+                            progressText.textContent = `Uploading ${i+1}/${files.length}...`;
+                            const url = await uploadToPicser(files[i]);
+                            imageUrls.push(url);
+                        }
+                        progressDiv.style.display = 'none';
+                    } catch (err) {
+                        progressDiv.style.display = 'none';
+                        showMessage('Image upload failed: ' + err.message, 'error');
+                        document.getElementById('submitBtn').disabled = false;
+                        return;
+                    } finally {
+                        document.getElementById('submitBtn').disabled = false;
+                    }
+                }
+
+                // Save post to database via Vercel function
+                try {
+                    await savePostToVercel(title, description, imageUrls);
+                    showMessage('✅ Your listing has been published!', 'success');
+                    document.getElementById('postForm').reset();
+                    document.getElementById('imagePreview').innerHTML = '';
+                    setTimeout(() => window.location.href = 'dashboard.html', 2000);
+                } catch (err) {
+                    showMessage('Error: ' + err.message, 'error');
+                }
+            });
+        })();
+
+        function showMessage(msg, type) {
+            const msgDiv = document.getElementById('postMessage');
+            msgDiv.textContent = msg;
+            msgDiv.className = 'auth-message ' + type;
+            msgDiv.style.display = 'block';
+            setTimeout(() => msgDiv.style.display = 'none', 5000);
+        }
+    </script>
+
+    <!-- Mobile menu close handler -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const checkbox = document.getElementById('menu-toggle-checkbox');
+            document.getElementById('navLinks')?.addEventListener('click', (e) => {
+                if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON') checkbox.checked = false;
+            });
+        });
     </script>
 </body>
 </html>
