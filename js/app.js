@@ -1,4 +1,4 @@
-// js/app.js – with robust error handling and fallback
+// js/app.js – Public‑friendly, with fallback and error logging
 console.log('✅ app.js loaded');
 
 class EscortDirectory {
@@ -20,12 +20,11 @@ class EscortDirectory {
         if (vipContainer) vipContainer.innerHTML = '<div class="loading">Loading VIP listings...</div>';
         if (regularContainer) regularContainer.innerHTML = '<div class="loading">Loading regular listings...</div>';
 
-        // Try to load from cache first
-        const cachedPosts = getPublicPosts ? getPublicPosts() : null;
+        // Try cache first
+        const cachedPosts = (typeof getPublicPosts === 'function') ? getPublicPosts() : null;
         if (cachedPosts && cachedPosts.length > 0) {
             this.displayPosts(cachedPosts, vipContainer, regularContainer);
-            // Refresh in background
-            this.refreshListings(vipContainer, regularContainer);
+            this.refreshListings(vipContainer, regularContainer); // background refresh
         } else {
             await this.refreshListings(vipContainer, regularContainer);
         }
@@ -33,38 +32,37 @@ class EscortDirectory {
 
     async refreshListings(vipContainer, regularContainer) {
         try {
-            // Check Supabase availability
             if (!window.supabase || typeof window.supabase.from !== 'function') {
                 console.warn('Supabase not available, using fallback');
                 this.displayFallback(vipContainer, regularContainer);
                 return;
             }
 
-            // First attempt: try with join to profiles
+            // Attempt 1: with join (requires proper RLS)
             let posts = null;
             let error = null;
             try {
-                const result = await window.supabase
+                const { data, error: err } = await window.supabase
                     .from('posts')
                     .select('*, profiles(username)')
                     .eq('status', 'active')
                     .order('created_at', { ascending: false });
-                posts = result.data;
-                error = result.error;
+                posts = data;
+                error = err;
             } catch (joinErr) {
-                console.error('Join query failed, trying without join:', joinErr);
+                console.warn('Join query failed, trying without join:', joinErr);
             }
 
-            // If join failed or returned error, try simple query
+            // If join fails, try simple query
             if (error || !posts) {
-                console.warn('Join query error, falling back to basic query');
-                const result = await window.supabase
+                console.warn('Falling back to basic posts query');
+                const { data, error: err } = await window.supabase
                     .from('posts')
                     .select('*')
                     .eq('status', 'active')
                     .order('created_at', { ascending: false });
-                posts = result.data;
-                error = result.error;
+                posts = data;
+                error = err;
             }
 
             if (error) {
@@ -78,7 +76,7 @@ class EscortDirectory {
                 return;
             }
 
-            // Cache the fresh data
+            // Cache for next time
             if (typeof setPublicPosts === 'function') {
                 setPublicPosts(posts);
             }
@@ -143,8 +141,6 @@ class EscortDirectory {
     createPostCard(post) {
         const card = document.createElement('div');
         card.className = `listing-card ${post.is_vip ? 'vip-card' : ''}`;
-        
-        // Make the entire card clickable
         card.addEventListener('click', () => {
             window.location.href = `post.html?id=${post.id}`;
         });
@@ -154,7 +150,6 @@ class EscortDirectory {
         const desc = post.description || 'No description provided.';
         const imageUrl = (post.images && post.images[0]) ? post.images[0] : 'images/default-avatar.jpg';
         const date = post.created_at ? new Date(post.created_at).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }) : 'Recently';
-        // Try to get username from joined data, or from post, or default
         const username = post.profiles?.username || post.username || (post.user_id ? 'User' : 'Anonymous');
 
         card.innerHTML = `
@@ -182,5 +177,4 @@ class EscortDirectory {
     setupEventListeners() {}
 }
 
-// Start the app
 const app = new EscortDirectory();
