@@ -51,24 +51,17 @@ export default async function handler(req, res) {
       throw new Error(`Picser error: ${response.status} - ${responseText}`);
     }
 
-    // Try to parse JSON
-    let json;
-    try {
-      json = JSON.parse(responseText);
-    } catch (e) {
-      console.error('Invalid JSON from Picser:', responseText);
-      throw new Error('Invalid JSON from Picser');
-    }
+    const json = JSON.parse(responseText);
+    console.log('Picser JSON:', json);
 
-    console.log('Picser response:', json); // Log for debugging
-
-    // Try different possible URL fields
-    const url = json?.url || json?.data?.url || json?.image?.url || json?.urls?.jsdelivr_commit || json?.urls?.jsdelivr;
+    // ✅ Correct path: data.urls.jsdelivr_commit (or data.urls.jsdelivr)
+    const url = json?.data?.urls?.jsdelivr_commit || json?.data?.urls?.jsdelivr;
     if (!url) {
       console.error('No URL found in response:', json);
       throw new Error('No URL from Picser');
     }
 
+    console.log('Extracted URL:', url);
     res.status(200).json({ success: true, url });
   } catch (error) {
     console.error('Upload error:', error);
