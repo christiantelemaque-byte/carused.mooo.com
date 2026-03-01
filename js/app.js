@@ -1,4 +1,4 @@
-// js/app.js – Public‑friendly, with fallback and error logging
+// js/app.js – Public‑friendly with detailed error logging
 console.log('✅ app.js loaded');
 
 class EscortDirectory {
@@ -20,11 +20,15 @@ class EscortDirectory {
         if (vipContainer) vipContainer.innerHTML = '<div class="loading">Loading VIP listings...</div>';
         if (regularContainer) regularContainer.innerHTML = '<div class="loading">Loading regular listings...</div>';
 
-        // Try cache first
-        const cachedPosts = (typeof getPublicPosts === 'function') ? getPublicPosts() : null;
+        // Try to get from cache first (if cache functions exist)
+        let cachedPosts = null;
+        if (typeof getPublicPosts === 'function') {
+            cachedPosts = getPublicPosts();
+        }
         if (cachedPosts && cachedPosts.length > 0) {
             this.displayPosts(cachedPosts, vipContainer, regularContainer);
-            this.refreshListings(vipContainer, regularContainer); // background refresh
+            // Refresh in background
+            this.refreshListings(vipContainer, regularContainer);
         } else {
             await this.refreshListings(vipContainer, regularContainer);
         }
@@ -38,10 +42,11 @@ class EscortDirectory {
                 return;
             }
 
-            // Attempt 1: with join (requires proper RLS)
+            // First attempt: try with join (requires public read on profiles)
             let posts = null;
             let error = null;
             try {
+                console.log('Attempting join query...');
                 const { data, error: err } = await window.supabase
                     .from('posts')
                     .select('*, profiles(username)')
@@ -49,13 +54,15 @@ class EscortDirectory {
                     .order('created_at', { ascending: false });
                 posts = data;
                 error = err;
+                if (error) console.error('Join query error:', error);
+                else console.log('Join query succeeded, posts:', posts?.length);
             } catch (joinErr) {
-                console.warn('Join query failed, trying without join:', joinErr);
+                console.warn('Join query threw exception:', joinErr);
             }
 
-            // If join fails, try simple query
+            // If join failed, try simple query (only posts table)
             if (error || !posts) {
-                console.warn('Falling back to basic posts query');
+                console.log('Attempting simple query...');
                 const { data, error: err } = await window.supabase
                     .from('posts')
                     .select('*')
@@ -63,10 +70,12 @@ class EscortDirectory {
                     .order('created_at', { ascending: false });
                 posts = data;
                 error = err;
+                if (error) console.error('Simple query error:', error);
+                else console.log('Simple query succeeded, posts:', posts?.length);
             }
 
             if (error) {
-                console.error('Supabase error:', error);
+                console.error('All queries failed, using fallback:', error);
                 this.displayFallback(vipContainer, regularContainer);
                 return;
             }
@@ -76,7 +85,7 @@ class EscortDirectory {
                 return;
             }
 
-            // Cache for next time
+            // Cache the fresh data
             if (typeof setPublicPosts === 'function') {
                 setPublicPosts(posts);
             }
@@ -150,6 +159,7 @@ class EscortDirectory {
         const desc = post.description || 'No description provided.';
         const imageUrl = (post.images && post.images[0]) ? post.images[0] : 'images/default-avatar.jpg';
         const date = post.created_at ? new Date(post.created_at).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }) : 'Recently';
+        // If we have profiles.username from join, use it; else fallback
         const username = post.profiles?.username || post.username || (post.user_id ? 'User' : 'Anonymous');
 
         card.innerHTML = `
