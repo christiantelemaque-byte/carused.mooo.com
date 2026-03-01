@@ -54,7 +54,7 @@ export default async function handler(req, res) {
     const json = JSON.parse(responseText);
     console.log('Picser JSON:', json);
 
-    // ✅ Correct path: data.urls.jsdelivr_commit (or data.urls.jsdelivr)
+    // Correct path: data.urls.jsdelivr_commit (or data.urls.jsdelivr)
     const url = json?.data?.urls?.jsdelivr_commit || json?.data?.urls?.jsdelivr;
     if (!url) {
       console.error('No URL found in response:', json);
