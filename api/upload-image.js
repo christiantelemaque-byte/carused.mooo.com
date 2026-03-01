@@ -22,7 +22,7 @@ export default async function handler(req, res) {
     await new Promise((resolve, reject) => {
       bb.on('file', (name, file, info) => {
         filename = info.filename;
-        mimeType = info.mimeType; // Capture the MIME type
+        mimeType = info.mimeType;
         const chunks = [];
         file.on('data', chunk => chunks.push(chunk));
         file.on('end', () => { fileBuffer = Buffer.concat(chunks); });
@@ -36,7 +36,6 @@ export default async function handler(req, res) {
 
     const PICSER_URL = 'https://picser.pages.dev/api/public-upload';
     const formData = new FormData();
-    // Use the captured MIME type
     formData.append('file', new Blob([fileBuffer], { type: mimeType }), filename);
     formData.append('github_token', process.env.PICSER_GITHUB_TOKEN);
     formData.append('github_owner', process.env.PICSER_GITHUB_OWNER);
@@ -52,9 +51,23 @@ export default async function handler(req, res) {
       throw new Error(`Picser error: ${response.status} - ${responseText}`);
     }
 
-    const json = JSON.parse(responseText);
-    const url = json?.url || json?.urls?.jsdelivr_commit || json?.urls?.jsdelivr;
-    if (!url) throw new Error('No URL from Picser');
+    // Try to parse JSON
+    let json;
+    try {
+      json = JSON.parse(responseText);
+    } catch (e) {
+      console.error('Invalid JSON from Picser:', responseText);
+      throw new Error('Invalid JSON from Picser');
+    }
+
+    console.log('Picser response:', json); // Log for debugging
+
+    // Try different possible URL fields
+    const url = json?.url || json?.data?.url || json?.image?.url || json?.urls?.jsdelivr_commit || json?.urls?.jsdelivr;
+    if (!url) {
+      console.error('No URL found in response:', json);
+      throw new Error('No URL from Picser');
+    }
 
     res.status(200).json({ success: true, url });
   } catch (error) {
