@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Post Details - LuxeCompanions</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        window.toggleMobileMenu = function() {
+            var navbar = document.getElementById('navbar');
+            if (navbar) navbar.classList.toggle('active');
+            return false;
+        };
+    </script>
+    <style>
+        /* Additional styles for post detail */
+        .post-detail {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            margin-bottom: 2rem;
+        }
+        .post-title {
+            font-size: 2.5rem;
+            color: var(--dark-pink);
+            margin-bottom: 1rem;
+        }
+        .post-meta {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+        .post-description {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 2rem;
+            white-space: pre-wrap;
+        }
+        .images-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        .gallery-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        .gallery-image:hover {
+            transform: scale(1.02);
+        }
+        .lightbox {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            cursor: pointer;
+        }
+        .lightbox img {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+        }
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: var(--primary-pink);
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+            margin: 2rem;
+        }
+        .btn-back {
+            display: inline-block;
+            margin-top: 2rem;
+            background: transparent;
+            color: var(--primary-pink);
+            padding: 0.6rem 1.2rem;
+            border-radius: 30px;
+            text-decoration: none;
+            border: 2px solid var(--primary-pink);
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .btn-back:hover {
+            background: var(--primary-pink);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <div class="logo"><i class="fas fa-gem"></i><span>LuxeCompanions</span></div>
+            <input type="checkbox" id="menu-toggle-checkbox">
+            <label for="menu-toggle-checkbox" class="menu-toggle" onclick="toggleMobileMenu()"><i class="fas fa-bars"></i></label>
+            <div class="nav-links" id="navLinks"></div>
+        </div>
+    </nav>
+
+    <main style="padding: 2rem 1.5rem;">
+        <div id="postContainer" class="post-detail" style="max-width: 1000px; margin: 0 auto;">
+            <!-- Content will be loaded here -->
+            <div class="loading">Loading post...</div>
+        </div>
+        <div style="text-align: center;">
+            <a href="index.html" class="btn-back"><i class="fas fa-arrow-left"></i> Back to Home</a>
+        </div>
+    </main>
+
+    <footer>...</footer>
+
+    <script>
+        (async function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const postId = urlParams.get('id');
+            const container = document.getElementById('postContainer');
+
+            if (!postId) {
+                container.innerHTML = '<div class="error">No post ID provided.</div>';
+                return;
+            }
+
+            // Wait for supabase to be ready (auth.js loads it)
+            if (!window.supabase) {
+                container.innerHTML = '<div class="error">Supabase client not loaded.</div>';
+                return;
+            }
+
+            try {
+                const { data: post, error } = await window.supabase
+                    .from('posts')
+                    .select('*, profiles(username)')
+                    .eq('id', postId)
+                    .single();
+
+                if (error) throw error;
+                if (!post) throw new Error('Post not found');
+
+                // Format date
+                const created = new Date(post.created_at);
+                const dateStr = created.toLocaleDateString('en-US', { 
+                    year: 'numeric', month: 'long', day: 'numeric' 
+                });
+
+                // Build images gallery
+                let imagesHtml = '';
+                if (post.images && post.images.length > 0) {
+                    imagesHtml = '<div class="images-gallery">';
+                    post.images.forEach(imgUrl => {
+                        imagesHtml += `<img src="${imgUrl}" class="gallery-image" onclick="openLightbox('${imgUrl}')">`;
+                    });
+                    imagesHtml += '</div>';
+                }
+
+                container.innerHTML = `
+                    <h1 class="post-title">${escapeHtml(post.title)}</h1>
+                    <div class="post-meta">
+                        <span><i class="fas fa-user"></i> ${escapeHtml(post.profiles?.username || 'Anonymous')}</span>
+                        <span><i class="fas fa-calendar"></i> ${dateStr}</span>
+                        ${post.is_vip ? '<span class="vip-badge" style="display:inline-block; background: var(--gold); color:white; padding:0.2rem 0.8rem; border-radius:20px;"><i class="fas fa-crown"></i> VIP</span>' : ''}
+                    </div>
+                    <div class="post-description">${escapeHtml(post.description).replace(/\n/g, '<br>')}</div>
+                    ${imagesHtml}
+                `;
+
+            } catch (err) {
+                console.error('Error loading post:', err);
+                container.innerHTML = `<div class="error">Error loading post: ${err.message}</div>`;
+            }
+        })();
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Lightbox function (global)
+        window.openLightbox = function(imgSrc) {
+            const lightbox = document.createElement('div');
+            lightbox.className = 'lightbox';
+            lightbox.innerHTML = `<img src="${imgSrc}" alt="Enlarged image">`;
+            lightbox.onclick = function() { this.remove(); };
+            document.body.appendChild(lightbox);
+        };
+    </script>
+
+    <!-- Mobile menu close handler -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var checkbox = document.getElementById('menu-toggle-checkbox');
+            document.getElementById('navLinks')?.addEventListener('click', (e) => {
+                if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON') checkbox.checked = false;
+            });
+        });
+    </script>
+</body>
+</html>
