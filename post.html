@@ -17,7 +17,7 @@
         };
     </script>
     <style>
-        /* Additional styles for post detail */
+        /* (same as before) */
         .post-detail {
             background: white;
             border-radius: 15px;
@@ -111,7 +111,7 @@
     </style>
 </head>
 <body>
-    <!-- Navigation -->
+    <!-- Navigation (same as index) -->
     <nav class="navbar" id="navbar">
         <div class="nav-container">
             <div class="logo"><i class="fas fa-gem"></i><span>LuxeCompanions</span></div>
@@ -123,7 +123,6 @@
 
     <main style="padding: 2rem 1.5rem;">
         <div id="postContainer" class="post-detail" style="max-width: 1000px; margin: 0 auto;">
-            <!-- Content will be loaded here -->
             <div class="loading">Loading post...</div>
         </div>
         <div style="text-align: center;">
@@ -144,21 +143,55 @@
                 return;
             }
 
-            // Wait for supabase to be ready (auth.js loads it)
             if (!window.supabase) {
                 container.innerHTML = '<div class="error">Supabase client not loaded.</div>';
                 return;
             }
 
             try {
-                const { data: post, error } = await window.supabase
-                    .from('posts')
-                    .select('*, profiles(username)')
-                    .eq('id', postId)
-                    .single();
+                // Attempt 1: try with join (requires foreign key or relationship)
+                let post = null;
+                let error = null;
+                try {
+                    const result = await window.supabase
+                        .from('posts')
+                        .select('*, profiles(username)')
+                        .eq('id', postId)
+                        .single();
+                    post = result.data;
+                    error = result.error;
+                } catch (joinErr) {
+                    console.warn('Join query failed:', joinErr);
+                }
 
-                if (error) throw error;
-                if (!post) throw new Error('Post not found');
+                // If join failed, fetch post without join, then fetch profile separately
+                if (error || !post) {
+                    console.log('Falling back to simple post fetch');
+                    const { data: postData, error: postError } = await window.supabase
+                        .from('posts')
+                        .select('*')
+                        .eq('id', postId)
+                        .single();
+
+                    if (postError) throw postError;
+                    post = postData;
+
+                    // Fetch username from profiles table using user_id
+                    if (post.user_id) {
+                        const { data: profile, error: profileError } = await window.supabase
+                            .from('profiles')
+                            .select('username')
+                            .eq('id', post.user_id)
+                            .single();
+                        if (!profileError && profile) {
+                            post.profiles = { username: profile.username };
+                        } else {
+                            post.profiles = { username: 'User' };
+                        }
+                    } else {
+                        post.profiles = { username: 'Anonymous' };
+                    }
+                }
 
                 // Format date
                 const created = new Date(post.created_at);
