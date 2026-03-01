@@ -233,12 +233,12 @@
             });
         }
 
-        // Save post data to publish-post endpoint
-        async function savePost(title, description, imageUrls) {
+        // Save post to Vercel function, now including userId
+        async function savePost(title, description, imageUrls, userId) {
             const response = await fetch(SAVE_POST_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ title, description, imageUrls })
+                body: JSON.stringify({ title, description, imageUrls, userId })
             });
             const result = await response.json();
             if (!response.ok) throw new Error(result.error || 'Failed to save post');
@@ -294,8 +294,12 @@
                         imageUrls.push(url);
                     }
 
+                    // Get current user for the user_id field
+                    const { data: { user } } = await window.supabase.auth.getUser();
+                    if (!user) throw new Error('Not logged in');
+
                     progressMessage.textContent = 'Saving your post...';
-                    await savePost(title, description, imageUrls);
+                    await savePost(title, description, imageUrls, user.id);
 
                     showMessage('✅ Your listing has been published!', 'success');
                     document.getElementById('postForm').reset();
@@ -329,4 +333,4 @@
         });
     </script>
 </body>
-    </html>
+</html>
