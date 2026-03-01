@@ -1,9 +1,8 @@
-// js/app.js – with extensive error handling
+// js/app.js – with clickable post cards
 console.log('✅ app.js loaded');
 
 class EscortDirectory {
     constructor() {
-        // Fallback posts from localStorage (if any)
         this.fallbackPosts = JSON.parse(localStorage.getItem('luxePosts')) || [];
         document.addEventListener('DOMContentLoaded', () => this.init());
     }
@@ -18,35 +17,30 @@ class EscortDirectory {
         const regularContainer = document.getElementById('regular-listings');
         if (!vipContainer && !regularContainer) return;
 
-        // Clear loading placeholders
         if (vipContainer) vipContainer.innerHTML = '';
         if (regularContainer) regularContainer.innerHTML = '';
 
-        // Try to load from cache first (fast)
+        // Try to load from cache first
         const cachedPosts = getPublicPosts();
         if (cachedPosts && cachedPosts.length > 0) {
             this.displayPosts(cachedPosts, vipContainer, regularContainer);
-            // Then refresh in background
             this.refreshListings(vipContainer, regularContainer);
         } else {
-            // No cache, load directly from DB
             await this.refreshListings(vipContainer, regularContainer);
         }
     }
 
     async refreshListings(vipContainer, regularContainer) {
         try {
-            // Check if Supabase is available
             if (!window.supabase || typeof window.supabase.from !== 'function') {
                 console.warn('Supabase not available, using fallback');
                 this.displayFallback(vipContainer, regularContainer);
                 return;
             }
 
-            // Fetch active posts from Supabase
             const { data: posts, error } = await window.supabase
                 .from('posts')
-                .select('*')
+                .select('*, profiles(username)')
                 .eq('status', 'active')
                 .order('created_at', { ascending: false });
 
@@ -57,12 +51,10 @@ class EscortDirectory {
             }
 
             if (!posts || posts.length === 0) {
-                // No posts – show empty message
                 this.displayNoPosts(vipContainer, regularContainer);
                 return;
             }
 
-            // Cache the fresh data
             setPublicPosts(posts);
             this.displayPosts(posts, vipContainer, regularContainer);
         } catch (err) {
@@ -95,7 +87,6 @@ class EscortDirectory {
     }
 
     displayFallback(vipContainer, regularContainer) {
-        // Use localStorage fallback posts
         const vipFallback = this.fallbackPosts.filter(p => p.subscriptionType === 'vip' && p.status === 'active');
         const regularFallback = this.fallbackPosts.filter(p => p.subscriptionType === 'regular' && p.status === 'active');
 
@@ -126,11 +117,19 @@ class EscortDirectory {
     createPostCard(post) {
         const card = document.createElement('div');
         card.className = `listing-card ${post.is_vip ? 'vip-card' : ''}`;
+        
+        // Make the entire card clickable – redirect to post detail page
+        card.addEventListener('click', () => {
+            window.location.href = `post.html?id=${post.id}`;
+        });
+        card.style.cursor = 'pointer'; // indicate it's clickable
+
         const title = post.title || (post.is_vip ? 'VIP Companion' : 'Companion');
         const desc = post.description || 'No description provided.';
         const imageUrl = (post.images && post.images[0]) ? post.images[0] : 'images/default-avatar.jpg';
         const date = post.created_at ? new Date(post.created_at).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }) : 'Recently';
-        const username = post.username || (post.user_id ? 'User' : 'Anonymous');
+        // Use username from joined profiles if available, else fallback
+        const username = post.profiles?.username || post.username || (post.user_id ? 'User' : 'Anonymous');
 
         card.innerHTML = `
             ${post.is_vip ? '<div class="vip-badge"><i class="fas fa-crown"></i> VIP</div>' : ''}
