@@ -1,4 +1,3 @@
-// api/publish-post.js
 import { createClient } from '@supabase/supabase-js';
 
 export default async function handler(req, res) {
@@ -10,8 +9,8 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   try {
-    const { title, description, imageUrls } = req.body;
-    if (!title || !description || !Array.isArray(imageUrls)) {
+    const { title, description, imageUrls, userId } = req.body;
+    if (!title || !description || !Array.isArray(imageUrls) || !userId) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
@@ -20,7 +19,12 @@ export default async function handler(req, res) {
       process.env.SUPABASE_SERVICE_ROLE_KEY
     );
 
-    const { error } = await supabase.from('posts').insert({ title, description, images: imageUrls });
+    const { error } = await supabase.from('posts').insert({
+      user_id: userId,
+      title,
+      description,
+      images: imageUrls
+    });
     if (error) throw error;
 
     res.status(200).json({ success: true });
