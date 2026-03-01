@@ -1,4 +1,4 @@
-// js/app.js – with clickable post cards
+// js/app.js – with robust error handling and fallback
 console.log('✅ app.js loaded');
 
 class EscortDirectory {
@@ -17,13 +17,14 @@ class EscortDirectory {
         const regularContainer = document.getElementById('regular-listings');
         if (!vipContainer && !regularContainer) return;
 
-        if (vipContainer) vipContainer.innerHTML = '';
-        if (regularContainer) regularContainer.innerHTML = '';
+        if (vipContainer) vipContainer.innerHTML = '<div class="loading">Loading VIP listings...</div>';
+        if (regularContainer) regularContainer.innerHTML = '<div class="loading">Loading regular listings...</div>';
 
         // Try to load from cache first
-        const cachedPosts = getPublicPosts();
+        const cachedPosts = getPublicPosts ? getPublicPosts() : null;
         if (cachedPosts && cachedPosts.length > 0) {
             this.displayPosts(cachedPosts, vipContainer, regularContainer);
+            // Refresh in background
             this.refreshListings(vipContainer, regularContainer);
         } else {
             await this.refreshListings(vipContainer, regularContainer);
@@ -32,17 +33,39 @@ class EscortDirectory {
 
     async refreshListings(vipContainer, regularContainer) {
         try {
+            // Check Supabase availability
             if (!window.supabase || typeof window.supabase.from !== 'function') {
                 console.warn('Supabase not available, using fallback');
                 this.displayFallback(vipContainer, regularContainer);
                 return;
             }
 
-            const { data: posts, error } = await window.supabase
-                .from('posts')
-                .select('*, profiles(username)')
-                .eq('status', 'active')
-                .order('created_at', { ascending: false });
+            // First attempt: try with join to profiles
+            let posts = null;
+            let error = null;
+            try {
+                const result = await window.supabase
+                    .from('posts')
+                    .select('*, profiles(username)')
+                    .eq('status', 'active')
+                    .order('created_at', { ascending: false });
+                posts = result.data;
+                error = result.error;
+            } catch (joinErr) {
+                console.error('Join query failed, trying without join:', joinErr);
+            }
+
+            // If join failed or returned error, try simple query
+            if (error || !posts) {
+                console.warn('Join query error, falling back to basic query');
+                const result = await window.supabase
+                    .from('posts')
+                    .select('*')
+                    .eq('status', 'active')
+                    .order('created_at', { ascending: false });
+                posts = result.data;
+                error = result.error;
+            }
 
             if (error) {
                 console.error('Supabase error:', error);
@@ -55,7 +78,10 @@ class EscortDirectory {
                 return;
             }
 
-            setPublicPosts(posts);
+            // Cache the fresh data
+            if (typeof setPublicPosts === 'function') {
+                setPublicPosts(posts);
+            }
             this.displayPosts(posts, vipContainer, regularContainer);
         } catch (err) {
             console.error('Unexpected error in refreshListings:', err);
@@ -118,17 +144,17 @@ class EscortDirectory {
         const card = document.createElement('div');
         card.className = `listing-card ${post.is_vip ? 'vip-card' : ''}`;
         
-        // Make the entire card clickable – redirect to post detail page
+        // Make the entire card clickable
         card.addEventListener('click', () => {
             window.location.href = `post.html?id=${post.id}`;
         });
-        card.style.cursor = 'pointer'; // indicate it's clickable
+        card.style.cursor = 'pointer';
 
         const title = post.title || (post.is_vip ? 'VIP Companion' : 'Companion');
         const desc = post.description || 'No description provided.';
         const imageUrl = (post.images && post.images[0]) ? post.images[0] : 'images/default-avatar.jpg';
         const date = post.created_at ? new Date(post.created_at).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }) : 'Recently';
-        // Use username from joined profiles if available, else fallback
+        // Try to get username from joined data, or from post, or default
         const username = post.profiles?.username || post.username || (post.user_id ? 'User' : 'Anonymous');
 
         card.innerHTML = `
