@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
-    <!-- Critical mobile menu CSS – ensures it works even if external CSS fails -->
+    <!-- Critical mobile menu CSS -->
     <style>
         /* Force hide the checkbox */
         #menu-toggle-checkbox {
@@ -66,9 +66,8 @@
             return false;
         };
     </script>
-    <!-- Additional styles for contact modal (same as before) -->
+    <!-- Contact modal styles (unchanged) -->
     <style>
-        /* Modal styles (unchanged) */
         .modal {
             display: none;
             position: fixed;
@@ -287,17 +286,36 @@
     <script src="js/app.js"></script>
     <script src="js/auth.js"></script>
     
-    <!-- Backup mobile menu toggle (ensures checkbox toggles on click) -->
+    <!-- Mobile menu enhancements -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const mobileMenu = document.getElementById('mobileMenu');
             const checkbox = document.getElementById('menu-toggle-checkbox');
+            const mobileMenu = document.getElementById('mobileMenu');
+            const navLinks = document.getElementById('navLinks');
+
+            // Toggle menu when hamburger is clicked
             if (mobileMenu && checkbox) {
                 mobileMenu.addEventListener('click', function(e) {
                     e.preventDefault();
                     checkbox.checked = !checkbox.checked;
                 });
             }
+
+            // Close menu when any link or button inside navLinks is clicked
+            if (navLinks) {
+                navLinks.addEventListener('click', function(e) {
+                    if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON') {
+                        checkbox.checked = false;
+                    }
+                });
+            }
+
+            // Close menu when window is resized above mobile
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768 && checkbox) {
+                    checkbox.checked = false;
+                }
+            });
         });
     </script>
 
@@ -366,4 +384,4 @@
         });
     </script>
 </body>
-</html>
+    </html>
