@@ -21,13 +21,11 @@
     <!-- Navigation (same as index) -->
     <nav class="navbar" id="navbar">
         <div class="nav-container">
-            <div class="logo">
-                <i class="fas fa-gem"></i>
-                <span>LuxeCompanions</span>
-            </div>
-            <div class="menu-toggle" id="mobileMenu" onclick="toggleMobileMenu(); event.stopPropagation();">
+            <div class="logo"><i class="fas fa-gem"></i><span>LuxeCompanions</span></div>
+            <input type="checkbox" id="menu-toggle-checkbox">
+            <label for="menu-toggle-checkbox" class="menu-toggle" id="mobileMenu" onclick="toggleMobileMenu(); event.stopPropagation();">
                 <i class="fas fa-bars"></i>
-            </div>
+            </label>
             <div class="nav-links" id="navLinks"></div>
         </div>
     </nav>
@@ -94,6 +92,7 @@
                     <div class="loading">Loading your posts...</div>
                 </div>
 
+                <!-- Empty State -->
                 <div id="emptyPostsState" class="empty-state" style="display: none;">
                     <i class="fas fa-camera-retro"></i>
                     <h3>You haven't posted any ads yet</h3>
@@ -107,50 +106,77 @@
     </main>
 
     <!-- Footer -->
-    <footer>...</footer>
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>LuxeCompanions</h3>
+                <p>An exclusive platform for sophisticated companionship connections.</p>
+            </div>
+            <div class="footer-section">
+                <h4>Important</h4>
+                <ul>
+                    <li><a href="#terms">Terms of Service</a></li>
+                    <li><a href="#privacy">Privacy Policy</a></li>
+                    <li><a href="#age">Age Verification</a></li>
+                    <li><a href="#safety">Safety Guidelines</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Contact</h4>
+                <p><i class="fas fa-envelope"></i> support@luxecompanions.com</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2024 LuxeCompanions. Must be 21+ to access. All rights reserved.</p>
+            <p class="disclaimer">This website is for legal companionship services only. Users must comply with all applicable laws.</p>
+        </div>
+    </footer>
 
     <script src="js/auth.js"></script>
     <script>
-        // DASHBOARD CONTROLLER WITH CACHING
+        // ============================================
+        // DASHBOARD CONTROLLER
+        // ============================================
+
+        const DELETE_FUNCTION_URL = 'https://carused-mooo-com.vercel.app/api/delete-post';
+
         document.addEventListener('DOMContentLoaded', async function() {
+            console.log('Dashboard initializing...');
+            
             if (!window.supabase) {
+                console.error('Supabase not available');
                 window.location.href = 'index.html';
                 return;
             }
 
             const { data: { user }, error } = await window.supabase.auth.getUser();
             if (error || !user) {
+                console.log('No authenticated user, redirecting to login');
                 window.location.href = 'index.html';
                 return;
             }
 
-            // Load user profile (try cache first)
-            await loadUserProfileWithCache(user.id);
+            console.log('Authenticated user:', user.id);
             
-            // Load user posts (try cache first)
-            await loadUserPostsWithCache(user.id);
+            // Load user profile and subscription
+            await loadUserProfile(user.id);
             
+            // Load user's posts
+            await loadUserPosts(user.id);
+            
+            // Set member since date
             const createdDate = new Date(user.created_at);
             document.getElementById('memberSince').textContent = createdDate.toLocaleDateString('en-US', { 
-                year: 'numeric', month: 'long', day: 'numeric' 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
             });
         });
 
-        async function loadUserProfileWithCache(userId) {
-            // Try cache
-            let profile = getUserProfile();
-            if (profile && profile.id === userId) {
-                renderSubscriptionCard(profile);
-                document.getElementById('userName').textContent = profile.username || 'User';
-                // Refresh in background
-                refreshUserProfile(userId);
-            } else {
-                // Load from DB
-                await refreshUserProfile(userId);
-            }
-        }
-
-        async function refreshUserProfile(userId) {
+        // ------------------------------------------------------------------
+        // Load user profile from 'profiles' table
+        // ------------------------------------------------------------------
+        async function loadUserProfile(userId) {
             try {
                 const { data: profile, error } = await window.supabase
                     .from('profiles')
@@ -158,16 +184,21 @@
                     .eq('id', userId)
                     .single();
 
-                if (error) throw error;
-                
-                setUserProfile(profile);
-                renderSubscriptionCard(profile);
+                if (error) {
+                    console.error('Error loading profile:', error);
+                    return;
+                }
+
                 document.getElementById('userName').textContent = profile.username || 'User';
+                renderSubscriptionCard(profile);
             } catch (err) {
                 console.error('Profile load error:', err);
             }
         }
 
+        // ------------------------------------------------------------------
+        // Render subscription status and action button
+        // ------------------------------------------------------------------
         function renderSubscriptionCard(profile) {
             const detailsEl = document.getElementById('subscriptionDetails');
             const actionEl = document.getElementById('subscriptionAction');
@@ -206,18 +237,10 @@
             }
         }
 
-        async function loadUserPostsWithCache(userId) {
-            const cachedPosts = getUserPosts();
-            if (cachedPosts && cachedPosts.length > 0) {
-                displayUserPosts(cachedPosts);
-                // Refresh in background
-                refreshUserPosts(userId);
-            } else {
-                await refreshUserPosts(userId);
-            }
-        }
-
-        async function refreshUserPosts(userId) {
+        // ------------------------------------------------------------------
+        // Load user's posts from 'posts' table
+        // ------------------------------------------------------------------
+        async function loadUserPosts(userId) {
             try {
                 const { data: posts, error } = await window.supabase
                     .from('posts')
@@ -226,44 +249,51 @@
                     .eq('status', 'active')
                     .order('created_at', { ascending: false });
 
-                if (error) throw error;
-                
-                setUserPosts(posts);
-                displayUserPosts(posts);
+                if (error) {
+                    console.error('Error loading posts:', error);
+                    document.getElementById('postsContainer').innerHTML = 
+                        '<div class="error-message">Failed to load posts. Please refresh.</div>';
+                    return;
+                }
+
+                document.getElementById('postCount').textContent = posts?.length || 0;
+                document.getElementById('totalViews').textContent = '0'; // placeholder
+                document.getElementById('profileViews').textContent = '0';
+
+                const postsContainer = document.getElementById('postsContainer');
+                const emptyState = document.getElementById('emptyPostsState');
+
+                if (!posts || posts.length === 0) {
+                    postsContainer.style.display = 'none';
+                    emptyState.style.display = 'block';
+                } else {
+                    emptyState.style.display = 'none';
+                    postsContainer.style.display = 'grid';
+                    postsContainer.innerHTML = '';
+
+                    posts.forEach(post => {
+                        postsContainer.appendChild(createPostCard(post));
+                    });
+                }
             } catch (err) {
                 console.error('Posts load error:', err);
             }
         }
 
-        function displayUserPosts(posts) {
-            document.getElementById('postCount').textContent = posts?.length || 0;
-            document.getElementById('totalViews').textContent = '0'; // placeholder
-            document.getElementById('profileViews').textContent = '0';
-
-            const postsContainer = document.getElementById('postsContainer');
-            const emptyState = document.getElementById('emptyPostsState');
-
-            if (!posts || posts.length === 0) {
-                postsContainer.style.display = 'none';
-                emptyState.style.display = 'block';
-            } else {
-                emptyState.style.display = 'none';
-                postsContainer.style.display = 'grid';
-                postsContainer.innerHTML = '';
-
-                posts.forEach(post => {
-                    postsContainer.appendChild(createPostCard(post));
-                });
-            }
-        }
-
+        // ------------------------------------------------------------------
+        // Create a post card element with edit/delete and data-post-id
+        // ------------------------------------------------------------------
         function createPostCard(post) {
             const card = document.createElement('div');
             card.className = `listing-card ${post.is_vip ? 'vip-card' : ''}`;
-            card.dataset.postId = post.id;
+            card.dataset.postId = post.id; // important for deletion
             
             const created = new Date(post.created_at);
-            const dateStr = created.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            const dateStr = created.toLocaleDateString('en-US', { 
+                month: 'short', 
+                day: 'numeric', 
+                year: 'numeric' 
+            });
 
             card.innerHTML = `
                 ${post.is_vip ? '<div class="vip-badge"><i class="fas fa-crown"></i> VIP</div>' : ''}
@@ -292,42 +322,57 @@
         }
 
         window.editPost = function(postId) {
-            window.location.href = `edit-post.html?id=${postId}`;
+            alert('Edit feature coming soon!');
         };
 
+        // ------------------------------------------------------------------
+        // Delete post – calls Vercel function to remove images and DB entry
+        // ------------------------------------------------------------------
         window.deletePost = async function(postId) {
-            if (!confirm('Are you sure you want to delete this post?')) return;
+            if (!confirm('Are you sure you want to delete this post? This action cannot be undone.')) return;
+
             try {
-                const { error } = await window.supabase
-                    .from('posts')
-                    .update({ status: 'deleted' })
-                    .eq('id', postId);
-                if (error) throw error;
-                
-                // Remove from UI and update cache
+                // Get current user
+                const { data: { user }, error: userError } = await window.supabase.auth.getUser();
+                if (userError || !user) {
+                    alert('You must be logged in to delete posts.');
+                    return;
+                }
+
+                const response = await fetch(DELETE_FUNCTION_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ postId, userId: user.id }),
+                });
+
+                const result = await response.json();
+                if (!response.ok) throw new Error(result.error || 'Deletion failed');
+
+                // Remove the card from UI
                 const card = document.querySelector(`.listing-card[data-post-id="${postId}"]`);
                 if (card) card.remove();
-                
+
                 // Update post count
                 const countEl = document.getElementById('postCount');
                 const current = parseInt(countEl.textContent) || 0;
                 countEl.textContent = Math.max(0, current - 1);
-                
-                // Update cache: remove the post from cached posts
-                const cachedPosts = getUserPosts();
-                if (cachedPosts) {
-                    const updated = cachedPosts.filter(p => p.id !== postId);
-                    setUserPosts(updated);
+
+                // Clear cache if cache.js is available
+                if (typeof clearCache === 'function') {
+                    clearCache(CACHE_KEYS.USER_POSTS);
                 }
-                
+
                 // If no posts left, show empty state
                 const postsContainer = document.getElementById('postsContainer');
                 if (postsContainer.children.length === 0) {
                     postsContainer.style.display = 'none';
                     document.getElementById('emptyPostsState').style.display = 'block';
                 }
+
+                alert('Post deleted successfully.');
             } catch (err) {
-                alert('Delete failed: ' + err.message);
+                console.error('Delete error:', err);
+                alert('Error: ' + err.message);
             }
         };
 
@@ -342,20 +387,11 @@
     <!-- Mobile menu close handler -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            var navbar = document.getElementById('navbar');
-            document.addEventListener('click', function(e) {
-                if (navbar.classList.contains('active') && !navbar.contains(e.target)) navbar.classList.remove('active');
-            });
-            var navLinks = document.getElementById('navLinks');
-            if (navLinks) {
-                navLinks.addEventListener('click', function(e) {
-                    if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON') navbar.classList.remove('active');
-                });
-            }
-            window.addEventListener('resize', function() {
-                if (window.innerWidth > 768) navbar.classList.remove('active');
+            const checkbox = document.getElementById('menu-toggle-checkbox');
+            document.getElementById('navLinks')?.addEventListener('click', (e) => {
+                if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON') checkbox.checked = false;
             });
         });
     </script>
 </body>
-</html>
+    </html>
