@@ -2,508 +2,66 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Post Details - LuxeCompanions</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="js/auth.js"></script>
     <style>
-        /* Additional styles for post detail */
-        .post-detail-container {
-            max-width: 1200px;
-            margin: 2rem auto;
-            padding: 0 1.5rem;
-        }
-
-        /* Desktop: two columns */
-        .post-layout {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-            overflow: hidden;
-        }
-
-        /* Left column: image carousel */
-        .post-images {
-            background: #f8f9fa;
-            padding: 1.5rem;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .carousel-container {
-            position: relative;
-            width: 100%;
-            aspect-ratio: 4/3;
-            overflow: hidden;
-            border-radius: 10px;
-        }
-
-        .carousel-track {
-            display: flex;
-            transition: transform 0.3s ease;
-            height: 100%;
-        }
-
-        .carousel-slide {
-            flex: 0 0 100%;
-            height: 100%;
-        }
-
-        .carousel-slide img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
-        }
-
-        .carousel-btn {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background: rgba(255,255,255,0.8);
-            border: none;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 1.2rem;
-            color: var(--primary-pink);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            z-index: 10;
-            transition: background 0.3s;
-        }
-
-        .carousel-btn:hover {
-            background: white;
-        }
-
-        .carousel-btn.prev {
-            left: 10px;
-        }
-
-        .carousel-btn.next {
-            right: 10px;
-        }
-
-        .carousel-dots {
-            display: flex;
-            justify-content: center;
-            gap: 8px;
-            margin-top: 1rem;
-        }
-
-        .dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: #ccc;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        .dot.active {
-            background: var(--primary-pink);
-        }
-
-        /* Right column: post info */
-        .post-info {
-            padding: 2rem;
-        }
-
-        .post-title {
-            font-size: 2.2rem;
-            color: var(--dark-pink);
-            margin-bottom: 0.5rem;
-        }
-
-        .post-meta {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1.5rem;
-            color: #666;
-            margin-bottom: 1.5rem;
-            font-size: 0.95rem;
-        }
-
-        .vip-badge-detail {
-            display: inline-block;
-            background: var(--gold);
-            color: white;
-            padding: 0.3rem 1rem;
-            border-radius: 30px;
-            font-weight: 600;
-            font-size: 0.9rem;
-        }
-
-        .post-description {
-            line-height: 1.8;
-            color: #333;
-            white-space: pre-wrap;
-        }
-
-        .description-preview {
-            max-height: 150px;
-            overflow: hidden;
-            transition: max-height 0.3s ease;
-        }
-
-        .description-expanded {
-            max-height: none;
-        }
-
-        .read-more-btn {
-            background: none;
-            border: none;
-            color: var(--primary-pink);
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: 0.5rem;
-            padding: 0;
-            font-size: 0.95rem;
-        }
-
-        .read-more-btn:hover {
-            text-decoration: underline;
-        }
-
-        .contact-info {
-            margin-top: 2rem;
-            padding-top: 1.5rem;
-            border-top: 2px solid var(--light-pink);
-        }
-
-        .contact-info h3 {
-            margin-bottom: 1rem;
-            color: var(--dark-pink);
-        }
-
-        .contact-detail {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            margin-bottom: 1rem;
-            background: var(--soft-pink);
-            padding: 0.8rem 1rem;
-            border-radius: 8px;
-        }
-
-        .contact-detail i {
-            font-size: 1.2rem;
-            color: var(--primary-pink);
-            width: 24px;
-        }
-
-        .contact-detail a {
-            color: var(--charcoal);
-            text-decoration: none;
-            flex: 1;
-            word-break: break-all;
-        }
-
-        .contact-detail button {
-            background: white;
-            border: 1px solid var(--primary-pink);
-            color: var(--primary-pink);
-            padding: 0.3rem 1rem;
-            border-radius: 20px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .contact-detail button:hover {
-            background: var(--primary-pink);
-            color: white;
-        }
-
-        .btn-back {
-            display: inline-block;
-            margin-top: 2rem;
-            background: transparent;
-            color: var(--primary-pink);
-            padding: 0.6rem 1.2rem;
-            border-radius: 30px;
-            text-decoration: none;
-            border: 2px solid var(--primary-pink);
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-
-        .btn-back:hover {
-            background: var(--primary-pink);
-            color: white;
-        }
-
-        .loading, .error {
-            text-align: center;
-            padding: 2rem;
-            color: var(--primary-pink);
-        }
-
-        .error {
-            background: #f8d7da;
-            color: #721c24;
-            border-radius: 8px;
-            margin: 2rem;
-        }
-
-        /* Mobile: single column */
-        @media (max-width: 768px) {
-            .post-layout {
-                grid-template-columns: 1fr;
-            }
-            .post-images {
-                padding: 1rem;
-            }
-            .post-info {
-                padding: 1.5rem;
-            }
-            .post-title {
-                font-size: 1.8rem;
-            }
-        }
-
-        /* Lightbox */
-        .lightbox {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.9);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 2000;
-            cursor: pointer;
-        }
-        .lightbox img {
-            max-width: 90%;
-            max-height: 90%;
-            object-fit: contain;
-        }
+        .post-container { max-width: 1200px; margin: 2rem auto; padding: 0 1.5rem; }
+        .post-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; background: white; border-radius: 15px; padding: 2rem; }
+        .post-images img { width: 100%; border-radius: 10px; }
+        .post-title { font-size: 2rem; color: var(--dark-pink); }
+        .post-meta { display: flex; gap: 1rem; color: #666; margin: 1rem 0; }
+        .vip-badge { background: var(--gold); color: white; padding: 0.2rem 1rem; border-radius: 20px; }
+        .post-description { line-height: 1.8; white-space: pre-wrap; }
+        .btn-back { display: inline-block; margin-top: 2rem; padding: 0.6rem 1.2rem; border: 2px solid var(--primary-pink); border-radius: 30px; color: var(--primary-pink); text-decoration: none; }
+        @media (max-width: 768px) { .post-layout { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="navbar" id="navbar">
-        <div class="nav-container">
-            <div class="logo"><i class="fas fa-gem"></i><span>LuxeCompanions</span></div>
-            <input type="checkbox" id="menu-toggle-checkbox">
-            <label for="menu-toggle-checkbox" class="menu-toggle" onclick="toggleMobileMenu()"><i class="fas fa-bars"></i></label>
-            <div class="nav-links" id="navLinks"></div>
-        </div>
-    </nav>
-
-    <main class="post-detail-container">
-        <div id="postContainer">
-            <!-- Content will be loaded here -->
-            <div class="loading">Loading post...</div>
-        </div>
-        <div style="text-align: center;">
-            <a href="index.html" class="btn-back"><i class="fas fa-arrow-left"></i> Back to Home</a>
-        </div>
+    <nav class="navbar">...</nav>
+    <main class="post-container" id="postContainer">
+        <div class="loading">Loading post...</div>
     </main>
-
-    <footer>...</footer>
-
     <script>
-        // Global variables for carousel
-        let currentImageIndex = 0;
-        let imageUrls = [];
-        let carouselTrack, dotsContainer;
-
-        // Lightbox function
-        window.openLightbox = function(imgSrc) {
-            const lightbox = document.createElement('div');
-            lightbox.className = 'lightbox';
-            lightbox.innerHTML = `<img src="${imgSrc}" alt="Enlarged image">`;
-            lightbox.onclick = function() { this.remove(); };
-            document.body.appendChild(lightbox);
-        };
-
-        // Initialize carousel after post is loaded
-        function initCarousel(images) {
-            imageUrls = images || [];
-            currentImageIndex = 0;
-            carouselTrack = document.querySelector('.carousel-track');
-            dotsContainer = document.querySelector('.carousel-dots');
-            if (!carouselTrack || imageUrls.length === 0) return;
-
-            // Build slides
-            carouselTrack.innerHTML = '';
-            imageUrls.forEach((url, index) => {
-                const slide = document.createElement('div');
-                slide.className = 'carousel-slide';
-                slide.innerHTML = `<img src="${url}" alt="Image ${index+1}" onclick="openLightbox('${url}')">`;
-                carouselTrack.appendChild(slide);
-            });
-
-            // Build dots
-            dotsContainer.innerHTML = '';
-            imageUrls.forEach((_, index) => {
-                const dot = document.createElement('span');
-                dot.className = 'dot';
-                dot.addEventListener('click', () => goToSlide(index));
-                dotsContainer.appendChild(dot);
-            });
-
-            updateCarousel();
-        }
-
-        function updateCarousel() {
-            if (!carouselTrack || imageUrls.length === 0) return;
-            const slideWidth = carouselTrack.children[0]?.offsetWidth || 0;
-            carouselTrack.style.transform = `translateX(-${currentImageIndex * slideWidth}px)`;
-
-            // Update dots
-            const dots = document.querySelectorAll('.dot');
-            dots.forEach((dot, index) => {
-                dot.classList.toggle('active', index === currentImageIndex);
-            });
-        }
-
-        function goToSlide(index) {
-            if (index < 0) index = 0;
-            if (index >= imageUrls.length) index = imageUrls.length - 1;
-            currentImageIndex = index;
-            updateCarousel();
-        }
-
-        window.nextImage = function() {
-            goToSlide(currentImageIndex + 1);
-        };
-
-        window.prevImage = function() {
-            goToSlide(currentImageIndex - 1);
-        };
-
-        // Touch swipe for mobile
-        let touchStartX = 0;
-        let touchEndX = 0;
-        function handleTouchStart(e) {
-            touchStartX = e.changedTouches[0].screenX;
-        }
-        function handleTouchEnd(e) {
-            touchEndX = e.changedTouches[0].screenX;
-            const diff = touchStartX - touchEndX;
-            if (Math.abs(diff) > 50) {
-                if (diff > 0) nextImage();
-                else prevImage();
-            }
-        }
-
-        // Description toggle
-        window.toggleDescription = function() {
-            const descDiv = document.getElementById('fullDescription');
-            const previewDiv = document.getElementById('descriptionPreview');
-            const btn = document.getElementById('readMoreBtn');
-            if (descDiv.style.display === 'none') {
-                descDiv.style.display = 'block';
-                previewDiv.style.display = 'none';
-                btn.textContent = 'Read less';
-            } else {
-                descDiv.style.display = 'none';
-                previewDiv.style.display = 'block';
-                btn.textContent = 'Read more';
-            }
-        };
-
         (async function() {
             const urlParams = new URLSearchParams(window.location.search);
             const postId = urlParams.get('id');
             const container = document.getElementById('postContainer');
-
-            if (!postId) {
-                container.innerHTML = '<div class="error">No post ID provided.</div>';
-                return;
-            }
-
-            if (!window.supabase) {
-                container.innerHTML = '<div class="error">Supabase client not loaded.</div>';
-                return;
-            }
-
+            if (!postId) { container.innerHTML = '<div class="error">No post ID</div>'; return; }
+            if (!window.supabase) { container.innerHTML = '<div class="error">Supabase not loaded</div>'; return; }
             try {
                 const { data: post, error } = await window.supabase
                     .from('posts')
                     .select('*, profiles(username)')
                     .eq('id', postId)
                     .single();
-
                 if (error) throw error;
                 if (!post) throw new Error('Post not found');
-
-                const created = new Date(post.created_at);
-                const dateStr = created.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-
-                // Prepare description preview and full version
-                const description = post.description || '';
-                const shortDesc = description.length > 200 ? description.substring(0, 200) + '...' : description;
-                const isLong = description.length > 200;
-
-                // Build contact info from description? You'll need to parse phone/email if you store them separately.
-                // For now, we'll just show description. You can enhance later.
-
+                const date = new Date(post.created_at).toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' });
                 container.innerHTML = `
                     <div class="post-layout">
                         <div class="post-images">
-                            <div class="carousel-container" 
-                                ontouchstart="handleTouchStart(event)" 
-                                ontouchend="handleTouchEnd(event)">
-                                <div class="carousel-track"></div>
-                                ${post.images && post.images.length > 1 ? `
-                                    <button class="carousel-btn prev" onclick="prevImage()"><i class="fas fa-chevron-left"></i></button>
-                                    <button class="carousel-btn next" onclick="nextImage()"><i class="fas fa-chevron-right"></i></button>
-                                ` : ''}
-                            </div>
-                            <div class="carousel-dots"></div>
+                            ${post.images && post.images[0] ? `<img src="${post.images[0]}" alt="Main image">` : '<div>No image</div>'}
                         </div>
                         <div class="post-info">
                             <h1 class="post-title">${escapeHtml(post.title)}</h1>
                             <div class="post-meta">
                                 <span><i class="fas fa-user"></i> ${escapeHtml(post.profiles?.username || 'Anonymous')}</span>
-                                <span><i class="fas fa-calendar"></i> ${dateStr}</span>
-                                ${post.is_vip ? '<span class="vip-badge-detail"><i class="fas fa-crown"></i> VIP</span>' : ''}
+                                <span><i class="fas fa-calendar"></i> ${date}</span>
+                                ${post.is_vip ? '<span class="vip-badge"><i class="fas fa-crown"></i> VIP</span>' : ''}
                             </div>
-                            <div class="post-description">
-                                <div id="descriptionPreview" style="display: ${isLong ? 'block' : 'none'};">${escapeHtml(shortDesc).replace(/\n/g, '<br>')}</div>
-                                <div id="fullDescription" style="display: ${isLong ? 'none' : 'block'};">${escapeHtml(description).replace(/\n/g, '<br>')}</div>
-                                ${isLong ? '<button id="readMoreBtn" class="read-more-btn" onclick="toggleDescription()">Read more</button>' : ''}
-                            </div>
-                            <!-- Contact info can be added here if you have separate fields -->
-                            <!-- For now, we'll just show the description -->
+                            <div class="post-description">${escapeHtml(post.description).replace(/\n/g, '<br>')}</div>
                         </div>
                     </div>
+                    <a href="index.html" class="btn-back"><i class="fas fa-arrow-left"></i> Back</a>
                 `;
-
-                // Initialize carousel
-                initCarousel(post.images || []);
-
-                // Re-attach touch events (they are inlined, but better to attach in JS)
-                const carousel = document.querySelector('.carousel-container');
-                if (carousel) {
-                    carousel.addEventListener('touchstart', handleTouchStart);
-                    carousel.addEventListener('touchend', handleTouchEnd);
-                }
-
-                // Handle window resize to update carousel
-                window.addEventListener('resize', () => updateCarousel());
-
             } catch (err) {
-                console.error('Error loading post:', err);
-                container.innerHTML = `<div class="error">Error loading post: ${err.message}</div>`;
+                container.innerHTML = `<div class="error">Error: ${err.message}</div>`;
             }
         })();
-
         function escapeHtml(text) {
             if (!text) return '';
             const div = document.createElement('div');
