@@ -40,6 +40,7 @@
             aspect-ratio: 4/3;
             overflow: hidden;
             border-radius: 10px;
+            touch-action: pan-y; /* allow vertical scroll, capture horizontal swipes */
         }
 
         .carousel-track {
@@ -257,12 +258,12 @@
     <footer>...</footer>
 
     <script>
-        // Global variables for carousel
+        // ========== GLOBAL CAROUSEL VARIABLES ==========
         let currentImageIndex = 0;
         let imageUrls = [];
         let carouselTrack, dotsContainer;
 
-        // Lightbox function
+        // Lightbox
         window.openLightbox = function(imgSrc) {
             const lightbox = document.createElement('div');
             lightbox.className = 'lightbox';
@@ -279,6 +280,7 @@
             dotsContainer = document.querySelector('.carousel-dots');
             if (!carouselTrack || imageUrls.length === 0) return;
 
+            // Build slides
             carouselTrack.innerHTML = '';
             imageUrls.forEach((url, index) => {
                 const slide = document.createElement('div');
@@ -287,6 +289,7 @@
                 carouselTrack.appendChild(slide);
             });
 
+            // Build dots
             dotsContainer.innerHTML = '';
             imageUrls.forEach((_, index) => {
                 const dot = document.createElement('span');
@@ -318,15 +321,42 @@
         window.nextImage = function() { goToSlide(currentImageIndex + 1); };
         window.prevImage = function() { goToSlide(currentImageIndex - 1); };
 
-        // Touch swipe
+        // ========== TOUCH HANDLING (robust) ==========
         let touchStartX = 0;
-        function handleTouchStart(e) { touchStartX = e.changedTouches[0].screenX; }
-        function handleTouchEnd(e) {
-            const diff = touchStartX - e.changedTouches[0].screenX;
-            if (Math.abs(diff) > 50) diff > 0 ? nextImage() : prevImage();
+        let touchStartY = 0;
+        let touchMoved = false;
+
+        function handleTouchStart(e) {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+            touchMoved = false;
         }
 
-        // Description toggle
+        function handleTouchMove(e) {
+            if (!touchMoved) {
+                const dx = e.touches[0].clientX - touchStartX;
+                const dy = e.touches[0].clientY - touchStartY;
+                // If horizontal movement is greater than vertical, it's a swipe attempt
+                if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 10) {
+                    e.preventDefault(); // prevent page scroll
+                    touchMoved = true;
+                }
+            }
+        }
+
+        function handleTouchEnd(e) {
+            if (!touchMoved) return;
+            const diffX = touchStartX - e.changedTouches[0].clientX;
+            if (Math.abs(diffX) > 50) {
+                if (diffX > 0) {
+                    nextImage();
+                } else {
+                    prevImage();
+                }
+            }
+        }
+
+        // ========== DESCRIPTION TOGGLE ==========
         window.toggleDescription = function() {
             const descDiv = document.getElementById('fullDescription');
             const previewDiv = document.getElementById('descriptionPreview');
@@ -342,7 +372,7 @@
             }
         };
 
-        // Escape HTML
+        // ========== ESCAPE HTML ==========
         function escapeHtml(text) {
             if (!text) return '';
             const div = document.createElement('div');
@@ -350,7 +380,7 @@
             return div.innerHTML;
         }
 
-        // Main
+        // ========== MAIN LOADER ==========
         (async function() {
             const urlParams = new URLSearchParams(window.location.search);
             const postId = urlParams.get('id');
@@ -399,9 +429,7 @@
                 let html = `
                     <div class="post-layout">
                         <div class="post-images">
-                            <div class="carousel-container" 
-                                ontouchstart="handleTouchStart(event)" 
-                                ontouchend="handleTouchEnd(event)">
+                            <div class="carousel-container" id="carouselContainer">
                                 <div class="carousel-track"></div>
                                 ${post.images && post.images.length > 1 ? `
                                     <button class="carousel-btn prev" onclick="prevImage()"><i class="fas fa-chevron-left"></i></button>
@@ -432,10 +460,11 @@
                 // Initialize carousel
                 initCarousel(post.images || []);
 
-                // Attach touch events
-                const carousel = document.querySelector('.carousel-container');
+                // Attach touch handlers
+                const carousel = document.getElementById('carouselContainer');
                 if (carousel) {
-                    carousel.addEventListener('touchstart', handleTouchStart);
+                    carousel.addEventListener('touchstart', handleTouchStart, { passive: false });
+                    carousel.addEventListener('touchmove', handleTouchMove, { passive: false });
                     carousel.addEventListener('touchend', handleTouchEnd);
                 }
 
