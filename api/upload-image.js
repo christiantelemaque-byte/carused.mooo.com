@@ -43,28 +43,31 @@ export default async function handler(req, res) {
     formData.append('github_branch', process.env.PICSER_GITHUB_BRANCH || 'main');
     formData.append('folder', process.env.PICSER_FOLDER || 'uploads');
 
+    console.log('Sending to Picser:', {
+      url: PICSER_URL,
+      filename,
+      owner: process.env.PICSER_GITHUB_OWNER,
+      repo: process.env.PICSER_GITHUB_REPO,
+      branch: process.env.PICSER_GITHUB_BRANCH,
+      folder: process.env.PICSER_FOLDER,
+    });
+
     const response = await fetch(PICSER_URL, { method: 'POST', body: formData });
     const responseText = await response.text();
+    console.log('Picser response status:', response.status);
+    console.log('Picser response body:', responseText);
 
     if (!response.ok) {
-      console.error('Picser error response:', response.status, responseText);
       throw new Error(`Picser error: ${response.status} - ${responseText}`);
     }
 
     const json = JSON.parse(responseText);
-    console.log('Picser JSON:', json);
-
-    // Correct path: data.urls.jsdelivr_commit (or data.urls.jsdelivr)
     const url = json?.data?.urls?.jsdelivr_commit || json?.data?.urls?.jsdelivr;
-    if (!url) {
-      console.error('No URL found in response:', json);
-      throw new Error('No URL from Picser');
-    }
+    if (!url) throw new Error('No URL from Picser');
 
-    console.log('Extracted URL:', url);
     res.status(200).json({ success: true, url });
   } catch (error) {
     console.error('Upload error:', error);
     res.status(500).json({ error: error.message });
   }
-}
+                }
