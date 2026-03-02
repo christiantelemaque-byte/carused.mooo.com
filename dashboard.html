@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
-    <!-- Critical mobile menu CSS and responsive modal styles -->
+    <!-- Critical mobile menu CSS and responsive modal styles with !important -->
     <style>
         #menu-toggle-checkbox {
             display: none !important;
@@ -50,102 +50,102 @@
             }
         }
 
-        /* ===== RESPONSIVE MODAL STYLES (FIXED) ===== */
+        /* ===== RESPONSIVE MODAL STYLES – FORTIFIED WITH !IMPORTANT ===== */
         .modal {
-            display: none;
-            position: fixed;
-            z-index: 2000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.5);
-            align-items: center;
-            justify-content: center;
-            padding: 1rem;
-            box-sizing: border-box;
+            display: none !important;
+            position: fixed !important;
+            z-index: 2000 !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            background-color: rgba(0,0,0,0.5) !important;
+            align-items: center !important;
+            justify-content: center !important;
+            padding: 1rem !important;
+            box-sizing: border-box !important;
         }
         .modal.show {
-            display: flex;
+            display: flex !important;
         }
         .modal-content {
-            background: white;
-            padding: 2rem;
-            border-radius: 15px;
-            max-width: 500px;
-            width: 100%;
-            max-height: 90vh;
-            overflow-y: auto;
-            position: relative;
-            box-sizing: border-box;
+            background: white !important;
+            padding: 2rem !important;
+            border-radius: 15px !important;
+            max-width: 500px !important;
+            width: 100% !important;
+            max-height: 90vh !important;
+            overflow-y: auto !important;
+            position: relative !important;
+            box-sizing: border-box !important;
         }
         @media (max-width: 480px) {
             .modal-content {
-                padding: 1.5rem;
+                padding: 1.5rem !important;
             }
         }
         .close {
-            position: absolute;
-            right: 15px;
-            top: 10px;
-            font-size: 28px;
-            cursor: pointer;
-            color: var(--primary-pink);
-            line-height: 1;
+            position: absolute !important;
+            right: 15px !important;
+            top: 10px !important;
+            font-size: 28px !important;
+            cursor: pointer !important;
+            color: var(--primary-pink) !important;
+            line-height: 1 !important;
         }
         .contact-form .form-group {
-            margin-bottom: 1.5rem;
+            margin-bottom: 1.5rem !important;
         }
         .contact-form label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
+            display: block !important;
+            margin-bottom: 0.5rem !important;
+            font-weight: 500 !important;
         }
         .contact-form input,
         .contact-form textarea {
-            width: 100%;
-            padding: 0.8rem;
-            border: 2px solid var(--light-pink);
-            border-radius: 8px;
-            font-size: 1rem;
-            box-sizing: border-box;
+            width: 100% !important;
+            padding: 0.8rem !important;
+            border: 2px solid var(--light-pink) !important;
+            border-radius: 8px !important;
+            font-size: 1rem !important;
+            box-sizing: border-box !important;
         }
         .contact-form textarea {
-            min-height: 100px;
-            resize: vertical;
+            min-height: 100px !important;
+            resize: vertical !important;
         }
         .contact-form button {
-            width: 100%;
-            padding: 1rem;
-            background: linear-gradient(135deg, var(--primary-pink), var(--dark-pink));
-            color: white;
-            border: none;
-            border-radius: 30px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.3s;
+            width: 100% !important;
+            padding: 1rem !important;
+            background: linear-gradient(135deg, var(--primary-pink), var(--dark-pink)) !important;
+            color: white !important;
+            border: none !important;
+            border-radius: 30px !important;
+            font-weight: 600 !important;
+            cursor: pointer !important;
+            transition: transform 0.3s !important;
         }
         .contact-form button:hover {
-            transform: translateY(-2px);
+            transform: translateY(-2px) !important;
         }
         .contact-form button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
+            opacity: 0.5 !important;
+            cursor: not-allowed !important;
         }
         .contact-message {
-            margin-top: 1rem;
-            text-align: center;
-            font-size: 0.9rem;
-            word-wrap: break-word;
+            margin-top: 1rem !important;
+            text-align: center !important;
+            font-size: 0.9rem !important;
+            word-wrap: break-word !important;
         }
         .contact-message.success {
-            color: #28a745;
+            color: #28a745 !important;
         }
         .contact-message.error {
-            color: #dc3545;
+            color: #dc3545 !important;
         }
 
-        /* Dashboard styles (original) */
+        /* Dashboard styles (original, without !important) */
         .dashboard-main {
             padding: 2rem 1.5rem;
             background: var(--soft-pink);
