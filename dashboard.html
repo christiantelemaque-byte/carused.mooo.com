@@ -47,7 +47,7 @@
                 box-shadow: none !important;
             }
         }
-        /* Modal styles (same as index) */
+        /* Modal styles - fully responsive */
         .modal {
             display: none;
             position: fixed;
@@ -59,6 +59,8 @@
             background-color: rgba(0,0,0,0.5);
             align-items: center;
             justify-content: center;
+            padding: 1rem;
+            box-sizing: border-box;
         }
         .modal.show {
             display: flex;
@@ -68,18 +70,26 @@
             padding: 2rem;
             border-radius: 15px;
             max-width: 500px;
-            width: 90%;
+            width: 100%;
             max-height: 90vh;
             overflow-y: auto;
             position: relative;
+            box-sizing: border-box;
+            margin: auto;
+        }
+        @media (max-width: 480px) {
+            .modal-content {
+                padding: 1.5rem;
+            }
         }
         .close {
             position: absolute;
-            right: 20px;
-            top: 15px;
+            right: 15px;
+            top: 10px;
             font-size: 28px;
             cursor: pointer;
             color: var(--primary-pink);
+            line-height: 1;
         }
         .contact-form .form-group {
             margin-bottom: 1.5rem;
@@ -96,6 +106,7 @@
             border: 2px solid var(--light-pink);
             border-radius: 8px;
             font-size: 1rem;
+            box-sizing: border-box;
         }
         .contact-form textarea {
             min-height: 100px;
@@ -123,6 +134,7 @@
             margin-top: 1rem;
             text-align: center;
             font-size: 0.9rem;
+            word-wrap: break-word;
         }
         .contact-message.success {
             color: #28a745;
@@ -335,7 +347,7 @@
     </script>
 </head>
 <body>
-    <!-- Navigation (same as index) -->
+    <!-- Navigation -->
     <nav class="navbar" id="navbar">
         <div class="nav-container">
             <div class="logo"><i class="fas fa-gem"></i><span>LuxeCompanions</span></div>
@@ -345,7 +357,7 @@
         </div>
     </nav>
 
-    <!-- Dashboard Main Content (original restored) -->
+    <!-- Dashboard Main Content -->
     <main class="dashboard-main">
         <div class="dashboard-container">
             <div class="dashboard-header">
@@ -482,7 +494,7 @@
     <script src="js/auth.js"></script>
     <script src="js/app.js"></script>
     <script>
-        // ---------- DASHBOARD CONTROLLER (original) ----------
+        // Dashboard controller (original)
         document.addEventListener('DOMContentLoaded', async function() {
             console.log('Dashboard initializing...');
             
@@ -696,7 +708,7 @@
             return div.innerHTML;
         }
 
-        // ---------- Mobile menu and auth handling (fixed) ----------
+        // Mobile menu and auth handling (fixed)
         document.addEventListener('DOMContentLoaded', function() {
             const checkbox = document.getElementById('menu-toggle-checkbox');
             const mobileMenu = document.getElementById('mobileMenu');
@@ -715,7 +727,6 @@
                     if (!target) return;
                     checkbox.checked = false;
 
-                    // Only intercept buttons that are login/signup; let anchor links navigate normally
                     if (target.tagName === 'BUTTON' && (target.classList.contains('btn-login') || target.classList.contains('btn-primary'))) {
                         e.preventDefault();
                         if (typeof window.openAuthModal === 'function') {
@@ -732,7 +743,7 @@
             });
         });
 
-        // ---------- Contact modal script (same as index) ----------
+        // Contact modal script
         const modal = document.getElementById('contactModal');
         const btn = document.getElementById('contactBtn');
         const closeBtn = document.getElementById('closeModal');
@@ -786,4 +797,4 @@
         });
     </script>
 </body>
-  </html>
+                    </html>
