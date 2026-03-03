@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
-    <!-- Critical mobile menu CSS -->
+    <!-- Critical mobile menu CSS and responsive modal styles -->
     <style>
         #menu-toggle-checkbox {
             display: none !important;
@@ -48,7 +48,7 @@
                 box-shadow: none !important;
             }
         }
-        /* Modal styles */
+        /* Responsive modal styles */
         .modal {
             display: none;
             position: fixed;
@@ -60,6 +60,8 @@
             background-color: rgba(0,0,0,0.5);
             align-items: center;
             justify-content: center;
+            padding: 1rem;
+            box-sizing: border-box;
         }
         .modal.show {
             display: flex;
@@ -69,18 +71,25 @@
             padding: 2rem;
             border-radius: 15px;
             max-width: 500px;
-            width: 90%;
+            width: 100%;
             max-height: 90vh;
             overflow-y: auto;
             position: relative;
+            box-sizing: border-box;
+        }
+        @media (max-width: 480px) {
+            .modal-content {
+                padding: 1.5rem;
+            }
         }
         .close {
             position: absolute;
-            right: 20px;
-            top: 15px;
+            right: 15px;
+            top: 10px;
             font-size: 28px;
             cursor: pointer;
             color: var(--primary-pink);
+            line-height: 1;
         }
         .contact-form .form-group {
             margin-bottom: 1.5rem;
@@ -97,6 +106,7 @@
             border: 2px solid var(--light-pink);
             border-radius: 8px;
             font-size: 1rem;
+            box-sizing: border-box;
         }
         .contact-form textarea {
             min-height: 100px;
@@ -124,6 +134,7 @@
             margin-top: 1rem;
             text-align: center;
             font-size: 0.9rem;
+            word-wrap: break-word;
         }
         .contact-message.success {
             color: #28a745;
@@ -132,10 +143,8 @@
             color: #dc3545;
         }
     </style>
-    <!-- Supabase and auth -->
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="js/cache.js"></script>
-    <!-- Define global openAuthModal fallback -->
     <script>
         window.openAuthModal = window.openAuthModal || function() {
             console.log('openAuthModal called (fallback)');
@@ -146,22 +155,15 @@
     </script>
 </head>
 <body>
-    <!-- Navigation -->
     <nav class="navbar" id="navbar">
         <div class="nav-container">
-            <div class="logo">
-                <i class="fas fa-gem"></i>
-                <span>LuxeCompanions</span>
-            </div>
+            <div class="logo"><i class="fas fa-gem"></i><span>LuxeCompanions</span></div>
             <input type="checkbox" id="menu-toggle-checkbox">
-            <label for="menu-toggle-checkbox" class="menu-toggle" id="mobileMenu">
-                <i class="fas fa-bars"></i>
-            </label>
+            <label for="menu-toggle-checkbox" class="menu-toggle" id="mobileMenu"><i class="fas fa-bars"></i></label>
             <div class="nav-links" id="navLinks"></div>
         </div>
     </nav>
 
-    <!-- Hero Section -->
     <section class="hero">
         <div class="hero-content">
             <h1>Elegant Connections for Discerning Individuals</h1>
@@ -173,129 +175,69 @@
         </div>
     </section>
 
-    <!-- VIP Section -->
     <section id="vip" class="vip-section">
         <div class="section-header">
             <h2><i class="fas fa-crown"></i> VIP Elite Companions</h2>
             <p>Premium listings for our most exclusive members</p>
         </div>
-        <div class="listings-grid" id="vip-listings">
-            <div class="loading">Loading VIP listings...</div>
-        </div>
+        <div class="listings-grid" id="vip-listings"><div class="loading">Loading VIP listings...</div></div>
     </section>
 
-    <!-- Regular Listings -->
     <section id="regular" class="regular-section">
         <div class="section-header">
             <h2><i class="fas fa-star"></i> Recent Companions</h2>
             <p>Latest additions to our community</p>
         </div>
-        <div class="listings-grid" id="regular-listings">
-            <div class="loading">Loading recent listings...</div>
-        </div>
+        <div class="listings-grid" id="regular-listings"><div class="loading">Loading recent listings...</div></div>
     </section>
 
-    <!-- How It Works -->
     <section id="how-it-works" class="how-it-works">
         <h2>How It Works</h2>
         <div class="steps">
-            <div class="step">
-                <div class="step-icon">1</div>
-                <h3>Create Account</h3>
-                <p>Sign up for free with basic information</p>
-            </div>
-            <div class="step">
-                <div class="step-icon">2</div>
-                <h3>Choose Subscription</h3>
-                <p>Select VIP ($20/month) or Regular ($10/month) plan</p>
-            </div>
-            <div class="step">
-                <div class="step-icon">3</div>
-                <h3>Post Your Profile</h3>
-                <p>Create your elegant listing with photos and details</p>
-            </div>
-            <div class="step">
-                <div class="step-icon">4</div>
-                <h3>Manage Listings</h3>
-                <p>Edit, update, or remove your posts anytime</p>
-            </div>
+            <div class="step"><div class="step-icon">1</div><h3>Create Account</h3><p>Sign up for free with basic information</p></div>
+            <div class="step"><div class="step-icon">2</div><h3>Choose Subscription</h3><p>Select VIP ($20/month) or Regular ($10/month) plan</p></div>
+            <div class="step"><div class="step-icon">3</div><h3>Post Your Profile</h3><p>Create your elegant listing with photos and details</p></div>
+            <div class="step"><div class="step-icon">4</div><h3>Manage Listings</h3><p>Edit, update, or remove your posts anytime</p></div>
         </div>
     </section>
 
-    <!-- Footer -->
     <footer>
         <div class="footer-content">
-            <div class="footer-section">
-                <h3>LuxeCompanions</h3>
-                <p>An exclusive platform for sophisticated companionship connections.</p>
-            </div>
-            <div class="footer-section">
-                <h4>Important</h4>
-                <ul>
-                    <li><a href="#terms">Terms of Service</a></li>
-                    <li><a href="#privacy">Privacy Policy</a></li>
-                    <li><a href="#age">Age Verification</a></li>
-                    <li><a href="#safety">Safety Guidelines</a></li>
-                </ul>
-            </div>
-            <div class="footer-section">
-                <h4>Contact</h4>
-                <button id="contactBtn" class="btn-contact" style="background: none; border: none; color: #ccc; cursor: pointer; padding: 0; font-size: inherit; text-decoration: underline;">Contact us</button>
-            </div>
+            <div class="footer-section"><h3>LuxeCompanions</h3><p>An exclusive platform for sophisticated companionship connections.</p></div>
+            <div class="footer-section"><h4>Important</h4><ul><li><a href="#terms">Terms of Service</a></li><li><a href="#privacy">Privacy Policy</a></li><li><a href="#age">Age Verification</a></li><li><a href="#safety">Safety Guidelines</a></li></ul></div>
+            <div class="footer-section"><h4>Contact</h4><button id="contactBtn" class="btn-contact" style="background:none; border:none; color:#ccc; cursor:pointer; padding:0; font-size:inherit; text-decoration:underline;">Contact us</button></div>
         </div>
-        <div class="footer-bottom">
-            <p>© 2024 LuxeCompanions. Must be 18+ to access. All rights reserved.</p>
-            <p class="disclaimer">This website is for legal companionship services only. Users must comply with all applicable laws.</p>
-        </div>
+        <div class="footer-bottom"><p>© 2024 LuxeCompanions. Must be 18+ to access. All rights reserved.</p><p class="disclaimer">This website is for legal companionship services only. Users must comply with all applicable laws.</p></div>
     </footer>
 
-    <!-- Auth Modal -->
     <div id="authModal" class="modal" style="display: none;">
-        <div class="modal-content">
-            <span class="close" onclick="document.getElementById('authModal').style.display='none'">&times;</span>
-            <div id="authForms">
-                <!-- Login/Register forms will be loaded by auth.js -->
-                <div style="text-align: center; padding: 20px;">Loading...</div>
-            </div>
-        </div>
+        <div class="modal-content"><span class="close" onclick="document.getElementById('authModal').style.display='none'">&times;</span><div id="authForms"><div style="text-align:center; padding:20px;">Loading...</div></div></div>
     </div>
 
-    <!-- Contact Modal -->
     <div id="contactModal" class="modal">
         <div class="modal-content">
             <span class="close" id="closeModal">&times;</span>
             <h2 style="color: var(--dark-pink); margin-bottom: 1.5rem;">Contact Us</h2>
             <form id="contactForm" class="contact-form">
-                <div class="form-group">
-                    <label for="contactName">Full Name *</label>
-                    <input type="text" id="contactName" required>
-                </div>
-                <div class="form-group">
-                    <label for="contactEmail">Email *</label>
-                    <input type="email" id="contactEmail" required>
-                </div>
-                <div class="form-group">
-                    <label for="contactMessage">Message *</label>
-                    <textarea id="contactMessage" required></textarea>
-                </div>
+                <div class="form-group"><label for="contactName">Full Name *</label><input type="text" id="contactName" required></div>
+                <div class="form-group"><label for="contactEmail">Email *</label><input type="email" id="contactEmail" required></div>
+                <div class="form-group"><label for="contactMessage">Message *</label><textarea id="contactMessage" required></textarea></div>
                 <button type="submit" id="contactSubmit">Send Message</button>
                 <div id="contactStatus" class="contact-message"></div>
             </form>
         </div>
     </div>
 
-    <!-- JavaScript files -->
     <script src="js/app.js"></script>
     <script src="js/auth.js"></script>
-    
-    <!-- Mobile menu and auth handling -->
+
+    <!-- Mobile menu and auth handling (only intercept btn-login buttons) -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const checkbox = document.getElementById('menu-toggle-checkbox');
             const mobileMenu = document.getElementById('mobileMenu');
             const navLinks = document.getElementById('navLinks');
 
-            // Toggle menu on hamburger click
             if (mobileMenu && checkbox) {
                 mobileMenu.addEventListener('click', function(e) {
                     e.preventDefault();
@@ -303,37 +245,30 @@
                 });
             }
 
-            // Handle clicks inside menu – close menu and open auth modal if needed
             if (navLinks) {
                 navLinks.addEventListener('click', function(e) {
                     const target = e.target.closest('a, button');
                     if (!target) return;
-
-                    // Close menu
                     checkbox.checked = false;
 
-                    // If it's login/signup, open auth modal
-                    if (target.classList.contains('btn-login') || target.classList.contains('btn-primary')) {
+                    // Only intercept button with class 'btn-login' (the login button)
+                    if (target.tagName === 'BUTTON' && target.classList.contains('btn-login')) {
                         e.preventDefault();
                         if (typeof window.openAuthModal === 'function') {
                             window.openAuthModal();
                         } else {
-                            // Fallback: show modal directly
                             document.getElementById('authModal').style.display = 'block';
                         }
                     }
+                    // Other buttons (signup, logout) rely on their onclick attributes
+                    // Anchor links (Dashboard, Profile) navigate normally
                 });
             }
 
-            // Close menu on window resize above mobile
             window.addEventListener('resize', function() {
-                if (window.innerWidth > 768 && checkbox) {
-                    checkbox.checked = false;
-                }
+                if (window.innerWidth > 768 && checkbox) checkbox.checked = false;
             });
         });
-
-        // Hero button already has inline onclick, so it's covered.
     </script>
 
     <!-- Contact modal script -->
@@ -345,16 +280,12 @@
         const submitBtn = document.getElementById('contactSubmit');
         const statusDiv = document.getElementById('contactStatus');
 
-        btn.addEventListener('click', () => {
-            modal.classList.add('show');
-        });
-
+        btn.addEventListener('click', () => modal.classList.add('show'));
         closeBtn.addEventListener('click', () => {
             modal.classList.remove('show');
             form.reset();
             statusDiv.textContent = '';
         });
-
         window.addEventListener('click', (e) => {
             if (e.target === modal) {
                 modal.classList.remove('show');
@@ -368,27 +299,22 @@
             statusDiv.textContent = 'Sending...';
             statusDiv.className = 'contact-message';
             submitBtn.disabled = true;
-
             const name = document.getElementById('contactName').value.trim();
             const email = document.getElementById('contactEmail').value.trim();
             const message = document.getElementById('contactMessage').value.trim();
-
             let userId = null;
             if (window.supabase) {
                 const { data: { user } } = await window.supabase.auth.getUser();
                 userId = user?.id || null;
             }
-
             try {
                 const response = await fetch('https://carused-mooo-com.vercel.app/api/contact', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ name, email, message, userId })
                 });
-
                 const result = await response.json();
                 if (!response.ok) throw new Error(result.error || 'Failed to send message');
-
                 statusDiv.textContent = 'Message sent successfully! We\'ll get back to you soon.';
                 statusDiv.className = 'contact-message success';
                 form.reset();
@@ -401,4 +327,4 @@
         });
     </script>
 </body>
-                                            </html>
+    </html>
