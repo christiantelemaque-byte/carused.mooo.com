@@ -7,19 +7,11 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
-    <!-- Critical fix: universal box-sizing and responsive modal -->
+    <!-- Critical fixes: universal box-sizing and responsive modal -->
     <style>
-        /* Universal box-sizing to prevent width overflow */
-        * {
-            box-sizing: border-box;
-        }
-        html, body {
-            max-width: 100%;
-            overflow-x: hidden; /* prevents any accidental horizontal scroll */
-        }
-        #menu-toggle-checkbox {
-            display: none !important;
-        }
+        * { box-sizing: border-box; }
+        html, body { max-width: 100%; overflow-x: hidden; }
+        #menu-toggle-checkbox { display: none !important; }
         @media (max-width: 768px) {
             .nav-links {
                 display: none !important;
@@ -34,29 +26,14 @@
                 box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
                 z-index: 1000 !important;
             }
-            #menu-toggle-checkbox:checked ~ .nav-links {
-                display: flex !important;
-            }
-            .menu-toggle {
-                display: block !important;
-                font-size: 1.8rem;
-                color: var(--primary-pink);
-                cursor: pointer;
-                padding: 0.5rem;
-            }
+            #menu-toggle-checkbox:checked ~ .nav-links { display: flex !important; }
+            .menu-toggle { display: block !important; font-size: 1.8rem; color: var(--primary-pink); cursor: pointer; padding: 0.5rem; }
         }
         @media (min-width: 769px) {
-            .menu-toggle {
-                display: none !important;
-            }
-            .nav-links {
-                display: flex !important;
-                position: static !important;
-                box-shadow: none !important;
-            }
+            .menu-toggle { display: none !important; }
+            .nav-links { display: flex !important; position: static !important; box-shadow: none !important; }
         }
-
-        /* ===== FORTIFIED RESPONSIVE MODAL STYLES ===== */
+        /* Responsive modal styles with !important */
         .modal {
             display: none !important;
             position: fixed !important;
@@ -71,9 +48,7 @@
             padding: 1rem !important;
             box-sizing: border-box !important;
         }
-        .modal.show {
-            display: flex !important;
-        }
+        .modal.show { display: flex !important; }
         .modal-content {
             background: white !important;
             padding: 2rem !important;
@@ -86,30 +61,11 @@
             box-sizing: border-box !important;
             margin: auto !important;
         }
-        @media (max-width: 480px) {
-            .modal-content {
-                padding: 1.5rem !important;
-            }
-        }
-        .close {
-            position: absolute !important;
-            right: 15px !important;
-            top: 10px !important;
-            font-size: 28px !important;
-            cursor: pointer !important;
-            color: var(--primary-pink) !important;
-            line-height: 1 !important;
-        }
-        .contact-form .form-group {
-            margin-bottom: 1.5rem !important;
-        }
-        .contact-form label {
-            display: block !important;
-            margin-bottom: 0.5rem !important;
-            font-weight: 500 !important;
-        }
-        .contact-form input,
-        .contact-form textarea {
+        @media (max-width: 480px) { .modal-content { padding: 1.5rem !important; } }
+        .close { position: absolute !important; right: 15px !important; top: 10px !important; font-size: 28px !important; cursor: pointer !important; color: var(--primary-pink) !important; line-height: 1 !important; }
+        .contact-form .form-group { margin-bottom: 1.5rem !important; }
+        .contact-form label { display: block !important; margin-bottom: 0.5rem !important; font-weight: 500 !important; }
+        .contact-form input, .contact-form textarea {
             width: 100% !important;
             padding: 0.8rem !important;
             border: 2px solid var(--light-pink) !important;
@@ -117,10 +73,7 @@
             font-size: 1rem !important;
             box-sizing: border-box !important;
         }
-        .contact-form textarea {
-            min-height: 100px !important;
-            resize: vertical !important;
-        }
+        .contact-form textarea { min-height: 100px !important; resize: vertical !important; }
         .contact-form button {
             width: 100% !important;
             padding: 1rem !important;
@@ -132,221 +85,51 @@
             cursor: pointer !important;
             transition: transform 0.3s !important;
         }
-        .contact-form button:hover {
-            transform: translateY(-2px) !important;
-        }
-        .contact-form button:disabled {
-            opacity: 0.5 !important;
-            cursor: not-allowed !important;
-        }
-        .contact-message {
-            margin-top: 1rem !important;
-            text-align: center !important;
-            font-size: 0.9rem !important;
-            word-wrap: break-word !important;
-        }
-        .contact-message.success {
-            color: #28a745 !important;
-        }
-        .contact-message.error {
-            color: #dc3545 !important;
-        }
+        .contact-form button:hover { transform: translateY(-2px) !important; }
+        .contact-form button:disabled { opacity: 0.5 !important; cursor: not-allowed !important; }
+        .contact-message { margin-top: 1rem !important; text-align: center !important; font-size: 0.9rem !important; word-wrap: break-word !important; }
+        .contact-message.success { color: #28a745 !important; }
+        .contact-message.error { color: #dc3545 !important; }
 
         /* Dashboard styles (original) */
-        .dashboard-main {
-            padding: 2rem 1.5rem;
-            background: var(--soft-pink);
-            min-height: calc(100vh - 200px);
-            max-width: 100%;
-            overflow-x: hidden;
-        }
-        .dashboard-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            width: 100%;
-        }
-        .dashboard-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-            flex-wrap: wrap;
-        }
-        .welcome-section h1 {
-            font-size: 2rem;
-            margin-bottom: 0.25rem;
-            color: var(--dark-pink);
-        }
-        .member-since {
-            color: #666;
-            font-size: 0.9rem;
-        }
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1.5rem;
-            margin-bottom: 2.5rem;
-        }
-        .dashboard-card {
-            background: white;
-            border-radius: 15px;
-            padding: 1.75rem;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-        }
-        .card-header {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            margin-bottom: 1.25rem;
-        }
-        .card-header i {
-            font-size: 1.5rem;
-            color: var(--primary-pink);
-        }
-        .card-header h2 {
-            font-size: 1.25rem;
-            margin: 0;
-        }
-        .subscription-details .badge {
-            display: inline-block;
-            padding: 0.4rem 1rem;
-            border-radius: 30px;
-            font-weight: 600;
-            font-size: 0.85rem;
-            letter-spacing: 0.5px;
-            margin-bottom: 0.75rem;
-        }
-        .badge.vip {
-            background: linear-gradient(135deg, var(--gold), #ffd700);
-            color: white;
-        }
-        .badge.regular {
-            background: linear-gradient(135deg, var(--primary-pink), var(--dark-pink));
-            color: white;
-        }
-        .subscription-inactive .no-subscription {
-            font-size: 1rem;
-            font-weight: 600;
-            color: var(--charcoal);
-            margin-bottom: 0.25rem;
-        }
-        .subscription-inactive .sub-required {
-            color: #666;
-            font-size: 0.9rem;
-        }
-        .expiry {
-            color: #666;
-            font-size: 0.9rem;
-            margin-top: 0.25rem;
-        }
-        .card-action {
-            margin-top: 1.25rem;
-        }
-        .btn-secondary {
-            background: transparent;
-            color: var(--primary-pink);
-            padding: 0.6rem 1.2rem;
-            border-radius: 30px;
-            text-decoration: none;
-            border: 2px solid var(--primary-pink);
-            font-weight: 600;
-            transition: all 0.3s;
-            display: inline-block;
-        }
-        .btn-secondary:hover {
-            background: var(--primary-pink);
-            color: white;
-        }
-        .stats-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 1rem;
-            text-align: center;
-        }
-        .stat-value {
-            display: block;
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: var(--dark-pink);
-            line-height: 1.2;
-        }
-        .stat-label {
-            font-size: 0.85rem;
-            color: #666;
-        }
-        .user-posts-section {
-            margin-top: 2rem;
-        }
-        .posts-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 1.5rem;
-            margin-top: 1.5rem;
-        }
-        .post-actions {
-            display: flex;
-            gap: 1rem;
-            margin-top: 1rem;
-            padding-top: 1rem;
-            border-top: 1px solid var(--light-pink);
-        }
-        .btn-edit,
-        .btn-delete {
-            background: none;
-            border: none;
-            font-size: 0.9rem;
-            cursor: pointer;
-            padding: 0.25rem 0.5rem;
-            border-radius: 5px;
-            transition: background 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 0.25rem;
-        }
-        .btn-edit {
-            color: var(--primary-pink);
-        }
-        .btn-edit:hover {
-            background: rgba(255, 107, 139, 0.1);
-        }
-        .btn-delete {
-            color: #dc3545;
-        }
-        .btn-delete:hover {
-            background: rgba(220, 53, 69, 0.1);
-        }
-        .empty-state {
-            text-align: center;
-            padding: 3rem;
-            background: white;
-            border-radius: 15px;
-            margin-top: 1.5rem;
-        }
-        .empty-state i {
-            font-size: 3rem;
-            color: var(--light-pink);
-            margin-bottom: 1rem;
-        }
-        .empty-state h3 {
-            margin-bottom: 0.5rem;
-            color: var(--charcoal);
-        }
-        .empty-state p {
-            color: #666;
-            margin-bottom: 1.5rem;
-        }
-        .loading-spinner {
-            display: inline-block;
-            width: 30px;
-            height: 30px;
-            border: 3px solid var(--light-pink);
-            border-top-color: var(--primary-pink);
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-        }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
+        .dashboard-main { padding: 2rem 1.5rem; background: var(--soft-pink); min-height: calc(100vh - 200px); max-width: 100%; overflow-x: hidden; }
+        .dashboard-container { max-width: 1200px; margin: 0 auto; width: 100%; }
+        .dashboard-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; }
+        .welcome-section h1 { font-size: 2rem; margin-bottom: 0.25rem; color: var(--dark-pink); }
+        .member-since { color: #666; font-size: 0.9rem; }
+        .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2.5rem; }
+        .dashboard-card { background: white; border-radius: 15px; padding: 1.75rem; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        .card-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.25rem; }
+        .card-header i { font-size: 1.5rem; color: var(--primary-pink); }
+        .card-header h2 { font-size: 1.25rem; margin: 0; }
+        .subscription-details .badge { display: inline-block; padding: 0.4rem 1rem; border-radius: 30px; font-weight: 600; font-size: 0.85rem; letter-spacing: 0.5px; margin-bottom: 0.75rem; }
+        .badge.vip { background: linear-gradient(135deg, var(--gold), #ffd700); color: white; }
+        .badge.regular { background: linear-gradient(135deg, var(--primary-pink), var(--dark-pink)); color: white; }
+        .subscription-inactive .no-subscription { font-size: 1rem; font-weight: 600; color: var(--charcoal); margin-bottom: 0.25rem; }
+        .subscription-inactive .sub-required { color: #666; font-size: 0.9rem; }
+        .expiry { color: #666; font-size: 0.9rem; margin-top: 0.25rem; }
+        .card-action { margin-top: 1.25rem; }
+        .btn-secondary { background: transparent; color: var(--primary-pink); padding: 0.6rem 1.2rem; border-radius: 30px; text-decoration: none; border: 2px solid var(--primary-pink); font-weight: 600; transition: all 0.3s; display: inline-block; }
+        .btn-secondary:hover { background: var(--primary-pink); color: white; }
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; text-align: center; }
+        .stat-value { display: block; font-size: 1.8rem; font-weight: 700; color: var(--dark-pink); line-height: 1.2; }
+        .stat-label { font-size: 0.85rem; color: #666; }
+        .user-posts-section { margin-top: 2rem; }
+        .posts-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 1.5rem; }
+        .post-actions { display: flex; gap: 1rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--light-pink); }
+        .btn-edit, .btn-delete { background: none; border: none; font-size: 0.9rem; cursor: pointer; padding: 0.25rem 0.5rem; border-radius: 5px; transition: background 0.3s; display: flex; align-items: center; gap: 0.25rem; }
+        .btn-edit { color: var(--primary-pink); }
+        .btn-edit:hover { background: rgba(255, 107, 139, 0.1); }
+        .btn-delete { color: #dc3545; }
+        .btn-delete:hover { background: rgba(220, 53, 69, 0.1); }
+        .empty-state { text-align: center; padding: 3rem; background: white; border-radius: 15px; margin-top: 1.5rem; }
+        .empty-state i { font-size: 3rem; color: var(--light-pink); margin-bottom: 1rem; }
+        .empty-state h3 { margin-bottom: 0.5rem; color: var(--charcoal); }
+        .empty-state p { color: #666; margin-bottom: 1.5rem; }
+        .loading-spinner { display: inline-block; width: 30px; height: 30px; border: 3px solid var(--light-pink); border-top-color: var(--primary-pink); border-radius: 50%; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        /* Error display */
+        .dashboard-error { background: #f8d7da; color: #721c24; border: 2px solid #dc3545; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; text-align: center; }
     </style>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="js/cache.js"></script>
@@ -373,6 +156,8 @@
     <!-- Dashboard Main Content -->
     <main class="dashboard-main">
         <div class="dashboard-container">
+            <div id="dashboardError" class="dashboard-error" style="display: none;"></div>
+
             <div class="dashboard-header">
                 <div class="welcome-section">
                     <h1>Welcome back, <span id="userName">Loading...</span>!</h1>
@@ -507,46 +292,90 @@
     <script src="js/auth.js"></script>
     <script src="js/app.js"></script>
     <script>
-        // Dashboard controller (original)
-        document.addEventListener('DOMContentLoaded', async function() {
+        // Dashboard controller with robust error handling
+        (async function() {
             console.log('Dashboard initializing...');
-            if (!window.supabase) {
-                console.error('Supabase not available');
-                window.location.href = 'index.html';
-                return;
-            }
-            const { data: { user }, error } = await window.supabase.auth.getUser();
-            if (error || !user) {
-                console.log('No authenticated user, redirecting to login');
-                window.location.href = 'index.html';
-                return;
-            }
-            console.log('Authenticated user:', user.id);
-            await loadUserProfile(user.id);
-            await loadUserPosts(user.id);
-            const createdDate = new Date(user.created_at);
-            document.getElementById('memberSince').textContent = createdDate.toLocaleDateString('en-US', { 
-                year: 'numeric', month: 'long', day: 'numeric' 
-            });
-        });
+            const errorDiv = document.getElementById('dashboardError');
+            const showError = (msg) => {
+                errorDiv.textContent = msg;
+                errorDiv.style.display = 'block';
+            };
 
-        async function loadUserProfile(userId) {
+            if (!window.supabase) {
+                showError('Supabase client not loaded. Please refresh.');
+                return;
+            }
+
             try {
-                const { data: profile, error } = await window.supabase
-                    .from('profiles')
-                    .select('*')
-                    .eq('id', userId)
-                    .single();
-                if (error) {
-                    console.error('Error loading profile:', error);
+                const { data: { user }, error: userError } = await window.supabase.auth.getUser();
+                if (userError) throw userError;
+                if (!user) {
+                    window.location.href = 'index.html';
                     return;
                 }
-                document.getElementById('userName').textContent = profile.username || 'User';
-                renderSubscriptionCard(profile);
+
+                console.log('Authenticated user:', user.id);
+                
+                // Load profile
+                try {
+                    const { data: profile, error: profileError } = await window.supabase
+                        .from('profiles')
+                        .select('*')
+                        .eq('id', user.id)
+                        .single();
+                    if (profileError) throw profileError;
+                    document.getElementById('userName').textContent = profile.username || 'User';
+                    renderSubscriptionCard(profile);
+                } catch (err) {
+                    console.error('Profile load error:', err);
+                    document.getElementById('userName').textContent = 'Error loading profile';
+                    showError('Could not load profile: ' + err.message);
+                }
+
+                // Load posts
+                try {
+                    const { data: posts, error: postsError } = await window.supabase
+                        .from('posts')
+                        .select('*')
+                        .eq('user_id', user.id)
+                        .eq('status', 'active')
+                        .order('created_at', { ascending: false });
+                    if (postsError) throw postsError;
+
+                    document.getElementById('postCount').textContent = posts?.length || 0;
+                    document.getElementById('totalViews').textContent = '0';
+                    document.getElementById('profileViews').textContent = '0';
+
+                    const postsContainer = document.getElementById('postsContainer');
+                    const emptyState = document.getElementById('emptyPostsState');
+
+                    if (!posts || posts.length === 0) {
+                        postsContainer.style.display = 'none';
+                        emptyState.style.display = 'block';
+                    } else {
+                        emptyState.style.display = 'none';
+                        postsContainer.style.display = 'grid';
+                        postsContainer.innerHTML = '';
+                        posts.forEach(post => {
+                            postsContainer.appendChild(createPostCard(post));
+                        });
+                    }
+                } catch (err) {
+                    console.error('Posts load error:', err);
+                    document.getElementById('postsContainer').innerHTML = 
+                        '<div class="error-message">Failed to load posts: ' + err.message + '</div>';
+                }
+
+                // Set member since date
+                const createdDate = new Date(user.created_at);
+                document.getElementById('memberSince').textContent = createdDate.toLocaleDateString('en-US', { 
+                    year: 'numeric', month: 'long', day: 'numeric' 
+                });
             } catch (err) {
-                console.error('Profile load error:', err);
+                console.error('Dashboard initialization error:', err);
+                showError('Failed to load dashboard: ' + err.message);
             }
-        }
+        })();
 
         function renderSubscriptionCard(profile) {
             const detailsEl = document.getElementById('subscriptionDetails');
@@ -554,6 +383,7 @@
             const now = new Date();
             const expiresAt = profile.subscription_expires_at ? new Date(profile.subscription_expires_at) : null;
             const hasValidSub = profile.subscription_type !== 'none' && expiresAt && expiresAt > now;
+
             if (hasValidSub) {
                 const daysLeft = Math.ceil((expiresAt - now) / (1000 * 60 * 60 * 24));
                 detailsEl.innerHTML = `
@@ -584,47 +414,13 @@
             }
         }
 
-        async function loadUserPosts(userId) {
-            try {
-                const { data: posts, error } = await window.supabase
-                    .from('posts')
-                    .select('*')
-                    .eq('user_id', userId)
-                    .eq('status', 'active')
-                    .order('created_at', { ascending: false });
-                if (error) {
-                    console.error('Error loading posts:', error);
-                    document.getElementById('postsContainer').innerHTML = 
-                        '<div class="error-message">Failed to load posts. Please refresh.</div>';
-                    return;
-                }
-                document.getElementById('postCount').textContent = posts?.length || 0;
-                document.getElementById('totalViews').textContent = '0';
-                document.getElementById('profileViews').textContent = '0';
-                const postsContainer = document.getElementById('postsContainer');
-                const emptyState = document.getElementById('emptyPostsState');
-                if (!posts || posts.length === 0) {
-                    postsContainer.style.display = 'none';
-                    emptyState.style.display = 'block';
-                } else {
-                    emptyState.style.display = 'none';
-                    postsContainer.style.display = 'grid';
-                    postsContainer.innerHTML = '';
-                    posts.forEach(post => {
-                        postsContainer.appendChild(createPostCard(post));
-                    });
-                }
-            } catch (err) {
-                console.error('Posts load error:', err);
-            }
-        }
-
         function createPostCard(post) {
             const card = document.createElement('div');
             card.className = `listing-card ${post.is_vip ? 'vip-card' : ''}`;
             card.dataset.postId = post.id;
             const created = new Date(post.created_at);
             const dateStr = created.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
             card.innerHTML = `
                 ${post.is_vip ? '<div class="vip-badge"><i class="fas fa-crown"></i> VIP</div>' : ''}
                 <img src="${post.images && post.images[0] ? post.images[0] : 'images/default-avatar.jpg'}" 
@@ -787,4 +583,4 @@
         });
     </script>
 </body>
-    </html>
+                                                         </html>
