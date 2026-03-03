@@ -8,14 +8,8 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
-    <!-- Critical mobile menu CSS and responsive modal styles -->
     <style>
-        /* Force hide the checkbox */
-        #menu-toggle-checkbox {
-            display: none !important;
-        }
-
-        /* Mobile menu styles */
+        #menu-toggle-checkbox { display: none !important; }
         @media (max-width: 768px) {
             .nav-links {
                 display: none !important;
@@ -30,31 +24,13 @@
                 box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
                 z-index: 1000 !important;
             }
-            #menu-toggle-checkbox:checked ~ .nav-links {
-                display: flex !important;
-            }
-            .menu-toggle {
-                display: block !important;
-                font-size: 1.8rem;
-                color: var(--primary-pink);
-                cursor: pointer;
-                padding: 0.5rem;
-            }
+            #menu-toggle-checkbox:checked ~ .nav-links { display: flex !important; }
+            .menu-toggle { display: block !important; font-size: 1.8rem; color: var(--primary-pink); cursor: pointer; padding: 0.5rem; }
         }
-
-        /* Desktop override */
         @media (min-width: 769px) {
-            .menu-toggle {
-                display: none !important;
-            }
-            .nav-links {
-                display: flex !important;
-                position: static !important;
-                box-shadow: none !important;
-            }
+            .menu-toggle { display: none !important; }
+            .nav-links { display: flex !important; position: static !important; box-shadow: none !important; }
         }
-
-        /* Responsive modal styles */
         .modal {
             display: none;
             position: fixed;
@@ -69,9 +45,7 @@
             padding: 1rem;
             box-sizing: border-box;
         }
-        .modal.show {
-            display: flex;
-        }
+        .modal.show { display: flex; }
         .modal-content {
             background: white;
             padding: 2rem;
@@ -83,11 +57,7 @@
             position: relative;
             box-sizing: border-box;
         }
-        @media (max-width: 480px) {
-            .modal-content {
-                padding: 1.5rem;
-            }
-        }
+        @media (max-width: 480px) { .modal-content { padding: 1.5rem; } }
         .close {
             position: absolute;
             right: 15px;
@@ -97,16 +67,9 @@
             color: var(--primary-pink);
             line-height: 1;
         }
-        .contact-form .form-group {
-            margin-bottom: 1.5rem;
-        }
-        .contact-form label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-        }
-        .contact-form input,
-        .contact-form textarea {
+        .contact-form .form-group { margin-bottom: 1.5rem; }
+        .contact-form label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
+        .contact-form input, .contact-form textarea {
             width: 100%;
             padding: 0.8rem;
             border: 2px solid var(--light-pink);
@@ -114,10 +77,7 @@
             font-size: 1rem;
             box-sizing: border-box;
         }
-        .contact-form textarea {
-            min-height: 100px;
-            resize: vertical;
-        }
+        .contact-form textarea { min-height: 100px; resize: vertical; }
         .contact-form button {
             width: 100%;
             padding: 1rem;
@@ -129,25 +89,11 @@
             cursor: pointer;
             transition: transform 0.3s;
         }
-        .contact-form button:hover {
-            transform: translateY(-2px);
-        }
-        .contact-form button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        .contact-message {
-            margin-top: 1rem;
-            text-align: center;
-            font-size: 0.9rem;
-            word-wrap: break-word;
-        }
-        .contact-message.success {
-            color: #28a745;
-        }
-        .contact-message.error {
-            color: #dc3545;
-        }
+        .contact-form button:hover { transform: translateY(-2px); }
+        .contact-form button:disabled { opacity: 0.5; cursor: not-allowed; }
+        .contact-message { margin-top: 1rem; text-align: center; font-size: 0.9rem; word-wrap: break-word; }
+        .contact-message.success { color: #28a745; }
+        .contact-message.error { color: #dc3545; }
     </style>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="js/cache.js"></script>
@@ -157,9 +103,7 @@
             if (navbar) navbar.classList.toggle('active');
             return false;
         };
-
         window.openAuthModal = window.openAuthModal || function() {
-            console.log('openAuthModal called (fallback)');
             var modal = document.getElementById('authModal');
             if (modal) modal.style.display = 'block';
             if (typeof loadAuthForms === 'function') loadAuthForms();
@@ -170,14 +114,9 @@
     <!-- Navigation -->
     <nav class="navbar" id="navbar">
         <div class="nav-container">
-            <div class="logo">
-                <i class="fas fa-gem"></i>
-                <span>LuxeCompanions</span>
-            </div>
+            <div class="logo"><i class="fas fa-gem"></i><span>LuxeCompanions</span></div>
             <input type="checkbox" id="menu-toggle-checkbox">
-            <label for="menu-toggle-checkbox" class="menu-toggle" id="mobileMenu">
-                <i class="fas fa-bars"></i>
-            </label>
+            <label for="menu-toggle-checkbox" class="menu-toggle" id="mobileMenu"><i class="fas fa-bars"></i></label>
             <div class="nav-links" id="navLinks"></div>
         </div>
     </nav>
@@ -194,11 +133,21 @@
         </div>
     </section>
 
-    <!-- Country Filter Bar -->
+    <!-- Three‑Level Filter Bar -->
     <div class="filter-bar" style="margin: 2rem auto; text-align: center; max-width: 800px;">
-        <label for="countryFilter" style="font-weight: 600; margin-right: 0.5rem;">Filter by Country:</label>
-        <select id="countryFilter" style="padding: 0.5rem 1rem; border-radius: 30px; border: 2px solid var(--light-pink);">
-            <option value="">All Countries</option>
+        <label for="countryFilter">Country:</label>
+        <select id="countryFilter" style="padding: 0.5rem; border-radius: 5px; margin-right: 1rem;">
+            <option value="">All</option>
+        </select>
+
+        <label for="stateFilter">State:</label>
+        <select id="stateFilter" style="padding: 0.5rem; border-radius: 5px; margin-right: 1rem;" disabled>
+            <option value="">All</option>
+        </select>
+
+        <label for="cityFilter">City:</label>
+        <select id="cityFilter" style="padding: 0.5rem; border-radius: 5px;" disabled>
+            <option value="">All</option>
         </select>
     </div>
 
@@ -228,62 +177,26 @@
     <section id="how-it-works" class="how-it-works">
         <h2>How It Works</h2>
         <div class="steps">
-            <div class="step">
-                <div class="step-icon">1</div>
-                <h3>Create Account</h3>
-                <p>Sign up for free with basic information</p>
-            </div>
-            <div class="step">
-                <div class="step-icon">2</div>
-                <h3>Choose Subscription</h3>
-                <p>Select VIP ($20/month) or Regular ($10/month) plan</p>
-            </div>
-            <div class="step">
-                <div class="step-icon">3</div>
-                <h3>Post Your Profile</h3>
-                <p>Create your elegant listing with photos and details</p>
-            </div>
-            <div class="step">
-                <div class="step-icon">4</div>
-                <h3>Manage Listings</h3>
-                <p>Edit, update, or remove your posts anytime</p>
-            </div>
+            <div class="step"><div class="step-icon">1</div><h3>Create Account</h3><p>Sign up for free with basic information</p></div>
+            <div class="step"><div class="step-icon">2</div><h3>Choose Subscription</h3><p>Select VIP ($20/month) or Regular ($10/month) plan</p></div>
+            <div class="step"><div class="step-icon">3</div><h3>Post Your Profile</h3><p>Create your elegant listing with photos and details</p></div>
+            <div class="step"><div class="step-icon">4</div><h3>Manage Listings</h3><p>Edit, update, or remove your posts anytime</p></div>
         </div>
     </section>
 
     <!-- Footer -->
     <footer>
         <div class="footer-content">
-            <div class="footer-section">
-                <h3>LuxeCompanions</h3>
-                <p>An exclusive platform for sophisticated companionship connections.</p>
-            </div>
-            <div class="footer-section">
-                <h4>Important</h4>
-                <ul>
-                    <li><a href="#terms">Terms of Service</a></li>
-                    <li><a href="#privacy">Privacy Policy</a></li>
-                    <li><a href="#age">Age Verification</a></li>
-                    <li><a href="#safety">Safety Guidelines</a></li>
-                </ul>
-            </div>
-            <div class="footer-section">
-                <h4>Contact</h4>
-                <button id="contactBtn" class="btn-contact" style="background: none; border: none; color: #ccc; cursor: pointer; padding: 0; font-size: inherit; text-decoration: underline;">Contact us</button>
-            </div>
+            <div class="footer-section"><h3>LuxeCompanions</h3><p>An exclusive platform for sophisticated companionship connections.</p></div>
+            <div class="footer-section"><h4>Important</h4><ul><li><a href="#terms">Terms of Service</a></li><li><a href="#privacy">Privacy Policy</a></li><li><a href="#age">Age Verification</a></li><li><a href="#safety">Safety Guidelines</a></li></ul></div>
+            <div class="footer-section"><h4>Contact</h4><button id="contactBtn" class="btn-contact" style="background:none; border:none; color:#ccc; cursor:pointer; padding:0; font-size:inherit; text-decoration:underline;">Contact us</button></div>
         </div>
-        <div class="footer-bottom">
-            <p>© 2024 LuxeCompanions. Must be 18+ to access. All rights reserved.</p>
-            <p class="disclaimer">This website is for legal companionship services only. Users must comply with all applicable laws.</p>
-        </div>
+        <div class="footer-bottom"><p>© 2024 LuxeCompanions. Must be 18+ to access. All rights reserved.</p><p class="disclaimer">This website is for legal companionship services only. Users must comply with all applicable laws.</p></div>
     </footer>
 
     <!-- Auth Modal -->
     <div id="authModal" class="modal" style="display: none;">
-        <div class="modal-content">
-            <span class="close" onclick="document.getElementById('authModal').style.display='none'">&times;</span>
-            <div id="authForms"><div style="text-align:center; padding:20px;">Loading...</div></div>
-        </div>
+        <div class="modal-content"><span class="close" onclick="document.getElementById('authModal').style.display='none'">&times;</span><div id="authForms"><div style="text-align:center; padding:20px;">Loading...</div></div></div>
     </div>
 
     <!-- Contact Modal -->
@@ -292,89 +205,50 @@
             <span class="close" id="closeModal">&times;</span>
             <h2 style="color: var(--dark-pink); margin-bottom: 1.5rem;">Contact Us</h2>
             <form id="contactForm" class="contact-form">
-                <div class="form-group">
-                    <label for="contactName">Full Name *</label>
-                    <input type="text" id="contactName" required>
-                </div>
-                <div class="form-group">
-                    <label for="contactEmail">Email *</label>
-                    <input type="email" id="contactEmail" required>
-                </div>
-                <div class="form-group">
-                    <label for="contactMessage">Message *</label>
-                    <textarea id="contactMessage" required></textarea>
-                </div>
+                <div class="form-group"><label for="contactName">Full Name *</label><input type="text" id="contactName" required></div>
+                <div class="form-group"><label for="contactEmail">Email *</label><input type="email" id="contactEmail" required></div>
+                <div class="form-group"><label for="contactMessage">Message *</label><textarea id="contactMessage" required></textarea></div>
                 <button type="submit" id="contactSubmit">Send Message</button>
                 <div id="contactStatus" class="contact-message"></div>
             </form>
         </div>
     </div>
 
-    <!-- JavaScript files -->
     <script src="js/app.js"></script>
     <script src="js/auth.js"></script>
-
-    <!-- Mobile menu and auth handling -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const checkbox = document.getElementById('menu-toggle-checkbox');
             const mobileMenu = document.getElementById('mobileMenu');
             const navLinks = document.getElementById('navLinks');
-
             if (mobileMenu && checkbox) {
-                mobileMenu.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    checkbox.checked = !checkbox.checked;
-                });
+                mobileMenu.addEventListener('click', function(e) { e.preventDefault(); checkbox.checked = !checkbox.checked; });
             }
-
             if (navLinks) {
                 navLinks.addEventListener('click', function(e) {
                     const target = e.target.closest('a, button');
                     if (!target) return;
                     checkbox.checked = false;
-
-                    // Only intercept button with class 'btn-login' (the login button)
                     if (target.tagName === 'BUTTON' && target.classList.contains('btn-login')) {
                         e.preventDefault();
-                        if (typeof window.openAuthModal === 'function') {
-                            window.openAuthModal();
-                        } else {
-                            document.getElementById('authModal').style.display = 'block';
-                        }
+                        if (typeof window.openAuthModal === 'function') window.openAuthModal();
+                        else document.getElementById('authModal').style.display = 'block';
                     }
                 });
             }
-
-            window.addEventListener('resize', function() {
-                if (window.innerWidth > 768 && checkbox) checkbox.checked = false;
-            });
+            window.addEventListener('resize', function() { if (window.innerWidth > 768 && checkbox) checkbox.checked = false; });
         });
-    </script>
 
-    <!-- Contact modal script -->
-    <script>
+        // Contact modal script
         const modal = document.getElementById('contactModal');
         const btn = document.getElementById('contactBtn');
         const closeBtn = document.getElementById('closeModal');
         const form = document.getElementById('contactForm');
         const submitBtn = document.getElementById('contactSubmit');
         const statusDiv = document.getElementById('contactStatus');
-
         btn.addEventListener('click', () => modal.classList.add('show'));
-        closeBtn.addEventListener('click', () => {
-            modal.classList.remove('show');
-            form.reset();
-            statusDiv.textContent = '';
-        });
-        window.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                modal.classList.remove('show');
-                form.reset();
-                statusDiv.textContent = '';
-            }
-        });
-
+        closeBtn.addEventListener('click', () => { modal.classList.remove('show'); form.reset(); statusDiv.textContent = ''; });
+        window.addEventListener('click', (e) => { if (e.target === modal) { modal.classList.remove('show'); form.reset(); statusDiv.textContent = ''; } });
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
             statusDiv.textContent = 'Sending...';
