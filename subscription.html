@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
-    <!-- Universal box-sizing and responsive modal styles -->
+    <!-- Universal styles (same as other pages) -->
     <style>
         * { box-sizing: border-box; }
         html, body { max-width: 100%; overflow-x: hidden; }
@@ -33,7 +33,7 @@
             .menu-toggle { display: none !important; }
             .nav-links { display: flex !important; position: static !important; box-shadow: none !important; }
         }
-        /* Responsive modal styles */
+        /* Modal styles */
         .modal {
             display: none !important;
             position: fixed !important;
@@ -91,7 +91,7 @@
         .contact-message.success { color: #28a745 !important; }
         .contact-message.error { color: #dc3545 !important; }
 
-        /* Plan card styles (original) */
+        /* Plan card styles */
         .plan-card {
             cursor: pointer;
             transition: all 0.3s;
@@ -131,6 +131,18 @@
             width: 100%;
             margin-top: 1.5rem;
         }
+        .auth-message {
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+            display: none;
+            text-align: center;
+        }
+        .auth-message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #dc3545;
+        }
     </style>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="js/cache.js"></script>
@@ -161,7 +173,7 @@
 
         <div class="plans-grid">
             <!-- Regular Plan -->
-            <div class="plan-card" onclick="selectPlan('regular')">
+            <div class="plan-card" onclick="subscribe('regular')">
                 <i class="fas fa-star" style="font-size: 3rem; color: var(--primary-pink); margin-bottom: 1rem;"></i>
                 <h2 style="margin-bottom: 0.5rem;">Regular</h2>
                 <div style="font-size: 2.5rem; font-weight: 700; color: var(--primary-pink);">$10<span style="font-size:1rem; color:#666;">/month</span></div>
@@ -174,7 +186,7 @@
             </div>
 
             <!-- VIP Plan -->
-            <div class="plan-card vip" onclick="selectPlan('vip')">
+            <div class="plan-card vip" onclick="subscribe('vip')">
                 <div class="badge-popular">POPULAR</div>
                 <i class="fas fa-crown" style="font-size: 3rem; color: var(--gold); margin-bottom: 1rem;"></i>
                 <h2 style="margin-bottom: 0.5rem;">VIP</h2>
@@ -189,7 +201,7 @@
             </div>
         </div>
 
-        <div id="subscriptionMessage" class="auth-message" style="display: none;"></div>
+        <div id="subscriptionMessage" class="auth-message"></div>
     </main>
 
     <!-- Footer with contact button -->
@@ -254,88 +266,37 @@
     <script src="js/auth.js"></script>
     <script src="js/app.js"></script>
     <script>
-        // ---------- Configuration ----------
-        const PRICE_IDS = {
-            regular: 'price_1T4AJmFiAep3lhtUI3Rgs87i',
-            vip: 'price_1T4AM6FiAep3lhtUrW06HL7'
+        // ---------- Stripe Payment Links ----------
+        const PAYMENT_LINKS = {
+            regular: 'https://buy.stripe.com/14A8wP2yY6ZK5zM0bF73G07',
+            vip: 'https://buy.stripe.com/9B68wP7Ti6ZKd2e9Mf73G08'
         };
 
-        const CREATE_CHECKOUT_URL = 'https://carused-mooo-com.vercel.app/api/create-checkout-session';
-
-        let selectedPlan = null;
-
-        function selectPlan(plan) {
-            selectedPlan = plan;
-            document.querySelectorAll('.plan-card').forEach(c => c.style.border = '');
-            if (plan === 'regular') {
-                document.querySelector('.plan-card:not(.vip)').style.border = '3px solid var(--primary-pink)';
-            } else {
-                document.querySelector('.plan-card.vip').style.border = '3px solid var(--gold)';
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', async function() {
-            if (!window.supabase) {
-                window.location.href = 'index.html';
-                return;
-            }
-
+        // Simple subscribe function – redirects directly to Stripe
+        async function subscribe(plan) {
+            // Ensure user is logged in
             const { data: { user }, error } = await window.supabase.auth.getUser();
             if (error || !user) {
-                window.location.href = 'index.html';
+                // If not logged in, show auth modal
+                window.openAuthModal();
                 return;
             }
 
+            // Redirect to Stripe payment link
+            window.location.href = PAYMENT_LINKS[plan];
+        }
+
+        // Attach click handlers (buttons already have onclick on the card, but we also need the buttons themselves)
+        document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('subscribeRegular').addEventListener('click', (e) => {
                 e.stopPropagation();
-                handleSubscribe('regular');
+                subscribe('regular');
             });
             document.getElementById('subscribeVIP').addEventListener('click', (e) => {
                 e.stopPropagation();
-                handleSubscribe('vip');
+                subscribe('vip');
             });
         });
-
-        async function handleSubscribe(plan) {
-            const btn = plan === 'regular' ? document.getElementById('subscribeRegular') : document.getElementById('subscribeVIP');
-            btn.disabled = true;
-            btn.textContent = 'Redirecting...';
-
-            try {
-                const { data: { session } } = await supabase.auth.getSession();
-                if (!session) throw new Error('No active session');
-
-                const response = await fetch(CREATE_CHECKOUT_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${session.access_token}`
-                    },
-                    body: JSON.stringify({
-                        priceId: PRICE_IDS[plan],
-                        planType: plan
-                    })
-                });
-
-                const { url, error } = await response.json();
-                if (error) throw new Error(error);
-                if (!url) throw new Error('No checkout URL returned');
-
-                window.location.href = url;
-            } catch (err) {
-                showMessage('Error: ' + err.message, 'error');
-                btn.disabled = false;
-                btn.textContent = plan === 'regular' ? 'Subscribe $10' : 'Subscribe $20';
-            }
-        }
-
-        function showMessage(msg, type) {
-            const msgDiv = document.getElementById('subscriptionMessage');
-            msgDiv.textContent = msg;
-            msgDiv.className = 'auth-message ' + type;
-            msgDiv.style.display = 'block';
-            setTimeout(() => msgDiv.style.display = 'none', 5000);
-        }
 
         // Mobile menu and auth handling (same as other pages)
         document.addEventListener('DOMContentLoaded', function() {
