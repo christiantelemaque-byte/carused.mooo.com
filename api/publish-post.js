@@ -40,7 +40,7 @@ export default async function handler(req, res) {
       title,
       description,
       images: imageUrls,
-      is_vip: isVip ? true : false, // ensure boolean
+      is_vip: isVip ? true : false, // ensures a boolean, never null
       location,
     });
 
@@ -51,4 +51,4 @@ export default async function handler(req, res) {
     console.error('Save error:', error);
     res.status(500).json({ error: error.message });
   }
-            }
+}
