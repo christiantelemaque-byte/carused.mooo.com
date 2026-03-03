@@ -252,17 +252,27 @@
                     if (!profileError && profile) username = profile.username;
                 }
 
-                const created = new Date(post.created_at);
-                const dateStr = created.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+                // Handle date safely – if created_at is missing or invalid, use 'Recently'
+                let dateStr = 'Recently';
+                if (post.created_at) {
+                    const created = new Date(post.created_at);
+                    if (!isNaN(created.getTime())) {
+                        dateStr = created.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+                    }
+                }
 
                 const description = post.description || '';
                 const shortDesc = description.length > 200 ? description.substring(0, 200) + '…' : description;
                 const isLong = description.length > 200;
 
                 // Location display
-                const locationHtml = post.location?.country ? `
-                    <span><i class="fas fa-map-marker-alt"></i> ${escapeHtml(post.location.city ? post.location.city + ', ' : '')}${escapeHtml(post.location.country)}</span>
-                ` : '';
+                let locationParts = [];
+                if (post.location?.city) locationParts.push(post.location.city);
+                if (post.location?.region) locationParts.push(post.location.region);
+                if (post.location?.country) locationParts.push(post.location.country);
+                const locationHtml = locationParts.length > 0
+                    ? `<span><i class="fas fa-map-marker-alt"></i> ${escapeHtml(locationParts.join(', '))}</span>`
+                    : '';
 
                 let html = `
                     <div class="post-layout">
@@ -375,4 +385,4 @@
         });
     </script>
 </body>
-    </html>
+                </html>
