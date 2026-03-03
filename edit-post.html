@@ -1,1 +1,759 @@
                                                              
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Edit Post - LuxeCompanions</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+    <!-- Compression library -->
+    <script src="https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.2/dist/browser-image-compression.js"></script>
+    <!-- Universal styles (same as other pages) -->
+    <style>
+        * { box-sizing: border-box; }
+        html, body { max-width: 100%; overflow-x: hidden; }
+        #menu-toggle-checkbox { display: none !important; }
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none !important;
+                flex-direction: column !important;
+                width: 100% !important;
+                background: white !important;
+                position: absolute !important;
+                top: 100% !important;
+                left: 0 !important;
+                right: 0 !important;
+                padding: 1rem 0 !important;
+                box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+                z-index: 1000 !important;
+            }
+            #menu-toggle-checkbox:checked ~ .nav-links { display: flex !important; }
+            .menu-toggle { display: block !important; font-size: 1.8rem; color: var(--primary-pink); cursor: pointer; padding: 0.5rem; }
+        }
+        @media (min-width: 769px) {
+            .menu-toggle { display: none !important; }
+            .nav-links { display: flex !important; position: static !important; box-shadow: none !important; }
+        }
+        /* Modal styles */
+        .modal {
+            display: none !important;
+            position: fixed !important;
+            z-index: 2000 !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            background-color: rgba(0,0,0,0.5) !important;
+            align-items: center !important;
+            justify-content: center !important;
+            padding: 1rem !important;
+            box-sizing: border-box !important;
+        }
+        .modal.show { display: flex !important; }
+        .modal-content {
+            background: white !important;
+            padding: 2rem !important;
+            border-radius: 15px !important;
+            max-width: 500px !important;
+            width: 100% !important;
+            max-height: 90vh !important;
+            overflow-y: auto !important;
+            position: relative !important;
+            box-sizing: border-box !important;
+            margin: auto !important;
+        }
+        @media (max-width: 480px) { .modal-content { padding: 1.5rem !important; } }
+        .close { position: absolute !important; right: 15px !important; top: 10px !important; font-size: 28px !important; cursor: pointer !important; color: var(--primary-pink) !important; line-height: 1 !important; }
+        .contact-form .form-group { margin-bottom: 1.5rem !important; }
+        .contact-form label { display: block !important; margin-bottom: 0.5rem !important; font-weight: 500 !important; }
+        .contact-form input, .contact-form textarea {
+            width: 100% !important;
+            padding: 0.8rem !important;
+            border: 2px solid var(--light-pink) !important;
+            border-radius: 8px !important;
+            font-size: 1rem !important;
+            box-sizing: border-box !important;
+        }
+        .contact-form textarea { min-height: 100px !important; resize: vertical !important; }
+        .contact-form button {
+            width: 100% !important;
+            padding: 1rem !important;
+            background: linear-gradient(135deg, var(--primary-pink), var(--dark-pink)) !important;
+            color: white !important;
+            border: none !important;
+            border-radius: 30px !important;
+            font-weight: 600 !important;
+            cursor: pointer !important;
+            transition: transform 0.3s !important;
+        }
+        .contact-form button:hover { transform: translateY(-2px) !important; }
+        .contact-form button:disabled { opacity: 0.5 !important; cursor: not-allowed !important; }
+        .contact-message { margin-top: 1rem !important; text-align: center !important; font-size: 0.9rem !important; word-wrap: break-word !important; }
+        .contact-message.success { color: #28a745 !important; }
+        .contact-message.error { color: #dc3545 !important; }
+
+        /* Page specific */
+        .page-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #dc3545;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            display: none;
+        }
+        .existing-images {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 1rem 0;
+        }
+        .existing-image {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .existing-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .existing-image .remove-btn {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            background: rgba(220, 53, 69, 0.8);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 12px;
+        }
+    </style>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="js/cache.js"></script>
+    <script>
+        window.openAuthModal = window.openAuthModal || function() {
+            var modal = document.getElementById('authModal');
+            if (modal) modal.style.display = 'block';
+            if (typeof loadAuthForms === 'function') loadAuthForms();
+        };
+    </script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <div class="logo"><i class="fas fa-gem"></i><span>LuxeCompanions</span></div>
+            <input type="checkbox" id="menu-toggle-checkbox">
+            <label for="menu-toggle-checkbox" class="menu-toggle" id="mobileMenu"><i class="fas fa-bars"></i></label>
+            <div class="nav-links" id="navLinks"></div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main style="padding: 2rem 1.5rem; max-width: 800px; margin: 0 auto;">
+        <div style="background: white; border-radius: 15px; padding: 2rem; box-shadow: 0 5px 15px rgba(0,0,0,0.05);">
+            <h1 style="font-size: 2rem; margin-bottom: 1.5rem; color: var(--dark-pink);">
+                <i class="fas fa-edit" style="color: var(--primary-pink);"></i> Edit Listing
+            </h1>
+            
+            <div id="pageError" class="page-error"></div>
+
+            <div id="subscriptionWarning" style="background: #fff3cd; border: 1px solid #ffeeba; border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem; display: none;">
+                <i class="fas fa-exclamation-triangle" style="color: #856404;"></i>
+                <span id="warningMessage">You need an active subscription to edit posts.</span>
+                <a href="subscription.html" style="display: inline-block; margin-left: 1rem; color: var(--primary-pink); font-weight: 600;">Subscribe Now →</a>
+            </div>
+
+            <form id="postForm">
+                <input type="hidden" id="postId">
+                <div class="form-group">
+                    <label for="title">Title *</label>
+                    <input type="text" id="title" required placeholder="e.g. Elegant companion for dinner & events">
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Description *</label>
+                    <textarea id="description" rows="6" required placeholder="Describe yourself, services, availability..." style="width: 100%; padding: 12px 15px; border: 2px solid var(--light-pink); border-radius: 8px; font-size: 1rem;"></textarea>
+                </div>
+
+                <!-- Current images display -->
+                <div class="form-group" id="currentImagesSection">
+                    <label>Current Photos</label>
+                    <div id="currentImages" class="existing-images"></div>
+                    <small style="display: block; margin-top: 5px;">To remove an image, click the X. To replace, upload new images below (they will replace all remaining images).</small>
+                </div>
+
+                <!-- Image upload for replacement -->
+                <div class="form-group">
+                    <label for="imageFiles">Upload New Photos (up to 5) – these will replace the current set</label>
+                    <input type="file" id="imageFiles" accept="image/*" multiple>
+                    <small style="display: block; margin-top: 5px;">If you upload new images, they will replace all current images (after confirming).</small>
+                    <div id="imagePreview" style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px;"></div>
+                </div>
+
+                <div class="form-group">
+                    <label>Your subscription status</label>
+                    <div id="subscriptionStatus" style="padding: 12px; background: var(--light-gray); border-radius: 8px;">
+                        Checking...
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                    <button type="submit" id="submitBtn" class="btn-primary" style="font-size: 1.1rem; padding: 1rem 2rem;">
+                        <i class="fas fa-save"></i> Update Listing
+                    </button>
+                    <a href="dashboard.html" class="btn-secondary" style="display: flex; align-items: center;">Cancel</a>
+                </div>
+            </form>
+
+            <div id="uploadProgress" style="margin-top: 1rem; display: none;">
+                <p id="progressMessage">Processing...</p>
+                <progress id="progressBar" value="0" max="100" style="width:100%;"></progress>
+            </div>
+            <div id="postMessage" class="auth-message"></div>
+        </div>
+    </main>
+
+    <!-- Footer with contact button -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>LuxeCompanions</h3>
+                <p>An exclusive platform for sophisticated companionship connections.</p>
+            </div>
+            <div class="footer-section">
+                <h4>Important</h4>
+                <ul>
+                    <li><a href="#terms">Terms of Service</a></li>
+                    <li><a href="#privacy">Privacy Policy</a></li>
+                    <li><a href="#age">Age Verification</a></li>
+                    <li><a href="#safety">Safety Guidelines</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Contact</h4>
+                <button id="contactBtn" class="btn-contact" style="background: none; border: none; color: #ccc; cursor: pointer; padding: 0; font-size: inherit; text-decoration: underline;">Contact us</button>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2024 LuxeCompanions. Must be 18+ to access. All rights reserved.</p>
+            <p class="disclaimer">This website is for legal companionship services only. Users must comply with all applicable laws.</p>
+        </div>
+    </footer>
+
+    <!-- Auth Modal -->
+    <div id="authModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close" onclick="document.getElementById('authModal').style.display='none'">&times;</span>
+            <div id="authForms"><div style="text-align:center; padding:20px;">Loading...</div></div>
+        </div>
+    </div>
+
+    <!-- Contact Modal -->
+    <div id="contactModal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="closeModal">&times;</span>
+            <h2 style="color: var(--dark-pink); margin-bottom: 1.5rem;">Contact Us</h2>
+            <form id="contactForm" class="contact-form">
+                <div class="form-group">
+                    <label for="contactName">Full Name *</label>
+                    <input type="text" id="contactName" required>
+                </div>
+                <div class="form-group">
+                    <label for="contactEmail">Email *</label>
+                    <input type="email" id="contactEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="contactMessage">Message *</label>
+                    <textarea id="contactMessage" required></textarea>
+                </div>
+                <button type="submit" id="contactSubmit">Send Message</button>
+                <div id="contactStatus" class="contact-message"></div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        // ---------- Configuration ----------
+        const UPLOAD_IMAGE_URL = 'https://carused-mooo-com.vercel.app/api/upload-image';
+        const UPDATE_POST_URL = 'https://carused-mooo-com.vercel.app/api/update-post';
+        const DELETE_IMAGE_URL = 'https://carused-mooo-com.vercel.app/api/delete-image'; // We'll create this later
+
+        // Helper to extract file path from GitHub URL (same as delete-post)
+        function extractFilePathFromUrl(url) {
+            try {
+                const urlObj = new URL(url);
+                if (urlObj.hostname.includes('jsdelivr')) {
+                    const pathParts = urlObj.pathname.split('/');
+                    if (pathParts.length >= 4 && pathParts[1] === 'gh') {
+                        return pathParts.slice(4).join('/');
+                    }
+                } else if (urlObj.hostname.includes('githubusercontent')) {
+                    const pathParts = urlObj.pathname.split('/');
+                    if (pathParts.length >= 5) {
+                        return pathParts.slice(4).join('/');
+                    }
+                }
+                return null;
+            } catch {
+                return null;
+            }
+        }
+
+        // Delete a single image from GitHub (reuses logic from delete-post)
+        async function deleteImageFromGitHub(url) {
+            const filePath = extractFilePathFromUrl(url);
+            if (!filePath) {
+                console.warn('Could not extract path from URL:', url);
+                return false;
+            }
+            try {
+                const githubApiUrl = `https://api.github.com/repos/${window.PICSER_GITHUB_OWNER}/${window.PICSER_GITHUB_REPO}/contents/${filePath}`;
+                // First get SHA
+                const getRes = await fetch(githubApiUrl, {
+                    headers: {
+                        Authorization: `token ${window.PICSER_GITHUB_TOKEN}`,
+                        Accept: 'application/vnd.github.v3+json',
+                    },
+                });
+                if (getRes.ok) {
+                    const fileInfo = await getRes.json();
+                    const sha = fileInfo.sha;
+                    const deleteRes = await fetch(githubApiUrl, {
+                        method: 'DELETE',
+                        headers: {
+                            Authorization: `token ${window.PICSER_GITHUB_TOKEN}`,
+                            Accept: 'application/vnd.github.v3+json',
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            message: `Delete image from edit post`,
+                            sha,
+                            branch: window.PICSER_GITHUB_BRANCH || 'main',
+                        }),
+                    });
+                    return deleteRes.ok;
+                }
+            } catch (err) {
+                console.error('Error deleting image:', err);
+            }
+            return false;
+        }
+
+        // ---------- Helper functions ----------
+        function showPageError(msg) {
+            const el = document.getElementById('pageError');
+            el.textContent = msg;
+            el.style.display = 'block';
+        }
+
+        // Subscription check (uses localStorage + Supabase fallback)
+        async function hasActiveSubscription() {
+            try {
+                const expiry = localStorage.getItem('subscription_expires_at');
+                if (expiry && new Date(expiry) > new Date()) return true;
+
+                const { data: { user } } = await window.supabase.auth.getUser();
+                if (!user) return false;
+
+                const { data: profile, error } = await window.supabase
+                    .from('profiles')
+                    .select('subscription_expires_at')
+                    .eq('id', user.id)
+                    .single();
+
+                if (error || !profile?.subscription_expires_at) return false;
+
+                const dbExpiry = new Date(profile.subscription_expires_at);
+                if (dbExpiry > new Date()) {
+                    localStorage.setItem('subscription_expires_at', profile.subscription_expires_at);
+                    return true;
+                } else {
+                    localStorage.removeItem('subscription_expires_at');
+                    return false;
+                }
+            } catch (err) {
+                console.error('Subscription check error:', err);
+                return false;
+            }
+        }
+
+        async function updateSubscriptionStatus() {
+            const statusDiv = document.getElementById('subscriptionStatus');
+            const warningDiv = document.getElementById('subscriptionWarning');
+            const submitBtn = document.getElementById('submitBtn');
+
+            const active = await hasActiveSubscription();
+            if (active) {
+                statusDiv.innerHTML = '<span style="color: #28a745; font-weight:600;"><i class="fas fa-check-circle"></i> Active subscription</span>';
+                warningDiv.style.display = 'none';
+                submitBtn.disabled = false;
+            } else {
+                statusDiv.innerHTML = '<span style="color: #dc3545; font-weight:600;"><i class="fas fa-times-circle"></i> No active subscription</span>';
+                warningDiv.style.display = 'block';
+                submitBtn.disabled = true;
+                submitBtn.style.opacity = '0.5';
+            }
+        }
+
+        // Preview selected images
+        document.getElementById('imageFiles').addEventListener('change', function(e) {
+            const preview = document.getElementById('imagePreview');
+            preview.innerHTML = '';
+            const files = Array.from(e.target.files);
+            files.forEach(file => {
+                const reader = new FileReader();
+                reader.onload = function(ev) {
+                    const img = document.createElement('img');
+                    img.src = ev.target.result;
+                    img.style.width = '80px';
+                    img.style.height = '80px';
+                    img.style.objectFit = 'cover';
+                    img.style.borderRadius = '8px';
+                    preview.appendChild(img);
+                };
+                reader.readAsDataURL(file);
+            });
+        });
+
+        // ---------- Image Compression ----------
+        async function compressImage(file) {
+            const options = {
+                maxSizeMB: 1,
+                maxWidthOrHeight: 1200,
+                useWebWorker: true,
+                fileType: 'image/jpeg',
+                initialQuality: 0.8,
+            };
+            try {
+                const compressedFile = await imageCompression(file, options);
+                const newFileName = file.name.replace(/\.[^/.]+$/, '') + '.jpg';
+                return new File([compressedFile], newFileName, { type: 'image/jpeg' });
+            } catch (error) {
+                console.error('Compression error:', error);
+                throw new Error('Image compression failed. Please try a different image.');
+            }
+        }
+
+        // Upload a single image with compression
+        async function uploadSingleImage(file) {
+            const compressedFile = await compressImage(file);
+            const formData = new FormData();
+            formData.append('images', compressedFile);
+
+            return new Promise((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', UPLOAD_IMAGE_URL, true);
+
+                xhr.upload.addEventListener('progress', (e) => {
+                    if (e.lengthComputable) {
+                        const percent = Math.round((e.loaded / e.total) * 100);
+                        document.getElementById('progressBar').value = percent;
+                    }
+                });
+
+                xhr.onload = function() {
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        try {
+                            const data = JSON.parse(xhr.responseText);
+                            if (data.success) resolve(data.url);
+                            else reject(new Error(data.error || 'Upload failed'));
+                        } catch (e) {
+                            reject(new Error('Invalid JSON response'));
+                        }
+                    } else {
+                        let errorMsg = `HTTP ${xhr.status}: ${xhr.statusText}`;
+                        try {
+                            const errData = JSON.parse(xhr.responseText);
+                            if (errData.error) errorMsg = errData.error;
+                        } catch (e) {}
+                        reject(new Error(errorMsg));
+                    }
+                };
+
+                xhr.onerror = () => reject(new Error('Network error – upload endpoint unreachable'));
+                xhr.send(formData);
+            });
+        }
+
+        // Update post via Vercel function
+        async function updatePost(postId, userId, title, description, imageUrls) {
+            const response = await fetch(UPDATE_POST_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ postId, userId, title, description, imageUrls })
+            });
+            const result = await response.json();
+            if (!response.ok) throw new Error(result.error || 'Failed to update post');
+            return result;
+        }
+
+        // ---------- Load Post Data ----------
+        (async function init() {
+            if (!window.supabase) {
+                showPageError('Supabase client not initialized.');
+                return;
+            }
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const postId = urlParams.get('id');
+            if (!postId) {
+                showPageError('No post ID provided.');
+                return;
+            }
+            document.getElementById('postId').value = postId;
+
+            const { data: { user }, error: userError } = await window.supabase.auth.getUser();
+            if (userError || !user) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // Fetch post
+            const { data: post, error: postError } = await window.supabase
+                .from('posts')
+                .select('*')
+                .eq('id', postId)
+                .single();
+
+            if (postError) {
+                showPageError('Error loading post: ' + postError.message);
+                return;
+            }
+            if (post.user_id !== user.id) {
+                showPageError('You do not have permission to edit this post.');
+                return;
+            }
+
+            // Fill form
+            document.getElementById('title').value = post.title || '';
+            document.getElementById('description').value = post.description || '';
+
+            // Display existing images
+            const currentImagesDiv = document.getElementById('currentImages');
+            if (post.images && post.images.length > 0) {
+                post.images.forEach((url, index) => {
+                    const container = document.createElement('div');
+                    container.className = 'existing-image';
+                    container.dataset.url = url;
+                    container.innerHTML = `
+                        <img src="${url}" alt="Current image ${index+1}">
+                        <button class="remove-btn" onclick="markImageForRemoval(this)"><i class="fas fa-times"></i></button>
+                    `;
+                    currentImagesDiv.appendChild(container);
+                });
+            } else {
+                currentImagesDiv.innerHTML = '<p>No images currently.</p>';
+            }
+
+            // Store original image URLs for later deletion
+            window.originalImageUrls = post.images || [];
+
+            await updateSubscriptionStatus();
+        })();
+
+        // Mark image for removal (client-side only – we'll handle deletion on submit)
+        window.markImageForRemoval = function(btn) {
+            const container = btn.closest('.existing-image');
+            if (container) {
+                container.remove();
+                // We'll keep track of remaining images after removal
+            }
+        };
+
+        // ---------- Form Submission ----------
+        document.getElementById('postForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const active = await hasActiveSubscription();
+            if (!active) {
+                showMessage('You need an active subscription to edit posts.', 'error');
+                await updateSubscriptionStatus();
+                return;
+            }
+
+            const postId = document.getElementById('postId').value;
+            const title = document.getElementById('title').value.trim();
+            const description = document.getElementById('description').value.trim();
+            const newFiles = document.getElementById('imageFiles').files;
+            const currentImages = Array.from(document.querySelectorAll('.existing-image')).map(el => el.dataset.url);
+
+            if (!title || !description) {
+                showMessage('Please fill all required fields', 'error');
+                return;
+            }
+
+            // Determine final image set
+            let finalImageUrls = [...currentImages]; // start with currently kept images
+
+            // If user uploaded new images, they replace everything
+            if (newFiles.length > 0) {
+                // We'll delete all original images later, and upload new ones
+                // But first, we need to upload new images
+                const progressDiv = document.getElementById('uploadProgress');
+                const progressBar = document.getElementById('progressBar');
+                const progressMessage = document.getElementById('progressMessage');
+                progressDiv.style.display = 'block';
+                document.getElementById('submitBtn').disabled = true;
+
+                try {
+                    const newUrls = [];
+                    for (let i = 0; i < newFiles.length; i++) {
+                        progressMessage.textContent = `Compressing & uploading new image ${i+1} of ${newFiles.length}...`;
+                        progressBar.value = 0;
+                        const url = await uploadSingleImage(newFiles[i]);
+                        newUrls.push(url);
+                    }
+                    finalImageUrls = newUrls; // replace with new ones
+                } catch (err) {
+                    showMessage('Error uploading new images: ' + err.message, 'error');
+                    progressDiv.style.display = 'none';
+                    document.getElementById('submitBtn').disabled = false;
+                    return;
+                } finally {
+                    progressDiv.style.display = 'none';
+                }
+            }
+
+            // Now delete old images that are no longer needed
+            // We need to delete images that were in original but not in final (if we replaced)
+            if (window.originalImageUrls) {
+                const imagesToDelete = window.originalImageUrls.filter(url => !finalImageUrls.includes(url));
+                for (const url of imagesToDelete) {
+                    try {
+                        await deleteImageFromGitHub(url);
+                    } catch (err) {
+                        console.warn('Failed to delete old image:', url, err);
+                        // Continue anyway
+                    }
+                }
+            }
+
+            // Update post in Supabase
+            try {
+                const { data: { user } } = await window.supabase.auth.getUser();
+                if (!user) throw new Error('Not logged in');
+
+                await updatePost(postId, user.id, title, description, finalImageUrls);
+
+                showMessage('✅ Your listing has been updated!', 'success');
+                setTimeout(() => window.location.href = 'dashboard.html', 2000);
+            } catch (err) {
+                showMessage('Error: ' + err.message, 'error');
+            } finally {
+                document.getElementById('submitBtn').disabled = false;
+            }
+        });
+
+        function showMessage(msg, type) {
+            const msgDiv = document.getElementById('postMessage');
+            msgDiv.textContent = msg;
+            msgDiv.className = 'auth-message ' + type;
+            msgDiv.style.display = 'block';
+            setTimeout(() => msgDiv.style.display = 'none', 5000);
+        }
+
+        // Mobile menu and auth handling (same as other pages)
+        document.addEventListener('DOMContentLoaded', function() {
+            const checkbox = document.getElementById('menu-toggle-checkbox');
+            const mobileMenu = document.getElementById('mobileMenu');
+            const navLinks = document.getElementById('navLinks');
+
+            if (mobileMenu && checkbox) {
+                mobileMenu.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    checkbox.checked = !checkbox.checked;
+                });
+            }
+
+            if (navLinks) {
+                navLinks.addEventListener('click', function(e) {
+                    const target = e.target.closest('a, button');
+                    if (!target) return;
+                    checkbox.checked = false;
+
+                    if (target.tagName === 'BUTTON' && target.classList.contains('btn-login')) {
+                        e.preventDefault();
+                        if (typeof window.openAuthModal === 'function') {
+                            window.openAuthModal();
+                        } else {
+                            document.getElementById('authModal').style.display = 'block';
+                        }
+                    }
+                });
+            }
+
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768 && checkbox) checkbox.checked = false;
+            });
+        });
+
+        // Contact modal script (same as other pages)
+        const modal = document.getElementById('contactModal');
+        const btn = document.getElementById('contactBtn');
+        const closeBtn = document.getElementById('closeModal');
+        const form = document.getElementById('contactForm');
+        const submitBtn = document.getElementById('contactSubmit');
+        const statusDiv = document.getElementById('contactStatus');
+
+        btn.addEventListener('click', () => modal.classList.add('show'));
+        closeBtn.addEventListener('click', () => {
+            modal.classList.remove('show');
+            form.reset();
+            statusDiv.textContent = '';
+        });
+        window.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.classList.remove('show');
+                form.reset();
+                statusDiv.textContent = '';
+            }
+        });
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            statusDiv.textContent = 'Sending...';
+            statusDiv.className = 'contact-message';
+            submitBtn.disabled = true;
+            const name = document.getElementById('contactName').value.trim();
+            const email = document.getElementById('contactEmail').value.trim();
+            const message = document.getElementById('contactMessage').value.trim();
+            let userId = null;
+            if (window.supabase) {
+                const { data: { user } } = await window.supabase.auth.getUser();
+                userId = user?.id || null;
+            }
+            try {
+                const response = await fetch('https://carused-mooo-com.vercel.app/api/contact', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email, message, userId })
+                });
+                const result = await response.json();
+                if (!response.ok) throw new Error(result.error || 'Failed to send message');
+                statusDiv.textContent = 'Message sent successfully! We\'ll get back to you soon.';
+                statusDiv.className = 'contact-message success';
+                form.reset();
+            } catch (err) {
+                statusDiv.textContent = 'Error: ' + err.message;
+                statusDiv.className = 'contact-message error';
+            } finally {
+                submitBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+  </html>
