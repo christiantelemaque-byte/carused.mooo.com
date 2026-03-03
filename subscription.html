@@ -6,16 +6,92 @@
     <title>Subscription - LuxeCompanions</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-    <script src="js/cache.js"></script>
-    <script>
-        window.toggleMobileMenu = function() {
-            var navbar = document.getElementById('navbar');
-            if (navbar) navbar.classList.toggle('active');
-            return false;
-        };
-    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+    <!-- Universal box-sizing and responsive modal styles -->
     <style>
+        * { box-sizing: border-box; }
+        html, body { max-width: 100%; overflow-x: hidden; }
+        #menu-toggle-checkbox { display: none !important; }
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none !important;
+                flex-direction: column !important;
+                width: 100% !important;
+                background: white !important;
+                position: absolute !important;
+                top: 100% !important;
+                left: 0 !important;
+                right: 0 !important;
+                padding: 1rem 0 !important;
+                box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+                z-index: 1000 !important;
+            }
+            #menu-toggle-checkbox:checked ~ .nav-links { display: flex !important; }
+            .menu-toggle { display: block !important; font-size: 1.8rem; color: var(--primary-pink); cursor: pointer; padding: 0.5rem; }
+        }
+        @media (min-width: 769px) {
+            .menu-toggle { display: none !important; }
+            .nav-links { display: flex !important; position: static !important; box-shadow: none !important; }
+        }
+        /* Responsive modal styles */
+        .modal {
+            display: none !important;
+            position: fixed !important;
+            z-index: 2000 !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            background-color: rgba(0,0,0,0.5) !important;
+            align-items: center !important;
+            justify-content: center !important;
+            padding: 1rem !important;
+            box-sizing: border-box !important;
+        }
+        .modal.show { display: flex !important; }
+        .modal-content {
+            background: white !important;
+            padding: 2rem !important;
+            border-radius: 15px !important;
+            max-width: 500px !important;
+            width: 100% !important;
+            max-height: 90vh !important;
+            overflow-y: auto !important;
+            position: relative !important;
+            box-sizing: border-box !important;
+            margin: auto !important;
+        }
+        @media (max-width: 480px) { .modal-content { padding: 1.5rem !important; } }
+        .close { position: absolute !important; right: 15px !important; top: 10px !important; font-size: 28px !important; cursor: pointer !important; color: var(--primary-pink) !important; line-height: 1 !important; }
+        .contact-form .form-group { margin-bottom: 1.5rem !important; }
+        .contact-form label { display: block !important; margin-bottom: 0.5rem !important; font-weight: 500 !important; }
+        .contact-form input, .contact-form textarea {
+            width: 100% !important;
+            padding: 0.8rem !important;
+            border: 2px solid var(--light-pink) !important;
+            border-radius: 8px !important;
+            font-size: 1rem !important;
+            box-sizing: border-box !important;
+        }
+        .contact-form textarea { min-height: 100px !important; resize: vertical !important; }
+        .contact-form button {
+            width: 100% !important;
+            padding: 1rem !important;
+            background: linear-gradient(135deg, var(--primary-pink), var(--dark-pink)) !important;
+            color: white !important;
+            border: none !important;
+            border-radius: 30px !important;
+            font-weight: 600 !important;
+            cursor: pointer !important;
+            transition: transform 0.3s !important;
+        }
+        .contact-form button:hover { transform: translateY(-2px) !important; }
+        .contact-form button:disabled { opacity: 0.5 !important; cursor: not-allowed !important; }
+        .contact-message { margin-top: 1rem !important; text-align: center !important; font-size: 0.9rem !important; word-wrap: break-word !important; }
+        .contact-message.success { color: #28a745 !important; }
+        .contact-message.error { color: #dc3545 !important; }
+
+        /* Plan card styles (original) */
         .plan-card {
             cursor: pointer;
             transition: all 0.3s;
@@ -55,17 +131,16 @@
             width: 100%;
             margin-top: 1.5rem;
         }
-        #authStatus {
-            background: #e2f0d9;
-            color: #0a5c2e;
-            border: 1px solid #28a745;
-            border-radius: 8px;
-            padding: 0.5rem;
-            margin-bottom: 1rem;
-            font-size: 0.9rem;
-            text-align: center;
-        }
     </style>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="js/cache.js"></script>
+    <script>
+        window.openAuthModal = window.openAuthModal || function() {
+            var modal = document.getElementById('authModal');
+            if (modal) modal.style.display = 'block';
+            if (typeof loadAuthForms === 'function') loadAuthForms();
+        };
+    </script>
 </head>
 <body>
     <!-- Navigation -->
@@ -78,32 +153,31 @@
         </div>
     </nav>
 
-    <main style="padding: 2rem 1.5rem; max-width: 1200px; margin: 0 auto;">
-        <div id="authStatus">Checking login status...</div>
-
+    <!-- Main Content -->
+    <main style="padding: 2rem 1.5rem;">
         <h1 style="text-align: center; margin-bottom: 2rem; color: var(--dark-pink);">
             <i class="fas fa-crown" style="color: var(--gold);"></i> Choose Your Plan
         </h1>
 
         <div class="plans-grid">
             <!-- Regular Plan -->
-            <div class="plan-card">
+            <div class="plan-card" onclick="selectPlan('regular')">
                 <i class="fas fa-star" style="font-size: 3rem; color: var(--primary-pink); margin-bottom: 1rem;"></i>
-                <h2>Regular</h2>
+                <h2 style="margin-bottom: 0.5rem;">Regular</h2>
                 <div style="font-size: 2.5rem; font-weight: 700; color: var(--primary-pink);">$10<span style="font-size:1rem; color:#666;">/month</span></div>
                 <ul style="list-style:none; margin:1.5rem 0; text-align:left; padding-left: 1.5rem;">
                     <li><i class="fas fa-check" style="color:#28a745;"></i> Unlimited posts</li>
                     <li><i class="fas fa-check" style="color:#28a745;"></i> Standard placement</li>
                     <li><i class="fas fa-check" style="color:#28a745;"></i> Profile views</li>
                 </ul>
-                <button onclick="subscribe('regular')" class="btn-primary btn-subscribe">Subscribe $10</button>
+                <button id="subscribeRegular" class="btn-primary btn-subscribe">Subscribe $10</button>
             </div>
 
             <!-- VIP Plan -->
-            <div class="plan-card vip">
+            <div class="plan-card vip" onclick="selectPlan('vip')">
                 <div class="badge-popular">POPULAR</div>
                 <i class="fas fa-crown" style="font-size: 3rem; color: var(--gold); margin-bottom: 1rem;"></i>
-                <h2>VIP</h2>
+                <h2 style="margin-bottom: 0.5rem;">VIP</h2>
                 <div style="font-size: 2.5rem; font-weight: 700; color: var(--gold);">$20<span style="font-size:1rem; color:#666;">/month</span></div>
                 <ul style="list-style:none; margin:1.5rem 0; text-align:left; padding-left: 1.5rem;">
                     <li><i class="fas fa-check" style="color:#28a745;"></i> Unlimited posts</li>
@@ -111,56 +185,246 @@
                     <li><i class="fas fa-check" style="color:#28a745;"></i> Priority support</li>
                     <li><i class="fas fa-check" style="color:#28a745;"></i> Badge on profile</li>
                 </ul>
-                <button onclick="subscribe('vip')" class="btn-primary btn-subscribe" style="background: linear-gradient(135deg, var(--gold), #ffd700);">Subscribe $20</button>
+                <button id="subscribeVIP" class="btn-primary btn-subscribe" style="background: linear-gradient(135deg, var(--gold), #ffd700);">Subscribe $20</button>
             </div>
         </div>
+
+        <div id="subscriptionMessage" class="auth-message" style="display: none;"></div>
     </main>
 
-    <footer>...</footer>
+    <!-- Footer with contact button -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>LuxeCompanions</h3>
+                <p>An exclusive platform for sophisticated companionship connections.</p>
+            </div>
+            <div class="footer-section">
+                <h4>Important</h4>
+                <ul>
+                    <li><a href="#terms">Terms of Service</a></li>
+                    <li><a href="#privacy">Privacy Policy</a></li>
+                    <li><a href="#age">Age Verification</a></li>
+                    <li><a href="#safety">Safety Guidelines</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Contact</h4>
+                <button id="contactBtn" class="btn-contact" style="background: none; border: none; color: #ccc; cursor: pointer; padding: 0; font-size: inherit; text-decoration: underline;">Contact us</button>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2024 LuxeCompanions. Must be 18+ to access. All rights reserved.</p>
+            <p class="disclaimer">This website is for legal companionship services only. Users must comply with all applicable laws.</p>
+        </div>
+    </footer>
+
+    <!-- Auth Modal -->
+    <div id="authModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close" onclick="document.getElementById('authModal').style.display='none'">&times;</span>
+            <div id="authForms"><div style="text-align:center; padding:20px;">Loading...</div></div>
+        </div>
+    </div>
+
+    <!-- Contact Modal -->
+    <div id="contactModal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="closeModal">&times;</span>
+            <h2 style="color: var(--dark-pink); margin-bottom: 1.5rem;">Contact Us</h2>
+            <form id="contactForm" class="contact-form">
+                <div class="form-group">
+                    <label for="contactName">Full Name *</label>
+                    <input type="text" id="contactName" required>
+                </div>
+                <div class="form-group">
+                    <label for="contactEmail">Email *</label>
+                    <input type="email" id="contactEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="contactMessage">Message *</label>
+                    <textarea id="contactMessage" required></textarea>
+                </div>
+                <button type="submit" id="contactSubmit">Send Message</button>
+                <div id="contactStatus" class="contact-message"></div>
+            </form>
+        </div>
+    </div>
 
     <script src="js/auth.js"></script>
+    <script src="js/app.js"></script>
     <script>
-        // 🔁 YOUR LIVE STRIPE PAYMENT LINKS (recurring monthly)
-        const PAYMENT_LINKS = {
-            regular: 'https://buy.stripe.com/14A8wP2yY6ZK5zM0bF73G07',
-            vip: 'https://buy.stripe.com/9B68wP7Ti6ZKd2e9Mf73G08'
+        // ---------- Configuration ----------
+        const PRICE_IDS = {
+            regular: 'price_1T4AJmFiAep3lhtUI3Rgs87i',
+            vip: 'price_1T4AM6FiAep3lhtUrW06HL7'
         };
 
-        async function checkAuth() {
-            const statusEl = document.getElementById('authStatus');
+        const CREATE_CHECKOUT_URL = 'https://carused-mooo-com.vercel.app/api/create-checkout-session';
+
+        let selectedPlan = null;
+
+        function selectPlan(plan) {
+            selectedPlan = plan;
+            document.querySelectorAll('.plan-card').forEach(c => c.style.border = '');
+            if (plan === 'regular') {
+                document.querySelector('.plan-card:not(.vip)').style.border = '3px solid var(--primary-pink)';
+            } else {
+                document.querySelector('.plan-card.vip').style.border = '3px solid var(--gold)';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', async function() {
             if (!window.supabase) {
-                statusEl.innerHTML = '❌ Supabase client not loaded.';
-                return false;
+                window.location.href = 'index.html';
+                return;
             }
-            const { data: { session }, error } = await window.supabase.auth.getSession();
-            if (error || !session) {
-                statusEl.innerHTML = '❌ Not logged in. <a href="index.html">Log in</a>';
-                return false;
-            }
-            statusEl.innerHTML = `✅ Logged in as: ${session.user?.email}`;
-            return true;
-        }
 
-        function subscribe(plan) {
-            checkAuth().then(loggedIn => {
-                if (!loggedIn) return;
-                // Store the plan in sessionStorage for the success page
-                sessionStorage.setItem('selectedPlan', plan);
-                window.location.href = PAYMENT_LINKS[plan];
+            const { data: { user }, error } = await window.supabase.auth.getUser();
+            if (error || !user) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            document.getElementById('subscribeRegular').addEventListener('click', (e) => {
+                e.stopPropagation();
+                handleSubscribe('regular');
             });
+            document.getElementById('subscribeVIP').addEventListener('click', (e) => {
+                e.stopPropagation();
+                handleSubscribe('vip');
+            });
+        });
+
+        async function handleSubscribe(plan) {
+            const btn = plan === 'regular' ? document.getElementById('subscribeRegular') : document.getElementById('subscribeVIP');
+            btn.disabled = true;
+            btn.textContent = 'Redirecting...';
+
+            try {
+                const { data: { session } } = await supabase.auth.getSession();
+                if (!session) throw new Error('No active session');
+
+                const response = await fetch(CREATE_CHECKOUT_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${session.access_token}`
+                    },
+                    body: JSON.stringify({
+                        priceId: PRICE_IDS[plan],
+                        planType: plan
+                    })
+                });
+
+                const { url, error } = await response.json();
+                if (error) throw new Error(error);
+                if (!url) throw new Error('No checkout URL returned');
+
+                window.location.href = url;
+            } catch (err) {
+                showMessage('Error: ' + err.message, 'error');
+                btn.disabled = false;
+                btn.textContent = plan === 'regular' ? 'Subscribe $10' : 'Subscribe $20';
+            }
         }
 
-        document.addEventListener('DOMContentLoaded', checkAuth);
-    </script>
+        function showMessage(msg, type) {
+            const msgDiv = document.getElementById('subscriptionMessage');
+            msgDiv.textContent = msg;
+            msgDiv.className = 'auth-message ' + type;
+            msgDiv.style.display = 'block';
+            setTimeout(() => msgDiv.style.display = 'none', 5000);
+        }
 
-    <!-- Mobile menu close handler -->
-    <script>
+        // Mobile menu and auth handling (same as other pages)
         document.addEventListener('DOMContentLoaded', function() {
-            var checkbox = document.getElementById('menu-toggle-checkbox');
-            document.getElementById('navLinks')?.addEventListener('click', (e) => {
-                if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON') checkbox.checked = false;
+            const checkbox = document.getElementById('menu-toggle-checkbox');
+            const mobileMenu = document.getElementById('mobileMenu');
+            const navLinks = document.getElementById('navLinks');
+
+            if (mobileMenu && checkbox) {
+                mobileMenu.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    checkbox.checked = !checkbox.checked;
+                });
+            }
+
+            if (navLinks) {
+                navLinks.addEventListener('click', function(e) {
+                    const target = e.target.closest('a, button');
+                    if (!target) return;
+                    checkbox.checked = false;
+
+                    if (target.tagName === 'BUTTON' && target.classList.contains('btn-login')) {
+                        e.preventDefault();
+                        if (typeof window.openAuthModal === 'function') {
+                            window.openAuthModal();
+                        } else {
+                            document.getElementById('authModal').style.display = 'block';
+                        }
+                    }
+                });
+            }
+
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768 && checkbox) checkbox.checked = false;
             });
+        });
+
+        // Contact modal script (same as other pages)
+        const modal = document.getElementById('contactModal');
+        const btn = document.getElementById('contactBtn');
+        const closeBtn = document.getElementById('closeModal');
+        const form = document.getElementById('contactForm');
+        const submitBtn = document.getElementById('contactSubmit');
+        const statusDiv = document.getElementById('contactStatus');
+
+        btn.addEventListener('click', () => modal.classList.add('show'));
+        closeBtn.addEventListener('click', () => {
+            modal.classList.remove('show');
+            form.reset();
+            statusDiv.textContent = '';
+        });
+        window.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.classList.remove('show');
+                form.reset();
+                statusDiv.textContent = '';
+            }
+        });
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            statusDiv.textContent = 'Sending...';
+            statusDiv.className = 'contact-message';
+            submitBtn.disabled = true;
+            const name = document.getElementById('contactName').value.trim();
+            const email = document.getElementById('contactEmail').value.trim();
+            const message = document.getElementById('contactMessage').value.trim();
+            let userId = null;
+            if (window.supabase) {
+                const { data: { user } } = await window.supabase.auth.getUser();
+                userId = user?.id || null;
+            }
+            try {
+                const response = await fetch('https://carused-mooo-com.vercel.app/api/contact', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email, message, userId })
+                });
+                const result = await response.json();
+                if (!response.ok) throw new Error(result.error || 'Failed to send message');
+                statusDiv.textContent = 'Message sent successfully! We\'ll get back to you soon.';
+                statusDiv.className = 'contact-message success';
+                form.reset();
+            } catch (err) {
+                statusDiv.textContent = 'Error: ' + err.message;
+                statusDiv.className = 'contact-message error';
+            } finally {
+                submitBtn.disabled = false;
+            }
         });
     </script>
 </body>
-                        </html>
+    </html>
