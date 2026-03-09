@@ -73,37 +73,8 @@
             if (typeof loadAuthForms === 'function') loadAuthForms();
         };
 
-        // ========== MULTILINGUAL SCAM KEYWORDS ==========
-        const scamKeywords = [
-            // English
-            'urgent', 'wire transfer', 'western union', 'moneygram', 'gift card',
-            'paypal', 'cash app', 'zelle', 'bitcoin', 'crypto', 'deposit',
-            'advance fee', 'credit card', 'bank transfer', 'send money', 'prepaid',
-            'recruitment', 'casting', 'porn', 'actor', 'actress', 'earn', 'opportunity',
-            'apply', 'application', 'whatsapp', 'well paid', 'lodging', 'transport',
-            'respectable', 'hidden face', 'shooting', 'production',
-
-            // French
-            'urgent', 'virement', 'western union', 'moneygram', 'carte cadeau',
-            'paypal', 'cash app', 'zelle', 'bitcoin', 'crypto', 'dépôt',
-            'frais avance', 'carte de crédit', 'transfert bancaire', 'envoyer de l\'argent', 'prépayé',
-            'recrutement', 'casting', 'porno', 'acteur', 'actrice', 'gagnez', 'opportunité',
-            'candidature', 'postuler', 'whatsapp', 'bien payé', 'logé', 'véhiculé',
-            'respectable', 'visage caché', 'tournage', 'production', 'industriel',
-            'triplex prod', 'inscrivez-vous', 'envoyer votre candidature', 'par whatsapp',
-            '10.000$', 'métier le mieux payé', 'modèle photos', 'magazines x',
-            'visage découvert', 'logés', 'véhiculés',
-
-            // Spanish
-            'urgente', 'transferencia', 'western union', 'moneygram', 'tarjeta de regalo',
-            'paypal', 'cash app', 'zelle', 'bitcoin', 'cripto', 'depósito',
-            'tarifa por adelantado', 'tarjeta de crédito', 'transferencia bancaria', 'enviar dinero', 'prepagado',
-            'reclutamiento', 'casting', 'porno', 'actor', 'actriz', 'ganar', 'oportunidad',
-            'solicitud', 'postular', 'whatsapp', 'bien pagado', 'alojamiento', 'transporte',
-            'respetable', 'cara oculta', 'rodaje', 'producción', 'industrial',
-            'inscríbete', 'envía tu solicitud', 'por whatsapp', '10.000$', 'trabajo mejor pagado',
-            'fotos para revistas x', 'rostro descubierto', 'alojados', 'transportados'
-        ];
+        // Multilingual scam keywords (optional)
+        const scamKeywords = [ 'urgent', 'wire transfer', 'western union', 'moneygram', 'gift card', 'paypal', 'cash app', 'zelle', 'bitcoin', 'crypto', 'deposit', 'advance fee', 'credit card', 'bank transfer', 'send money', 'prepaid', 'recruitment', 'casting', 'porn', 'actor', 'actress', 'earn', 'opportunity', 'apply', 'application', 'whatsapp', 'well paid', 'lodging', 'transport', 'respectable', 'hidden face', 'shooting', 'production', 'virement', 'carte cadeau', 'dépôt', 'frais avance', 'carte de crédit', 'transfert bancaire', 'envoyer de l\'argent', 'prépayé', 'recrutement', 'porno', 'acteur', 'actrice', 'gagnez', 'opportunité', 'candidature', 'postuler', 'bien payé', 'logé', 'véhiculé', 'visage caché', 'tournage', 'industriel', 'triplex prod', 'inscrivez-vous', 'envoyer votre candidature', 'par whatsapp', '10.000$', 'métier le mieux payé', 'modèle photos', 'magazines x', 'visage découvert', 'logés', 'véhiculés', 'transferencia', 'tarjeta de regalo', 'depósito', 'tarifa por adelantado', 'tarjeta de crédito', 'transferencia bancaria', 'enviar dinero', 'prepagado', 'reclutamiento', 'porno', 'ganar', 'oportunidad', 'solicitud', 'postular', 'bien pagado', 'alojamiento', 'transporte', 'cara oculta', 'rodaje', 'inscríbete', 'envía tu solicitud', 'por whatsapp', '10.000$', 'trabajo mejor pagado', 'fotos para revistas x', 'rostro descubierto', 'alojados', 'transportados' ];
 
         function containsScam(text) {
             const lower = text.toLowerCase();
@@ -208,31 +179,46 @@
             document.getElementById('pageError').style.display = 'block';
         }
 
-        // This function now only updates the status display; it does NOT block posting.
+        async function hasActiveSubscription() {
+            try {
+                const expiry = localStorage.getItem('subscription_expires_at');
+                if (expiry && new Date(expiry) > new Date()) return true;
+                const { data: { user } } = await window.supabase.auth.getUser();
+                if (!user) return false;
+                const { data: profile, error } = await window.supabase
+                    .from('profiles')
+                    .select('subscription_expires_at')
+                    .eq('id', user.id)
+                    .single();
+                if (error || !profile?.subscription_expires_at) return false;
+                const dbExpiry = new Date(profile.subscription_expires_at);
+                if (dbExpiry > new Date()) {
+                    localStorage.setItem('subscription_expires_at', profile.subscription_expires_at);
+                    return true;
+                } else {
+                    localStorage.removeItem('subscription_expires_at');
+                    return false;
+                }
+            } catch (err) {
+                console.error('Subscription check error:', err);
+                return false;
+            }
+        }
+
         async function updateSubscriptionStatus() {
             const statusDiv = document.getElementById('subscriptionStatus');
             const warningDiv = document.getElementById('subscriptionWarning');
             const submitBtn = document.getElementById('submitBtn');
-
-            // We don't disable the button based on subscription; we only show status.
-            const { data: { user } } = await window.supabase.auth.getUser();
-            if (!user) return;
-            const { data: profile, error } = await window.supabase
-                .from('profiles')
-                .select('subscription_type, subscription_expires_at')
-                .eq('id', user.id)
-                .single();
-            if (error || !profile) {
-                statusDiv.innerHTML = '<span style="color: #dc3545;">Error loading subscription</span>';
-                return;
-            }
-            const now = new Date();
-            const expiresAt = profile.subscription_expires_at ? new Date(profile.subscription_expires_at) : null;
-            const hasValidSub = profile.subscription_type !== 'none' && expiresAt && expiresAt > now;
-            if (hasValidSub) {
-                statusDiv.innerHTML = `<span style="color: #28a745; font-weight:600;"><i class="fas fa-check-circle"></i> Active ${profile.subscription_type} subscription</span>`;
+            const active = await hasActiveSubscription();
+            if (active) {
+                statusDiv.innerHTML = '<span style="color: #28a745; font-weight:600;"><i class="fas fa-check-circle"></i> Active subscription</span>';
+                warningDiv.style.display = 'none';
+                submitBtn.disabled = false;
             } else {
-                statusDiv.innerHTML = '<span style="color: #6c757d;">Free account (no subscription)</span>';
+                statusDiv.innerHTML = '<span style="color: #dc3545; font-weight:600;"><i class="fas fa-times-circle"></i> No active subscription</span>';
+                warningDiv.style.display = 'block';
+                submitBtn.disabled = true;
+                submitBtn.style.opacity = '0.5';
             }
         }
 
@@ -354,7 +340,7 @@
                     return;
                 }
 
-                // Scam check – if scam detected, user must be VIP
+                // Scam check
                 const isScam = containsScam(description);
                 if (isScam) {
                     const { data: profile } = await window.supabase
@@ -368,7 +354,6 @@
                     }
                 }
 
-                // Proceed with upload (no subscription check for non‑scam posts)
                 const progressDiv = document.getElementById('uploadProgress');
                 const progressBar = document.getElementById('progressBar');
                 const progressMessage = document.getElementById('progressMessage');
@@ -387,7 +372,6 @@
                     const { data: { user } } = await window.supabase.auth.getUser();
                     if (!user) throw new Error('Not logged in');
 
-                    // Determine VIP flag based on actual subscription
                     const { data: profile, error: profileError } = await window.supabase
                         .from('profiles')
                         .select('subscription_type')
@@ -398,6 +382,10 @@
 
                     progressMessage.textContent = 'Saving your post...';
                     await savePost(title, description, imageUrls, user.id, isVip);
+
+                    // ✅ Clear public cache so homepage sees the new post
+                    localStorage.removeItem('luxe_public_posts');
+                    localStorage.removeItem('luxe_last_fetch');
 
                     showMessage('✅ Your listing has been published!', 'success');
                     document.getElementById('postForm').reset();
@@ -448,7 +436,7 @@
             });
         });
 
-        // Contact modal (unchanged)
+        // Contact modal script (same as other pages)
         const modal = document.getElementById('contactModal');
         const btn = document.getElementById('contactBtn');
         const closeBtn = document.getElementById('closeModal');
@@ -501,4 +489,4 @@
         });
     </script>
 </body>
-    </html>
+</html>
