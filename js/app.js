@@ -1,10 +1,13 @@
-// js/app.js – with cache‑first and background refresh
+// js/app.js – with delta updates and cache-first strategy
 console.log('✅ app.js loaded');
+
+const CACHE_KEY = 'luxe_public_posts';
+const LAST_FETCH_KEY = 'luxe_last_fetch';
 
 class EscortDirectory {
     constructor() {
         this.fallbackPosts = JSON.parse(localStorage.getItem('luxePosts')) || [];
-        this.allPosts = [];               // store all fetched posts (for filtering)
+        this.allPosts = [];
         this.currentCountry = '';
         this.currentState = '';
         this.currentCity = '';
@@ -101,20 +104,94 @@ class EscortDirectory {
         if (vipContainer) vipContainer.innerHTML = '<div class="loading">Loading VIP listings...</div>';
         if (regularContainer) regularContainer.innerHTML = '<div class="loading">Loading regular listings...</div>';
 
-        // 🔁 Try cache first
-        const cachedPosts = (typeof getPublicPosts === 'function') ? getPublicPosts() : null;
-        if (cachedPosts && cachedPosts.length > 0) {
-            this.allPosts = cachedPosts;
+        // Try to load from cache
+        const cached = this.getCachedPosts();
+        if (cached) {
+            this.allPosts = cached;
             this.populateCountryFilter();
             this.displayFilteredPosts();
-            // Refresh in background (fetch new posts and update cache)
-            this.refreshListings();
+            // Fetch updates in background
+            this.fetchUpdates();
         } else {
-            await this.refreshListings();
+            // No cache – do full refresh
+            await this.fullRefresh();
         }
     }
 
-    async refreshListings() {
+    getCachedPosts() {
+        const cached = localStorage.getItem(CACHE_KEY);
+        if (!cached) return null;
+        try {
+            const { posts, timestamp } = JSON.parse(cached);
+            // Cache expiry: 1 hour (adjust as needed)
+            if (Date.now() - timestamp > 60 * 60 * 1000) {
+                localStorage.removeItem(CACHE_KEY);
+                localStorage.removeItem(LAST_FETCH_KEY);
+                return null;
+            }
+            return posts;
+        } catch {
+            return null;
+        }
+    }
+
+    setCachedPosts(posts) {
+        const cacheEntry = {
+            posts,
+            timestamp: Date.now()
+        };
+        localStorage.setItem(CACHE_KEY, JSON.stringify(cacheEntry));
+    }
+
+    async fetchUpdates() {
+        const lastFetch = localStorage.getItem(LAST_FETCH_KEY);
+        if (!lastFetch) {
+            // No lastFetch – do full refresh
+            await this.fullRefresh();
+            return;
+        }
+
+        try {
+            const response = await fetch('https://carused-mooo-com.vercel.app/api/get-updates', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ lastFetch })
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error);
+
+            // Merge updates into allPosts
+            let updated = [...this.allPosts];
+
+            // Remove deleted posts
+            if (data.deleted && data.deleted.length) {
+                updated = updated.filter(p => !data.deleted.includes(p.id));
+            }
+
+            // Add/update new posts
+            if (data.posts && data.posts.length) {
+                // Remove existing versions of updated posts
+                const newIds = data.posts.map(p => p.id);
+                updated = updated.filter(p => !newIds.includes(p.id));
+                updated = [...updated, ...data.posts];
+            }
+
+            // Sort by created_at descending
+            updated.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+            this.allPosts = updated;
+            this.setCachedPosts(updated);
+            localStorage.setItem(LAST_FETCH_KEY, new Date().toISOString());
+
+            this.populateCountryFilter();
+            this.displayFilteredPosts();
+        } catch (err) {
+            console.error('Update fetch failed, falling back to full refresh', err);
+            await this.fullRefresh();
+        }
+    }
+
+    async fullRefresh() {
         try {
             if (!window.supabase || typeof window.supabase.from !== 'function') {
                 console.warn('Supabase not available, using fallback');
@@ -159,13 +236,14 @@ class EscortDirectory {
                 return;
             }
 
-            // Update allPosts and cache
             this.allPosts = posts;
-            if (typeof setPublicPosts === 'function') setPublicPosts(posts);
+            this.setCachedPosts(posts);
+            localStorage.setItem(LAST_FETCH_KEY, new Date().toISOString());
+
             this.populateCountryFilter();
             this.displayFilteredPosts();
         } catch (err) {
-            console.error('Unexpected error in refreshListings:', err);
+            console.error('Unexpected error in fullRefresh:', err);
             this.displayFallback();
         }
     }
@@ -271,6 +349,7 @@ class EscortDirectory {
         const imageUrl = (post.images && post.images[0]) ? post.images[0] : 'images/default-avatar.jpg';
         const username = post.profiles?.username || post.username || (post.user_id ? 'User' : 'Anonymous');
 
+        // Build location string (city, region, country) if available
         let locationText = '';
         if (post.location?.city && post.location?.region && post.location?.country) {
             locationText = `${post.location.city}, ${post.location.region}, ${post.location.country}`;
