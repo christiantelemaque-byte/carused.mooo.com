@@ -1,10 +1,10 @@
-// js/app.js – with three‑level filter (country, state, city) and simplified post card
+// js/app.js – with cache‑first and background refresh
 console.log('✅ app.js loaded');
 
 class EscortDirectory {
     constructor() {
         this.fallbackPosts = JSON.parse(localStorage.getItem('luxePosts')) || [];
-        this.allPosts = [];
+        this.allPosts = [];               // store all fetched posts (for filtering)
         this.currentCountry = '';
         this.currentState = '';
         this.currentCity = '';
@@ -101,11 +101,13 @@ class EscortDirectory {
         if (vipContainer) vipContainer.innerHTML = '<div class="loading">Loading VIP listings...</div>';
         if (regularContainer) regularContainer.innerHTML = '<div class="loading">Loading regular listings...</div>';
 
+        // 🔁 Try cache first
         const cachedPosts = (typeof getPublicPosts === 'function') ? getPublicPosts() : null;
         if (cachedPosts && cachedPosts.length > 0) {
             this.allPosts = cachedPosts;
             this.populateCountryFilter();
             this.displayFilteredPosts();
+            // Refresh in background (fetch new posts and update cache)
             this.refreshListings();
         } else {
             await this.refreshListings();
@@ -122,6 +124,7 @@ class EscortDirectory {
 
             let posts = null;
             let error = null;
+            // Attempt join with profiles (optional)
             try {
                 const { data, error: err } = await window.supabase
                     .from('posts')
@@ -156,6 +159,7 @@ class EscortDirectory {
                 return;
             }
 
+            // Update allPosts and cache
             this.allPosts = posts;
             if (typeof setPublicPosts === 'function') setPublicPosts(posts);
             this.populateCountryFilter();
@@ -265,8 +269,8 @@ class EscortDirectory {
         const title = post.title || (post.is_vip ? 'VIP Companion' : 'Companion');
         const desc = post.description || 'No description provided.';
         const imageUrl = (post.images && post.images[0]) ? post.images[0] : 'images/default-avatar.jpg';
+        const username = post.profiles?.username || post.username || (post.user_id ? 'User' : 'Anonymous');
 
-        // Build location string (city, region, country) if available
         let locationText = '';
         if (post.location?.city && post.location?.region && post.location?.country) {
             locationText = `${post.location.city}, ${post.location.region}, ${post.location.country}`;
