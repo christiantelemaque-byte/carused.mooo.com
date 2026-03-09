@@ -23,7 +23,7 @@ function extractFilePathFromUrl(url) {
 }
 
 export default async function handler(req, res) {
-  // Allow only cron jobs (internal Vercel) or manual with secret token
+  // Only allow internal cron with secret token (or Vercel Cron)
   const isVercelCron = req.headers['x-vercel-cron'] === 'true';
   const authHeader = req.headers.authorization;
   const hasValidToken = authHeader === `Bearer ${process.env.CRON_SECRET}`;
@@ -43,10 +43,11 @@ export default async function handler(req, res) {
     cutoffDate.setDate(cutoffDate.getDate() - 14);
     const cutoffIso = cutoffDate.toISOString();
 
-    // Find inactive posts older than 14 days
+    // Find active posts older than 14 days
     const { data: oldPosts, error: fetchError } = await supabase
       .from('posts')
       .select('id, images')
+      .eq('status', 'active')
       .lt('created_at', cutoffIso);
 
     if (fetchError) {
@@ -54,80 +55,74 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: 'Database fetch failed' });
     }
 
-    const results = [];
+    const githubToken = process.env.PICSER_GITHUB_TOKEN;
+    const githubOwner = process.env.PICSER_GITHUB_OWNER;
+    const githubRepo = process.env.PICSER_GITHUB_REPO;
+    const githubBranch = process.env.PICSER_GITHUB_BRANCH || 'main';
+
     for (const post of oldPosts) {
-      const postId = post.id;
-      const imageUrls = post.images || [];
-      const imageDeletions = [];
+      // 1. Delete images from GitHub (optional but recommended)
+      if (githubToken && githubOwner && githubRepo && post.images) {
+        for (const url of post.images) {
+          try {
+            const filePath = extractFilePathFromUrl(url);
+            if (!filePath) continue;
 
-      // Delete each image from GitHub
-      for (const url of imageUrls) {
-        try {
-          const filePath = extractFilePathFromUrl(url);
-          if (!filePath) continue;
-
-          const githubApiUrl = `https://api.github.com/repos/${process.env.PICSER_GITHUB_OWNER}/${process.env.PICSER_GITHUB_REPO}/contents/${filePath}`;
-          
-          // Get SHA
-          const getRes = await fetch(githubApiUrl, {
-            headers: {
-              Authorization: `token ${process.env.PICSER_GITHUB_TOKEN}`,
-              Accept: 'application/vnd.github.v3+json',
-            },
-          });
-          if (getRes.ok) {
-            const fileInfo = await getRes.json();
-            const sha = fileInfo.sha;
-
-            // Delete file
-            const deleteRes = await fetch(githubApiUrl, {
-              method: 'DELETE',
+            const githubApiUrl = `https://api.github.com/repos/${githubOwner}/${githubRepo}/contents/${filePath}`;
+            
+            const getRes = await fetch(githubApiUrl, {
               headers: {
-                Authorization: `token ${process.env.PICSER_GITHUB_TOKEN}`,
+                Authorization: `token ${githubToken}`,
                 Accept: 'application/vnd.github.v3+json',
-                'Content-Type': 'application/json',
               },
-              body: JSON.stringify({
-                message: `Auto‑cleanup of inactive post ${postId}`,
-                sha,
-                branch: process.env.PICSER_GITHUB_BRANCH || 'main',
-              }),
             });
+            if (getRes.ok) {
+              const fileInfo = await getRes.json();
+              const sha = fileInfo.sha;
 
-            if (deleteRes.ok) {
-              imageDeletions.push({ url, success: true });
-            } else {
-              const errText = await deleteRes.text();
-              imageDeletions.push({ url, success: false, error: errText });
+              await fetch(githubApiUrl, {
+                method: 'DELETE',
+                headers: {
+                  Authorization: `token ${githubToken}`,
+                  Accept: 'application/vnd.github.v3+json',
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  message: `Auto‑cleanup of post ${post.id}`,
+                  sha,
+                  branch: githubBranch,
+                }),
+              });
             }
-          } else {
-            imageDeletions.push({ url, success: false, error: 'File not found' });
+          } catch (err) {
+            console.error('Failed to delete GitHub image', url, err);
           }
-        } catch (err) {
-          imageDeletions.push({ url, success: false, error: err.message });
         }
       }
 
-      // Delete post from Supabase
-      const { error: deleteError } = await supabase
+      // 2. Anonymize and soft‑delete the post in Supabase
+      const { error: updateError } = await supabase
         .from('posts')
-        .delete()
-        .eq('id', postId);
+        .update({
+          title: null,           // clear title
+          description: null,     // clear description
+          images: '[]',          // empty array
+          location: null,        // clear location
+          status: 'deleted',     // mark as deleted
+          // updated_at will auto‑update via trigger
+        })
+        .eq('id', post.id);
 
-      results.push({
-        postId,
-        deleted: !deleteError,
-        supabaseError: deleteError?.message,
-        imageDeletions,
-      });
+      if (updateError) {
+        console.error('Error updating post', post.id, updateError);
+      }
     }
 
     res.status(200).json({
-      message: `Cleanup completed. Processed ${results.length} posts.`,
-      results,
+      message: `Cleanup completed. Processed ${oldPosts.length} posts.`,
     });
   } catch (error) {
     console.error('Cleanup error:', error);
     res.status(500).json({ error: error.message });
   }
-      }
+}
