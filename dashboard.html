@@ -7,25 +7,12 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
-    <!-- Critical fixes: universal box-sizing and responsive modal -->
     <style>
         * { box-sizing: border-box; }
         html, body { max-width: 100%; overflow-x: hidden; }
         #menu-toggle-checkbox { display: none !important; }
         @media (max-width: 768px) {
-            .nav-links {
-                display: none !important;
-                flex-direction: column !important;
-                width: 100% !important;
-                background: white !important;
-                position: absolute !important;
-                top: 100% !important;
-                left: 0 !important;
-                right: 0 !important;
-                padding: 1rem 0 !important;
-                box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
-                z-index: 1000 !important;
-            }
+            .nav-links { display: none !important; flex-direction: column !important; width: 100% !important; background: white !important; position: absolute !important; top: 100% !important; left: 0 !important; right: 0 !important; padding: 1rem 0 !important; box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important; z-index: 1000 !important; }
             #menu-toggle-checkbox:checked ~ .nav-links { display: flex !important; }
             .menu-toggle { display: block !important; font-size: 1.8rem; color: var(--primary-pink); cursor: pointer; padding: 0.5rem; }
         }
@@ -33,7 +20,6 @@
             .menu-toggle { display: none !important; }
             .nav-links { display: flex !important; position: static !important; box-shadow: none !important; }
         }
-        /* Responsive modal styles with !important */
         .modal {
             display: none !important;
             position: fixed !important;
@@ -91,7 +77,6 @@
         .contact-message.success { color: #28a745 !important; }
         .contact-message.error { color: #dc3545 !important; }
 
-        /* Dashboard styles (original) */
         .dashboard-main {
             padding: 2rem 1.5rem;
             background: var(--soft-pink);
@@ -230,7 +215,8 @@
             border-top: 1px solid var(--light-pink);
         }
         .btn-edit,
-        .btn-delete {
+        .btn-delete,
+        .btn-report {
             background: none;
             border: none;
             font-size: 0.9rem;
@@ -253,6 +239,12 @@
         }
         .btn-delete:hover {
             background: rgba(220, 53, 69, 0.1);
+        }
+        .btn-report {
+            color: #ffc107;
+        }
+        .btn-report:hover {
+            background: rgba(255, 193, 7, 0.1);
         }
         .empty-state {
             text-align: center;
@@ -300,7 +292,6 @@
     <script src="js/cache.js"></script>
     <script>
         window.openAuthModal = window.openAuthModal || function() {
-            console.log('openAuthModal called (fallback)');
             var modal = document.getElementById('authModal');
             if (modal) modal.style.display = 'block';
             if (typeof loadAuthForms === 'function') loadAuthForms();
@@ -457,7 +448,7 @@
     <script src="js/auth.js"></script>
     <script src="js/app.js"></script>
     <script>
-        // Dashboard controller with robust error handling
+        // Dashboard controller (original, with added report function)
         (async function() {
             console.log('Dashboard initializing...');
             const errorDiv = document.getElementById('dashboardError');
@@ -602,6 +593,9 @@
                         <button onclick="deletePost('${post.id}')" class="btn-delete">
                             <i class="fas fa-trash"></i> Delete
                         </button>
+                        <button onclick="reportPost('${post.id}')" class="btn-report">
+                            <i class="fas fa-flag"></i> Report
+                        </button>
                     </div>
                 </div>
             `;
@@ -653,6 +647,29 @@
                 console.error('Delete error:', err);
                 alert('Error: ' + err.message);
             }
+        };
+
+        // New report function
+        window.reportPost = function(postId) {
+            if (!confirm('Report this post as inappropriate? An admin will review it.')) return;
+
+            fetch('https://carused-mooo-com.vercel.app/api/report-post', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ postId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Report sent. Thank you.');
+                } else {
+                    alert('Error sending report: ' + (data.error || 'Unknown error'));
+                }
+            })
+            .catch(err => {
+                console.error('Report error:', err);
+                alert('Network error. Please try again.');
+            });
         };
 
         function escapeHtml(text) {
