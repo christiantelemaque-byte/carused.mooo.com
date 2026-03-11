@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <meta name="robots" content="index, follow">
+    <!-- SEO Meta Tags -->
+    <title>Montreal Escorts | LuxeCompanions – VIP Companions in Montreal</title>
+    <meta name="description" content="Find elite escorts in Montreal. Browse verified VIP and regular companion profiles with real photos, descriptions, and contact info. Discreet, safe, and elegant.">
+    <meta name="keywords" content="Montreal escorts, escorts Montreal, VIP companions Montreal, elite escorts Montreal, independent escorts Montreal, Montreal adult directory">
+    <meta name="author" content="LuxeCompanions">
+    <!-- Open Graph / Social Media -->
+    <meta property="og:title" content="Montreal Escorts | LuxeCompanions">
+    <meta property="og:description" content="Discover elite companions in Montreal. Verified profiles with photos and descriptions.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://escortcanada.mooo.com/montreal-escorts.html">
+    <meta property="og:image" content="https://escortcanada.mooo.com/images/og-montreal.jpg">
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+    <!-- Critical mobile menu CSS and responsive modal styles -->
+    <style>
+        #menu-toggle-checkbox { display: none !important; }
+        @media (max-width: 768px) {
+            .nav-links { display: none !important; flex-direction: column !important; width: 100% !important; background: white !important; position: absolute !important; top: 100% !important; left: 0 !important; right: 0 !important; padding: 1rem 0 !important; box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important; z-index: 1000 !important; }
+            #menu-toggle-checkbox:checked ~ .nav-links { display: flex !important; }
+            .menu-toggle { display: block !important; font-size: 1.8rem; color: var(--primary-pink); cursor: pointer; padding: 0.5rem; }
+        }
+        @media (min-width: 769px) {
+            .menu-toggle { display: none !important; }
+            .nav-links { display: flex !important; position: static !important; box-shadow: none !important; }
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            box-sizing: border-box;
+        }
+        .modal.show { display: flex; }
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            box-sizing: border-box;
+        }
+        @media (max-width: 480px) { .modal-content { padding: 1.5rem; } }
+        .close {
+            position: absolute;
+            right: 15px;
+            top: 10px;
+            font-size: 28px;
+            cursor: pointer;
+            color: var(--primary-pink);
+            line-height: 1;
+        }
+        .contact-form .form-group { margin-bottom: 1.5rem; }
+        .contact-form label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
+        .contact-form input, .contact-form textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid var(--light-pink);
+            border-radius: 8px;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+        .contact-form textarea { min-height: 100px; resize: vertical; }
+        .contact-form button {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, var(--primary-pink), var(--dark-pink));
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        .contact-form button:hover { transform: translateY(-2px); }
+        .contact-form button:disabled { opacity: 0.5; cursor: not-allowed; }
+        .contact-message { margin-top: 1rem; text-align: center; font-size: 0.9rem; word-wrap: break-word; }
+        .contact-message.success { color: #28a745; }
+        .contact-message.error { color: #dc3545; }
+
+        /* Montreal‑specific intro */
+        .city-intro {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem auto;
+            max-width: 800px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+        .city-intro h2 {
+            color: var(--dark-pink);
+            margin-bottom: 1rem;
+            font-size: 2rem;
+        }
+        .city-intro p {
+            line-height: 1.8;
+            color: #333;
+        }
+    </style>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="js/cache.js"></script>
+    <script>
+        window.toggleMobileMenu = function() {
+            var navbar = document.getElementById('navbar');
+            if (navbar) navbar.classList.toggle('active');
+            return false;
+        };
+        window.openAuthModal = window.openAuthModal || function() {
+            var modal = document.getElementById('authModal');
+            if (modal) modal.style.display = 'block';
+            if (typeof loadAuthForms === 'function') loadAuthForms();
+        };
+    </script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <i class="fas fa-gem"></i>
+                <span>LuxeCompanions</span>
+            </div>
+            <input type="checkbox" id="menu-toggle-checkbox">
+            <label for="menu-toggle-checkbox" class="menu-toggle" id="mobileMenu">
+                <i class="fas fa-bars"></i>
+            </label>
+            <div class="nav-links" id="navLinks"></div>
+        </div>
+    </nav>
+
+    <!-- Montreal Hero / Intro -->
+    <div class="city-intro">
+        <h1>Montreal Escorts – Elegant Companions in Montreal</h1>
+        <p>Discover the finest companions in Montreal. Whether you're looking for a dinner date, a travel companion, or a night of passion, our verified escorts offer a premium experience. Browse through exclusive profiles of Montreal's most sought‑after VIP and regular companions. Each profile includes real photos, detailed descriptions, and discreet contact options.</p>
+    </div>
+
+    <!-- Filter Bar (same as index, but will be pre‑set via JS) -->
+    <div class="filter-bar" style="margin: 2rem auto; text-align: center; max-width: 800px;">
+        <label for="countryFilter">Country:</label>
+        <select id="countryFilter" aria-label="Filter by country">
+            <option value="">All Countries</option>
+        </select>
+
+        <label for="stateFilter">State/Province:</label>
+        <select id="stateFilter" aria-label="Filter by state or province" disabled>
+            <option value="">All</option>
+        </select>
+
+        <label for="cityFilter">City:</label>
+        <select id="cityFilter" aria-label="Filter by city" disabled>
+            <option value="">All</option>
+        </select>
+    </div>
+
+    <!-- VIP Section -->
+    <section id="vip" class="vip-section">
+        <div class="section-header">
+            <h2><i class="fas fa-crown"></i> VIP Elite Companions in Montreal</h2>
+            <p>Premium listings for our most exclusive members in Montreal</p>
+        </div>
+        <div class="listings-grid" id="vip-listings">
+            <div class="loading">Loading VIP listings...</div>
+        </div>
+    </section>
+
+    <!-- Regular Listings -->
+    <section id="regular" class="regular-section">
+        <div class="section-header">
+            <h2><i class="fas fa-star"></i> Recent Companions in Montreal</h2>
+            <p>Latest additions to our Montreal community</p>
+        </div>
+        <div class="listings-grid" id="regular-listings">
+            <div class="loading">Loading recent listings...</div>
+        </div>
+    </section>
+
+    <!-- How It Works (unchanged) -->
+    <section id="how-it-works" class="how-it-works">
+        <h2>How It Works</h2>
+        <div class="steps">
+            <div class="step">
+                <div class="step-icon">1</div>
+                <h3>Create Account</h3>
+                <p>Sign up for free with basic information</p>
+            </div>
+            <div class="step">
+                <div class="step-icon">2</div>
+                <h3>Choose Subscription</h3>
+                <p>Select VIP ($20/month) or Regular ($10/month) plan</p>
+            </div>
+            <div class="step">
+                <div class="step-icon">3</div>
+                <h3>Post Your Profile</h3>
+                <p>Create your elegant listing with photos and details</p>
+            </div>
+            <div class="step">
+                <div class="step-icon">4</div>
+                <h3>Manage Listings</h3>
+                <p>Edit, update, or remove your posts anytime</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>LuxeCompanions</h3>
+                <p>An exclusive platform for sophisticated companionship connections.</p>
+            </div>
+            <div class="footer-section">
+                <h4>Important</h4>
+                <ul>
+                    <li><a href="#terms">Terms of Service</a></li>
+                    <li><a href="#privacy">Privacy Policy</a></li>
+                    <li><a href="#age">Age Verification</a></li>
+                    <li><a href="#safety">Safety Guidelines</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Contact</h4>
+                <button id="contactBtn" class="btn-contact" style="background: none; border: none; color: #ccc; cursor: pointer; padding: 0; font-size: inherit; text-decoration: underline;">Contact us</button>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2024 LuxeCompanions. Must be 18+ to access. All rights reserved.</p>
+            <p class="disclaimer">This website is for legal companionship services only. Users must comply with all applicable laws.</p>
+        </div>
+    </footer>
+
+    <!-- Auth Modal -->
+    <div id="authModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close" onclick="document.getElementById('authModal').style.display='none'">&times;</span>
+            <div id="authForms"><div style="text-align:center; padding:20px;">Loading...</div></div>
+        </div>
+    </div>
+
+    <!-- Contact Modal -->
+    <div id="contactModal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="closeModal">&times;</span>
+            <h2 style="color: var(--dark-pink); margin-bottom: 1.5rem;">Contact Us</h2>
+            <form id="contactForm" class="contact-form">
+                <div class="form-group">
+                    <label for="contactName">Full Name *</label>
+                    <input type="text" id="contactName" required>
+                </div>
+                <div class="form-group">
+                    <label for="contactEmail">Email *</label>
+                    <input type="email" id="contactEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="contactMessage">Message *</label>
+                    <textarea id="contactMessage" required></textarea>
+                </div>
+                <button type="submit" id="contactSubmit">Send Message</button>
+                <div id="contactStatus" class="contact-message"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- JavaScript files -->
+    <script src="js/app.js"></script>
+    <script src="js/auth.js"></script>
+
+    <!-- Montreal‑specific filter pre‑set -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Wait a moment for app.js to populate filters, then set to Montreal
+            const attemptSetMontreal = function() {
+                const countrySelect = document.getElementById('countryFilter');
+                const stateSelect = document.getElementById('stateFilter');
+                const citySelect = document.getElementById('cityFilter');
+
+                if (!countrySelect || countrySelect.options.length <= 1) {
+                    // Not populated yet, retry after a short delay
+                    setTimeout(attemptSetMontreal, 300);
+                    return;
+                }
+
+                // Find Canada, Quebec, Montreal
+                for (let i = 0; i < countrySelect.options.length; i++) {
+                    if (countrySelect.options[i].text === 'Canada') {
+                        countrySelect.value = countrySelect.options[i].value;
+                        countrySelect.dispatchEvent(new Event('change')); // trigger state update
+
+                        // After state options appear, set Quebec
+                        setTimeout(() => {
+                            for (let j = 0; j < stateSelect.options.length; j++) {
+                                if (stateSelect.options[j].text === 'Quebec') {
+                                    stateSelect.value = stateSelect.options[j].value;
+                                    stateSelect.dispatchEvent(new Event('change')); // trigger city update
+
+                                    // After city options appear, set Montreal
+                                    setTimeout(() => {
+                                        for (let k = 0; k < citySelect.options.length; k++) {
+                                            if (citySelect.options[k].text === 'Montreal') {
+                                                citySelect.value = citySelect.options[k].value;
+                                                citySelect.dispatchEvent(new Event('change'));
+                                                break;
+                                            }
+                                        }
+                                    }, 300);
+                                    break;
+                                }
+                            }
+                        }, 300);
+                        break;
+                    }
+                }
+            };
+            attemptSetMontreal();
+        });
+    </script>
+
+    <!-- Mobile menu and auth handling (unchanged) -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const checkbox = document.getElementById('menu-toggle-checkbox');
+            const mobileMenu = document.getElementById('mobileMenu');
+            const navLinks = document.getElementById('navLinks');
+
+            if (mobileMenu && checkbox) {
+                mobileMenu.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    checkbox.checked = !checkbox.checked;
+                });
+            }
+
+            if (navLinks) {
+                navLinks.addEventListener('click', function(e) {
+                    const target = e.target.closest('a, button');
+                    if (!target) return;
+                    checkbox.checked = false;
+
+                    if (target.tagName === 'BUTTON' && target.classList.contains('btn-login')) {
+                        e.preventDefault();
+                        if (typeof window.openAuthModal === 'function') {
+                            window.openAuthModal();
+                        } else {
+                            document.getElementById('authModal').style.display = 'block';
+                        }
+                    }
+                });
+            }
+
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768 && checkbox) checkbox.checked = false;
+            });
+        });
+    </script>
+
+    <!-- Contact modal script -->
+    <script>
+        const modal = document.getElementById('contactModal');
+        const btn = document.getElementById('contactBtn');
+        const closeBtn = document.getElementById('closeModal');
+        const form = document.getElementById('contactForm');
+        const submitBtn = document.getElementById('contactSubmit');
+        const statusDiv = document.getElementById('contactStatus');
+
+        btn.addEventListener('click', () => modal.classList.add('show'));
+        closeBtn.addEventListener('click', () => {
+            modal.classList.remove('show');
+            form.reset();
+            statusDiv.textContent = '';
+        });
+        window.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.classList.remove('show');
+                form.reset();
+                statusDiv.textContent = '';
+            }
+        });
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            statusDiv.textContent = 'Sending...';
+            statusDiv.className = 'contact-message';
+            submitBtn.disabled = true;
+            const name = document.getElementById('contactName').value.trim();
+            const email = document.getElementById('contactEmail').value.trim();
+            const message = document.getElementById('contactMessage').value.trim();
+            let userId = null;
+            if (window.supabase) {
+                const { data: { user } } = await window.supabase.auth.getUser();
+                userId = user?.id || null;
+            }
+            try {
+                const response = await fetch('https://carused-mooo-com.vercel.app/api/contact', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email, message, userId })
+                });
+                const result = await response.json();
+                if (!response.ok) throw new Error(result.error || 'Failed to send message');
+                statusDiv.textContent = 'Message sent successfully! We\'ll get back to you soon.';
+                statusDiv.className = 'contact-message success';
+                form.reset();
+            } catch (err) {
+                statusDiv.textContent = 'Error: ' + err.message;
+                statusDiv.className = 'contact-message error';
+            } finally {
+                submitBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
